@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -27,6 +29,26 @@ class DeployStackTests(unittest.TestCase):
         self.assertTrue((PROJECT_ROOT / "deploy" / "casdoor" / "app.conf").exists())
         self.assertTrue((PROJECT_ROOT / "deploy" / "oauth2-proxy" / "oauth2-proxy.cfg").exists())
         self.assertFalse((PROJECT_ROOT / "deploy" / "nginx").exists())
+
+    def test_remote_submodule_sources_are_registered_in_git(self) -> None:
+        config = json.loads((PROJECT_ROOT / "config" / "source-repos.json").read_text(encoding="utf-8"))
+        gitmodules_text = (PROJECT_ROOT / ".gitmodules").read_text(encoding="utf-8")
+
+        for repo in config["repositories"]:
+            remote = repo["modes"]["remote"]
+            if remote["source_type"] != "submodule_sparse":
+                continue
+            submodule_path = remote["submodule_path"]
+            self.assertIn(f"path = {submodule_path}", gitmodules_text)
+
+            result = subprocess.run(
+                ["git", "ls-files", "--stage", "--", submodule_path],
+                cwd=PROJECT_ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertRegex(result.stdout, rf"^160000 [0-9a-f]{{40}} 0\t{submodule_path}\n?$")
 
     def test_deploy_scripts_and_workflow_cover_host_nginx_sync(self) -> None:
         workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "deploy-docs.yml").read_text(encoding="utf-8")

@@ -67,10 +67,28 @@ def top_level_sparse_patterns(docs_path: str) -> list[str]:
     return [f"/{normalized}/", f"/{normalized}/**"]
 
 
+def ensure_registered_submodule(repo: SourceRepository, project_root: Path) -> None:
+    if not repo.submodule_path:
+        raise ValueError(f"{repo.name} missing submodule_path")
+
+    result = subprocess.run(
+        ["git", "ls-files", "--stage", "--", repo.submodule_path],
+        cwd=project_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    if not result.stdout.startswith("160000 "):
+        raise ValueError(
+            f"{repo.name} submodule_path {repo.submodule_path} is not registered as a git submodule in the repository index"
+        )
+
+
 def sync_submodule_sparse_repository(repo: SourceRepository, project_root: Path) -> None:
     if not repo.submodule_path:
         raise ValueError(f"{repo.name} missing submodule_path")
 
+    ensure_registered_submodule(repo, project_root)
     repo_root = (project_root / repo.submodule_path).resolve()
     if repo_root.exists() and not (repo_root / ".git").exists():
         shutil.rmtree(repo_root)

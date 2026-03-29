@@ -253,6 +253,31 @@ class SourceSyncTests(unittest.TestCase):
             ]
         )
 
+    def test_sync_submodule_sparse_repo_rejects_unregistered_gitlink(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            repo = self.module.SourceRepository(
+                name="ride-loop",
+                title="千乘坊",
+                source_type="submodule_sparse",
+                git_url="https://example.com/ride-loop.git",
+                branch="main",
+                docs_path="docs",
+                submodule_path="sources/ride-loop",
+            )
+
+            def fake_run(args, **kwargs):
+                if args[:3] == ["git", "ls-files", "--stage"]:
+                    return mock.Mock(stdout="")
+                raise AssertionError(f"unexpected subprocess call: {args}")
+
+            with mock.patch.object(self.module.subprocess, "run", side_effect=fake_run):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "ride-loop submodule_path sources/ride-loop is not registered as a git submodule",
+                ):
+                    self.module.sync_submodule_sparse_repository(repo, tmp_path)
+
 
 if __name__ == "__main__":
     unittest.main()
