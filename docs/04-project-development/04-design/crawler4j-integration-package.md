@@ -2,7 +2,7 @@
 
 ## 目标
 
-本文件用于评审“蛛行演略（crawler4j）”作为外部源仓接入 `docs-stratego` 的准备情况。当前阶段保持 pending，不合入正式 CI/CD 自动发布配置。
+本文件用于评审“蛛行演略（crawler4j）”作为外部源仓接入 `docs-stratego` 的准备情况。当前仓库已经进入正式 `config/source-repos.json`，因此 remote 构建会真实拉取并校验它；是否能稳定通过 CI/CD，取决于源仓文档是否满足发布规则。
 
 ## 源仓事实
 
@@ -30,18 +30,9 @@
 
 这意味着：
 
-- pending 配置可以继续保留
-- 但在源仓把这些页面纳入 `mkdocs.nav` 或迁出正式文档树之前，不能合并到 `config/source-repos.json`
-
-## 待启用配置文件
-
-评审用配置文件在 `config/source-repos.crawler4j.pending.json`。
-
-它的用途是：
-
-- 保留当前 `config/source-repos.json` 的稳定状态
-- 单独评审 `crawler4j` 接入参数
-- 待你确认后，再切换到正式配置并进入 CI/CD 开发
+- 只要 `crawler4j` 保留在正式 `config/source-repos.json` 中，GitHub Actions 的 remote 构建就会真实拉取并校验它
+- 在源仓把这些页面纳入 `mkdocs.nav` 或迁出正式文档树之前，CI/CD 会继续按规则失败
+- 因为当前策略只保留一个 `source-repos.json`，所以是否把它留在正式配置中，本身就是一次“是否纳入生产校验”的决定
 
 ## 计划接入方式
 
@@ -53,7 +44,7 @@
     {
       "name": "docs-stratego",
       "title": "章略·墨衡",
-      "repo_url": "https://github.com/uroborus2s/stratego-docs",
+      "repo_url": "https://github.com/uroborus2s/docs-stratego",
       "modes": {
         "local": {
           "source_type": "local",
@@ -100,4 +91,4 @@
 - 是否确认 `crawler4j` 继续使用 `feature/task-plugin-system` 作为接入分支
 - 是否确认先在源仓清理未声明页面，再进入正式接入
 - 是否确认服务器先按手工 SOP 部署，再进入 CI/CD 自动化
-- 是否确认解除阻塞后再将 `source-repos.crawler4j.pending.json` 合并到 `config/source-repos.json`
+- 是否确认在源仓解除阻塞后，再把 `crawler4j` 作为正式生产源仓保留在唯一的 `config/source-repos.json` 中

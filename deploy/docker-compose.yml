@@ -1,12 +1,32 @@
 services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: casdoor-postgres
+    # Docker Compose 会自动从同级目录的 .env 文件读取这些变量
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - docs_internal
   casdoor:
     image: casbin/casdoor:latest
     restart: unless-stopped
+    depends_on:
+      - postgres
     ports:
       - "127.0.0.1:8081:8000"
+    environment:
+      environment:
+      # 在这里拼接！让 Docker 帮你把变量替换成真实的值
+      DB_DSN: "user=${DB_USER} password=${DB_PASSWORD} host=postgres port=5432 sslmode=disable dbname=${DB_NAME}"
     volumes:
       - ./casdoor/app.conf:/conf/app.conf
-      - ./casdoor/data:/data
     networks:
       - docs_internal
 

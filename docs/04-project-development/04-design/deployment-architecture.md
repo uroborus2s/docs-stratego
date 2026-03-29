@@ -70,7 +70,6 @@
 - `deploy/docker-compose.yml`
 - `scripts/deploy_remote.sh`
 - `docs/02-user-guide/installation.md`
-- `docs/02-user-guide/cloud-server-cicd-playbook.md`
 
 ### 5.2 运行时内容
 
@@ -103,10 +102,13 @@ Workflow 只负责：
 
 - 监听 `main/master` push
 - 在 GitHub Runner 中完成依赖安装、单元测试、远程模式 `sync_sources`、`build_site` 和 `mkdocs build`
+- 当远程模式涉及其他私有 GitHub 仓库时，通过 GitHub App 安装令牌为 Git 提供跨仓读取凭证
 - 通过 SSH/rsync/scp 上传 `site/` 并安装 `private_locations.conf`
 - 将 `site/` 与 `private_locations.conf` 保留为 7 天 artifact，既作为 `validate -> deploy` 的作业交接包，也供排障下载
 - 在服务器上执行 `nginx -t` 与可选 reload
 - 仅在运行时配置或镜像变化时，另行触发 Docker 认证服务更新
+
+正式策略下，`config/source-repos.json` 是唯一源仓配置文件。只要某个仓库保留在该文件中，GitHub Actions 的 remote 构建就必须真实拉取并校验它；不会再做 repo 级别的条件跳过。
 
 ## 8. 回滚策略
 
@@ -114,7 +116,7 @@ Workflow 只负责：
 
 1. 在 GitHub Actions 中重新发布上一个稳定 commit/tag 对应的构建制品
 2. 如果自动发布不可用，再在完整仓库维护工作区中执行 `scripts/deploy_remote.sh` 作为全量回退
-3. 保持 Casdoor SQLite 和 Redis 会话存储不动
+3. 保持 Casdoor Postgres 数据和 Redis 会话存储不动
 
 ## 9. 风险与缓解
 
@@ -125,3 +127,4 @@ Workflow 只负责：
 | 域名与回调不一致 | 登录后回不来 | 严格绑定运维手工维护的 Nginx 域名与 `redirect_url` |
 | 制品上传不完整 | 页面或权限规则未更新 | 将 `site/`、`private_locations.conf` 作为发布包校验，并保留 7 天 artifact 便于排障 |
 | 运维安装的宿主机 Nginx 配置未引入 `/etc/nginx/snippets/docs-stratego/private_locations.conf` | 私有页面不受保护 | 首次上线和每次站点调整后都执行人工配置审查 |
+| GitHub Runner 无法读取其他私有源仓 | `sync_sources.py` 在 `git submodule update` 阶段失败 | 为 workflow 配置 GitHub App 读取凭证，并确认 App 已安装到全部私有源仓 |

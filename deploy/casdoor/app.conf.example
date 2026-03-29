@@ -1,13 +1,8 @@
-[runmode]
 runmode = dev
 
-[server]
 httpport = 8000
 
-[database]
-driverName = sqlite3
-dataSourceName = /data/casdoor.db
-
-[log]
+driverName = postgres
+dataSourceName = ${DB_DSN}
 mode = normal
 level = Info

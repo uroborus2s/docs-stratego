@@ -2,7 +2,7 @@
 
 ## 当前策略
 
-认证数据交给 Casdoor 保存。为降低部署复杂度，当前默认使用 SQLite。
+认证数据交给 Casdoor 保存。当前正式部署使用 PostgreSQL，由 `deploy/docker-compose.yml` 内置 `postgres` 服务提供。
 
 ## 存储内容
 
@@ -12,5 +12,5 @@
 
 ## 约束
 
-- 生产环境下应将 SQLite 文件放到持久化卷
-- 如果并发和组织规模增加，再评估切换到独立数据库
+- Postgres 数据目录通过 `deploy/pg_data/` 持久化
+- 数据连接串由 `deploy/.env` 和 `DB_DSN` 注入，不在 `app.conf` 中硬编码

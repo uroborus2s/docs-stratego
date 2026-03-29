@@ -79,9 +79,9 @@ docker compose -f deploy/docker-compose.yml ps
 ### 前置条件
 
 - `.github/workflows/deploy-docs.yml` 已启用
-- GitHub Secrets 已按管理员指南配置
+- GitHub Actions Variables / Secrets 已按安装说明或管理员指南配置
 - 服务器已经手工部署成功过一次
-- 双域名、证书和 GitHub 登录配置可按 [云服务器部署与 CI/CD 实操](cloud-server-cicd-playbook.md) 补齐
+- 双域名、证书、GitHub App 和自动发布配置统一按 [安装说明](installation.md) 补齐
 
 ### 操作步骤
 
@@ -130,7 +130,7 @@ docker compose -f deploy/docker-compose.yml ps
 
 1. 在 Git 中选定上一个稳定 commit 或 tag
 2. 重新触发该版本对应的发布 workflow，或把仓库回退后重新 push
-3. 如果自动发布不可用，再在完整仓库维护工作区中使用 `bash scripts/deploy_remote.sh` 做全量回退 fallback
+3. 如果自动发布不可用，再在完整仓库维护工作区中使用 `bash scripts/deploy_remote.sh` 做一次维护机全量重建
 
 ### 成功判断
 

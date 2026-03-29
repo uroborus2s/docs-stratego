@@ -5,7 +5,7 @@
     {
       "name": "docs-stratego",
       "title": "章略·墨衡",
-      "repo_url": "https://github.com/uroborus2s/stratego-docs",
+      "repo_url": "https://github.com/uroborus2s/docs-stratego",
       "modes": {
         "local": {
           "source_type": "local",

@@ -13,12 +13,13 @@
 ## 2. 接入一个新源仓
 
 1. 要求源仓按 [源文档标准](../04-project-development/04-design/source-docs-standard.md) 改造 `docs/`
-2. 在 `config/source-repos.json` 中增加仓库定义
-3. 同一条仓库定义同时补齐 `modes.local` 和 `modes.remote`
+2. 在唯一配置文件 `config/source-repos.json` 中增加仓库定义
+3. 同一条仓库定义必须同时补齐 `modes.local` 和 `modes.remote`
 4. 外部仓库远程模式统一使用 `submodule_sparse`
 5. 本地模式统一指向维护机上可直接访问的项目 `docs/` 目录，优先使用相对路径
 6. `git_url` 必须能被构建环境访问；在当前默认方案里，这个构建环境是 GitHub Actions Runner
-7. 分别验证两种模式：
+7. 如果 `remote` 模式要访问其他私有 GitHub 仓库，必须配置 GitHub App
+8. 分别验证两种模式：
 
 ```bash
 uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode local
@@ -27,16 +28,22 @@ uv run python scripts/sync_sources.py --config config/source-repos.json --projec
 uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
 ```
 
-8. 检查：
+9. 检查：
    - `.generated/authz/permissions.json`
    - `.generated/nginx/private_locations.conf`
+
+补充原则：
+
+- `source_mode=local` 用于本地开发
+- `source_mode=remote` 用于本地生产预演、正式生产环境和 GitHub Actions
+- 只要仓库留在 `source-repos.json` 中，CI/CD 就会在 remote 模式里真实拉取它
 
 ## 3. Casdoor 账号与 GitHub 登录
 
 ### 本地账号
 
 - 至少保留一个本地管理员账号
-- 本地账号数据存在 Casdoor SQLite 中
+- 本地账号数据存在 Casdoor Postgres 中
 - 忘记密码时优先通过 Casdoor 后台重置，不要直接改数据库
 
 ### GitHub 登录
@@ -54,7 +61,7 @@ Casdoor 当前对 GitHub 登录更推荐使用 GitHub App。配置顺序是：
 - Casdoor 应用中启用该身份源
 - oauth2-proxy `client_id/client_secret` 与 Casdoor 应用保持一致
 
-详细步骤见 [云服务器部署与 CI/CD 实操](cloud-server-cicd-playbook.md)。
+详细步骤见 [安装说明](installation.md)。
 
 ## 4. GitHub Actions Secrets
 
@@ -69,8 +76,62 @@ Workflow 依赖这些 Secrets：
 | `DOCS_DEPLOY_SITE_DIR` | 宿主机静态站点目录，例如 `/var/www/docs-stratego`；不填时使用 workflow 默认值 |
 | `DOCS_PRIVATE_LOCATIONS_PATH` | 宿主机私有规则文件路径，例如 `/etc/nginx/snippets/docs-stratego/private_locations.conf`；不填时使用 workflow 默认值 |
 | `DOCS_RELOAD_HOST_NGINX` | 是否在部署后 reload 宿主机 Nginx，默认 `1` |
+| `DOCS_SOURCE_APP_PRIVATE_KEY` | 源码读取 GitHub App 的私钥 |
+
+Workflow 还支持这些 Actions Variables：
+
+| Variable | 说明 |
+| --- | --- |
+| `DOCS_SOURCE_APP_ID` | 源码读取 GitHub App 的 App ID |
 
 日常发布默认不再通过 Actions 在服务器侧执行 `git pull + build`，也不要求每次重启 Docker 认证服务；这些动作只保留给首次部署或维护机上的应急全量重建。
+
+私有源仓读取已收口为 GitHub App 唯一正式方案。
+
+这意味着：
+
+- 公有源仓可以匿名拉取
+- 私有源仓必须通过 GitHub App installation token 拉取
+- 当前 workflow 已关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 污染后续跨仓拉取
+
+### 4.1 GitHub App 读取私有源仓
+
+这套方案适合“同一个 GitHub 账号下有多个公私混合源仓”的场景。这里的 GitHub App 不是 Casdoor 登录用的 GitHub Provider，也不是 OAuth App，而是一个专门给 CI/CD 用的机器身份。
+
+推荐应用名称：
+
+- `docs-stratego-source-reader`
+
+创建步骤：
+
+1. 打开 GitHub `Settings -> Developer settings -> GitHub Apps -> New GitHub App`
+2. `GitHub App name` 填 `docs-stratego-source-reader`
+3. `Description` 建议填 `Read private source repos for docs-stratego CI builds`
+4. `Homepage URL` 填根仓地址，例如 `https://github.com/uroborus2s/docs-stratego`
+5. `Callback URL` 留空
+6. 不勾选 `Request user authorization (OAuth) during installation`
+7. 不启用 `Enable Device Flow`
+8. `Setup URL` 留空
+9. Webhook 保持关闭，`Active` 取消勾选
+10. 在 `Repository permissions` 中只授予 `Contents: Read-only`
+11. 其他权限保持 `No access`
+12. `Where can this GitHub App be installed?` 选择 `Only on this account`
+13. 创建后，在 App 页面点击 `Generate a private key`
+14. 下载生成的 `.pem` 私钥并安全保存
+15. 点击 `Install App`
+16. `Repository access` 选择 `Only select repositories`
+17. 选中：
+18. 根仓 `docs-stratego`
+19. 所有 `source_mode=remote` 会拉取的私有源仓
+20. 在根仓 `Settings -> Secrets and variables -> Actions` 中新增：
+21. Variable `DOCS_SOURCE_APP_ID`
+22. Secret `DOCS_SOURCE_APP_PRIVATE_KEY`
+23. 重新运行一次 `Deploy Docs`
+
+核对方法：
+
+- `validate` job 不应再在 `git submodule update` 阶段要求用户名密码
+- 以后新增一个私有源仓时，只需要把这个仓库安装给 `docs-stratego-source-reader`，然后更新 `config/source-repos.json`
 
 ## 5. 首次服务器引导
 
@@ -98,13 +159,15 @@ Workflow 依赖这些 Secrets：
 1. SSH 连通性
 2. `validate` job 是否已经先失败
 3. Runner 侧 `sync_sources.py` 是否能拉取外部源仓
-4. Runner 侧 `mkdocs build` 是否失败
-5. `site/` 是否上传到服务器目标目录
-6. `private_locations.conf` 是否安装到 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-7. `nginx -t` 或 reload 是否失败
-8. 如需核对构建结果，再下载本次 Actions artifact 中的 `site/` 与 `private_locations.conf`
-9. 如本次同时改动运行时配置，再检查 `docker compose up -d` 是否失败
-10. 确认部署账号是否仍能无密码执行 `sudo nginx -t`、`sudo systemctl reload nginx` 和目标目录下的 `install/mv/rm`
+4. 私有外部源仓是否已经安装到 `docs-stratego-source-reader`
+5. 失败的仓库是否已经真正满足 remote 发布要求
+6. Runner 侧 `mkdocs build` 是否失败
+7. `site/` 是否上传到服务器目标目录
+8. `private_locations.conf` 是否安装到 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
+9. `nginx -t` 或 reload 是否失败
+10. 如需核对构建结果，再下载本次 Actions artifact 中的 `site/` 与 `private_locations.conf`
+11. 如本次同时改动运行时配置，再检查 `docker compose up -d` 是否失败
+12. 确认部署账号是否仍能无密码执行 `sudo nginx -t`、`sudo systemctl reload nginx` 和目标目录下的 `install/mv/rm`
 
 ## 7. 不要做的事
 

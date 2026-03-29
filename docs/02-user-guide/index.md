@@ -11,7 +11,6 @@
 2. [安装说明](installation.md)
 3. [配置说明](configuration.md)
 4. [使用说明](usage.md)
-5. [云服务器部署与 CI/CD 实操](cloud-server-cicd-playbook.md)
-6. [管理员指南](admin-guide.md)
+5. [管理员指南](admin-guide.md)
 
-如果你是第一次部署，请先看安装说明；如果你要按真实服务器完成双域名、证书、GitHub 登录和自动发布，请直接看云服务器部署与 CI/CD 实操。
+如果你是第一次部署，请直接看安装说明；完整的服务器安装、GitHub App、证书和自动发布步骤都以这份文档为准。

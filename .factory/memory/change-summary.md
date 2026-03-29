@@ -22,3 +22,9 @@
 - 扩展 `sync_sources.py`、`build_site.py` 和测试用例，支持按 `--source-mode` 在本地目录直读与远程 submodule 更新之间切换
 - 将生产部署布局重构为“`~/docs-stratego` 稀疏运行目录 + `/var/www/docs-stratego` 静态站点 + `/etc/nginx/snippets/docs-stratego/private_locations.conf` 私有规则”，并把安装文档扩展为面向新手的完整手工部署手册
 - 新增 `ride-loop`（千乘坊）文档源，接入本地 `../../NodeProject/ride-loop/docs` 与远程 `https://github.com/uroborus2s/ride-loop.git@main` 双模式配置
+- 为 GitHub Actions 增加 GitHub App 私有源仓读取方案，并关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 干扰跨仓 submodule 拉取
+- 将源仓配置策略收口为“唯一 `source-repos.json` + local/remote 双源模式”；dev/prod 只由执行场景区分，不再做 repo 级别条件启停
+- 将安装与 CI/CD 说明合并到 `installation.md`，并删除重复的 playbook 页面，避免双份事实源
+- 删除 `sync_sources.py` 对旧平铺源仓配置的兼容逻辑；仓库条目缺少 `modes` 时现在会直接报错
+- 将 GitHub Actions 的源码读取步骤升级为 `actions/create-github-app-token@v3`，并把 GitHub App 创建字段、权限和安装范围写入正式安装文档与管理员文档
+- 修正文档和配置中的旧仓库名 `stratego-docs`，统一为当前真实根仓 `docs-stratego`

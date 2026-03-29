@@ -93,6 +93,28 @@ class SourceSyncTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "missing source mode: remote"):
                 self.module.load_source_repositories(config_path, source_mode="remote")
 
+    def test_load_source_repositories_rejects_legacy_flat_repo_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            config_path = tmp_path / "source-repos.json"
+            config_path.write_text(
+                "{\n"
+                '  "version": 3,\n'
+                '  "repositories": [\n'
+                "    {\n"
+                '      "name": "crawler4j",\n'
+                '      "title": "蛛行演略",\n'
+                '      "source_type": "local",\n'
+                '      "local_path": "../crawler4j/docs"\n'
+                "    }\n"
+                "  ]\n"
+                "}\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "missing modes configuration"):
+                self.module.load_source_repositories(config_path, source_mode="local")
+
     def test_sync_submodule_sparse_repo_updates_remote_and_sparse_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)

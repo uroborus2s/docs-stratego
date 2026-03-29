@@ -2,20 +2,30 @@
 
 ## 1. 目标
 
-本文描述当前推荐的生产部署模型：
+本文描述当前推荐的部署模型：
 
-1. GitHub Actions 在 Runner 中构建文档站点
-2. 服务器只保存两类运行时内容：
-   - 认证应用运行目录：`~/docs-stratego`
-   - 静态站点目录：`/var/www/docs-stratego`
-3. 宿主机 `Nginx` 手工维护两个域名文件：
-   - `/etc/nginx/sites-available/docs.example.com`
-   - `/etc/nginx/sites-available/auth.docs.example.com`
-4. 私有页面规则文件放在：
-   - `/etc/nginx/snippets/docs-stratego/private_locations.conf`
+1. GitHub Actions 在 Runner 中完成正式生产构建
+2. 服务器只承载运行时内容，不负责 `sync_sources.py`、`build_site.py` 或 `mkdocs build`
+3. 认证栈运行在 Docker Compose 中，组件为：
+   - `postgres`
+   - `casdoor`
+   - `oauth2-proxy`
+4. 宿主机 `Nginx` 手工维护站点配置，并引入私有页面规则文件
 
-标准发布时，服务器不会执行 `sync_sources.py`、`build_site.py` 或 `mkdocs build`。
-这些动作都在 GitHub Runner 中完成。
+同时需要明确两组概念：
+
+- `source_mode`
+  只决定文档从哪里读，取值只有 `local` 或 `remote`
+- `运行场景`
+  决定这是本地开发、本地生产预演，还是正式生产发布
+
+当前推荐口径：
+
+- 本地开发：`source_mode=local`
+- 本地生产预演：`source_mode=remote`
+- GitHub Actions 正式生产发布：`source_mode=remote`
+
+也就是说，本地完全可以用 `remote` 方式做一次“按生产输入重建”的预演，只是最终不把结果发布到服务器。
 
 ## 2. 最终目录布局
 
@@ -23,11 +33,11 @@
 ~/docs-stratego/
 ├── .git/
 └── deploy/
+    ├── .env
     ├── docker-compose.yml
+    ├── pg_data/
     ├── casdoor/
-    │   ├── app.conf
-    │   └── data/
-    │       └── casdoor.db
+    │   └── app.conf
     └── oauth2-proxy/
         └── oauth2-proxy.cfg
 
@@ -73,8 +83,7 @@ sudo apt update
 sudo apt install -y git curl nginx
 ```
 
-然后按 Docker 官方文档安装 Docker Engine 与 `docker compose`。
-安装后确认：
+再按 Docker 官方文档安装 Docker Engine 与 `docker compose`。安装后确认：
 
 ```bash
 git --version
@@ -102,18 +111,14 @@ dig +short docs.example.com
 dig +short auth.docs.example.com
 ```
 
-### 3.3 Redis 网络要求
+### 3.3 Docker 网络要求
 
-当前方案假设 Redis 已经存在于别的业务网络里。
-推荐做法不是迁移 Redis，而是：
+当前 Compose 约定：
 
-1. 为文档认证服务创建内部网络 `docs-auth-internal`
-2. 让 `oauth2-proxy` 同时接入：
-   - `docs-auth-internal`
-   - Redis 已在用的网络，例如 `webapp_wps_net`
-3. 让 `casdoor` 只接入 `docs-auth-internal`
+- `postgres`、`casdoor`、`oauth2-proxy` 都加入内部网络 `docs-auth-internal`
+- `oauth2-proxy` 额外加入 Redis 已存在的业务网络，例如 `webapp_wps_net`
 
-创建内部网络：
+先创建内部网络：
 
 ```bash
 docker network create docs-auth-internal
@@ -121,11 +126,22 @@ docker network create docs-auth-internal
 
 如果 Redis 容器主机名不是 `redis`，后面要同步修改 `deploy/oauth2-proxy/oauth2-proxy.cfg` 里的 `redis_connection_url`。
 
+### 3.4 私有源仓读取要求
+
+只要你要运行 `source_mode=remote`，无论是在本地做生产预演，还是在 GitHub Actions 正式发布，都必须保证当前环境能读取 `config/source-repos.json` 中声明的所有远程仓库。
+
+推荐顺序：
+
+1. GitHub Actions：GitHub App
+2. 本地：使用你自己的 Git 登录态、SSH key 或凭证管理器
+
+如果 `remote` 模式下包含私有仓，而当前环境没有对应 Git 凭证，构建会在 `git submodule update` 或 `git fetch` 阶段直接失败。
+
 ## 4. 初始化认证应用运行目录
 
 ### 4.1 用稀疏拉取只下载运行时目录
 
-服务器不需要完整仓库。只需要把本仓中认证运行所需的路径拉到本地：
+服务器不需要完整仓库，只需要认证运行所需路径：
 
 ```bash
 git clone --filter=blob:none --no-checkout https://github.com/uroborus2s/docs-stratego.git ~/docs-stratego
@@ -133,12 +149,32 @@ cd ~/docs-stratego
 git sparse-checkout init --no-cone
 git sparse-checkout set /deploy/docker-compose.yml /deploy/casdoor/ /deploy/casdoor/** /deploy/oauth2-proxy/ /deploy/oauth2-proxy/**
 git checkout main
-mkdir -p ~/docs-stratego/deploy/casdoor/data
+mkdir -p ~/docs-stratego/deploy/pg_data
 ```
 
-这一步完成后，服务器上的 `~/docs-stratego` 不会包含 `docs/`、`scripts/`、`src/` 等开发和构建目录，只保留认证运行所需文件。
+完成后，服务器上的 `~/docs-stratego` 不会包含 `docs/`、`scripts/`、`src/` 等开发与构建目录。
 
-### 4.2 编辑 Casdoor 配置
+### 4.2 创建 `deploy/.env`
+
+最新 `docker-compose.yml` 会从同级 `.env` 读取 Postgres 变量。创建：
+
+```bash
+cat > ~/docs-stratego/deploy/.env <<'EOF'
+DB_USER=casdoor
+DB_PASSWORD=replace-with-strong-password
+DB_NAME=casdoor
+DOCS_INTERNAL_DOCKER_NETWORK=docs-auth-internal
+DOCS_REDIS_DOCKER_NETWORK=webapp_wps_net
+EOF
+```
+
+说明：
+
+- `DB_PASSWORD` 必须替换成强密码
+- `DOCS_REDIS_DOCKER_NETWORK` 要改成你服务器上 Redis 实际所在的 Docker 网络名
+- `deploy/pg_data/` 是 Postgres 持久化数据目录
+
+### 4.3 核对 Casdoor 配置
 
 编辑：
 
@@ -146,13 +182,24 @@ mkdir -p ~/docs-stratego/deploy/casdoor/data
 nano ~/docs-stratego/deploy/casdoor/app.conf
 ```
 
-至少确认：
+当前推荐值应与仓库默认文件保持一致：
 
-- SQLite 路径为 `/data/casdoor.db`
-- 监听端口为 `8000`
-- `~/docs-stratego/deploy/casdoor/data/` 可写
+```ini
+runmode = dev
+httpport = 8000
+driverName = postgres
+dataSourceName = ${DB_DSN}
+mode = normal
+level = Info
+```
 
-### 4.3 编辑 oauth2-proxy 配置
+重点：
+
+- `driverName` 必须是 `postgres`
+- `dataSourceName` 保持 `${DB_DSN}`，不要手工写死数据库连接串
+- 数据库连接串由 `docker-compose.yml` 注入容器环境变量 `DB_DSN`
+
+### 4.4 编辑 oauth2-proxy 配置
 
 编辑：
 
@@ -171,9 +218,31 @@ nano ~/docs-stratego/deploy/oauth2-proxy/oauth2-proxy.cfg
 - `whitelist_domains`
 - `redis_connection_url = "redis://redis:6379/0"`
 
-如果你还没配置 GitHub 登录，也可以先只保证 Casdoor 本地账号密码可用，再回头补 GitHub App。
+如果你还没配置 GitHub 登录，也可以先只保证 Casdoor 本地用户名密码可用，再回头补 Casdoor 的 GitHub Provider。
 
-## 5. 准备静态站点目录和 Nginx 规则目录
+## 5. 启动 Docker 认证服务
+
+```bash
+cd ~/docs-stratego/deploy
+docker compose up -d
+docker compose ps
+```
+
+如果启动失败，优先查：
+
+- `~/docs-stratego/deploy/.env`
+- `~/docs-stratego/deploy/casdoor/app.conf`
+- `~/docs-stratego/deploy/oauth2-proxy/oauth2-proxy.cfg`
+- `docker network ls`
+- `docker compose logs postgres casdoor oauth2-proxy`
+
+成功后你应当看到：
+
+- `postgres` 正常运行
+- `casdoor` 监听 `127.0.0.1:8081`
+- `oauth2-proxy` 监听 `127.0.0.1:4180`
+
+## 6. 准备静态站点目录和 Nginx 规则目录
 
 创建静态站点目录：
 
@@ -187,7 +256,7 @@ sudo install -d -m 0755 -o root -g root /var/www/docs-stratego
 sudo install -d -m 0755 -o root -g root /etc/nginx/snippets/docs-stratego
 ```
 
-首次部署前，先放一个空的规则文件，让 Nginx 可以先启动：
+首次部署前先放一个空规则文件，让 Nginx 可以先启动：
 
 ```bash
 printf "# generated by docs-stratego deploy\n" | sudo tee /etc/nginx/snippets/docs-stratego/private_locations.conf >/dev/null
@@ -195,42 +264,11 @@ sudo chown root:root /etc/nginx/snippets/docs-stratego/private_locations.conf
 sudo chmod 0644 /etc/nginx/snippets/docs-stratego/private_locations.conf
 ```
 
-权限建议：
-
-- `/var/www/docs-stratego`：`root:root`，目录 `0755`
-- `/etc/nginx/snippets/docs-stratego`：`root:root`，目录 `0755`
-- `/etc/nginx/snippets/docs-stratego/private_locations.conf`：`root:root`，文件 `0644`
-
-原因是：
-
-- 静态页面只需要被 `Nginx` 读取，不需要匿名写入
-- `private_locations.conf` 属于 `Nginx` 运行配置，不应该放到 Web Root
-- `Nginx` 只需要读权限，不需要写权限
-
-## 6. 启动 Docker 认证服务
-
-```bash
-cd ~/docs-stratego
-export DOCS_INTERNAL_DOCKER_NETWORK=docs-auth-internal
-export DOCS_REDIS_DOCKER_NETWORK=webapp_wps_net
-docker compose -f deploy/docker-compose.yml up -d
-docker compose -f deploy/docker-compose.yml ps
-```
-
-如果启动失败，优先查：
-
-- `~/docs-stratego/deploy/casdoor/app.conf`
-- `~/docs-stratego/deploy/oauth2-proxy/oauth2-proxy.cfg`
-- Redis 网络连通性
-
 ## 7. 手工安装宿主机 Nginx 配置
 
-当前项目不会自动覆盖宿主机 `Nginx` 站点配置。
-首次部署请手工创建两个站点文件，然后再链接到 `sites-enabled/`。
+项目不会自动覆盖宿主机 `Nginx` 站点配置。首次部署请手工创建两个站点文件。
 
 ### 7.1 创建 HTTP 引导版 `docs.example.com`
-
-创建文件：
 
 ```bash
 sudo nano /etc/nginx/sites-available/docs.example.com
@@ -266,8 +304,6 @@ server {
 
 ### 7.2 创建 HTTP 引导版 `auth.docs.example.com`
 
-创建文件：
-
 ```bash
 sudo nano /etc/nginx/sites-available/auth.docs.example.com
 ```
@@ -280,7 +316,7 @@ server {
   server_name auth.docs.example.com;
 
   location / {
-    proxy_pass http://127.0.0.1:8000;
+    proxy_pass http://127.0.0.1:8081;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -298,25 +334,15 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-如果系统里还启用了默认站点，可视情况移除：
-
-```bash
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
 ### 7.4 申请证书
-
-安装 Certbot 后执行：
 
 ```bash
 sudo certbot certonly --nginx -d docs.example.com -d auth.docs.example.com
 ```
 
-### 7.5 把 `docs.example.com` 切到 HTTPS 正式版
+### 7.5 切到 HTTPS 正式版
 
-把 `/etc/nginx/sites-available/docs.example.com` 改成：
+`docs.example.com`：
 
 ```nginx
 server {
@@ -362,9 +388,7 @@ server {
 }
 ```
 
-### 7.6 把 `auth.docs.example.com` 切到 HTTPS 正式版
-
-把 `/etc/nginx/sites-available/auth.docs.example.com` 改成：
+`auth.docs.example.com`：
 
 ```nginx
 server {
@@ -388,7 +412,7 @@ server {
   ssl_certificate_key /etc/letsencrypt/live/auth.docs.example.com/privkey.pem;
 
   location / {
-    proxy_pass http://127.0.0.1:8000;
+    proxy_pass http://127.0.0.1:8081;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -399,21 +423,131 @@ server {
 }
 ```
 
-然后再次检查：
+然后执行：
 
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 8. 首次人工验证
+## 8. 本地生产预演
+
+如果你想在本机按生产输入做一次预演，不需要发布到服务器，直接在完整工作区运行：
+
+```bash
+cd <project-root>
+./start.sh --build-only --source-mode remote
+```
+
+或者：
+
+```bash
+cd <project-root>
+uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode remote
+uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
+uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
+```
+
+这一步的目标是：
+
+- 用和 GitHub Actions 相同的远程源仓输入做构建
+- 在你本机提前发现私有仓凭证、分支不存在、未声明页面等问题
+- 不触碰服务器运行目录
+
+## 9. 配置 GitHub Actions 自动发布
+
+到仓库 `Settings -> Secrets and variables -> Actions`，至少配置：
+
+Actions Variables：
+
+- `DOCS_SOURCE_APP_ID`
+
+Actions Secrets：
+
+- `DOCS_DEPLOY_HOST`
+- `DOCS_DEPLOY_USER`
+- `DOCS_DEPLOY_SSH_KEY`
+- `DOCS_DEPLOY_PORT`
+- `DOCS_DEPLOY_SITE_DIR`
+- `DOCS_PRIVATE_LOCATIONS_PATH`
+- `DOCS_RELOAD_HOST_NGINX`
+- `DOCS_SOURCE_APP_PRIVATE_KEY`
+
+### 9.1 GitHub App 是什么
+
+GitHub App 可以理解成 GitHub 里的“机器身份”。
+
+它和个人账号、PAT、OAuth App 的区别是：
+
+- 它可以只安装到指定仓库
+- 它可以只授予极小权限，例如 `Contents: Read-only`
+- workflow 运行时拿到的是短期 installation token，而不是长期固定口令
+- 更适合 CI/CD 拉取同账号下的多个私有仓库
+
+当前项目把它作为私有源仓读取的唯一正式方案。
+
+### 9.2 创建源码读取 GitHub App
+
+推荐应用名称：
+
+- `docs-stratego-source-reader`
+
+创建步骤：
+
+1. 打开 GitHub `Settings -> Developer settings -> GitHub Apps -> New GitHub App`
+2. `GitHub App name` 填 `docs-stratego-source-reader`
+3. `Description` 可填 `Read private source repos for docs-stratego CI builds`
+4. `Homepage URL` 填 `https://github.com/uroborus2s/docs-stratego`
+5. `Callback URL` 留空。这个 App 不负责浏览器登录，也不生成 user access token
+6. `Expire user authorization tokens` 保持默认，不需要额外关闭
+7. 不勾选 `Request user authorization (OAuth) during installation`
+8. 不启用 `Enable Device Flow`
+9. `Setup URL` 留空
+10. 关闭 Webhook，把 `Active` 取消勾选
+11. `Repository permissions` 中只授予 `Contents: Read-only`
+12. 如果未来需要直接修改 `.github/workflows/*`，再额外加 `Workflows`；当前方案不需要
+13. 其他所有 repository / organization / account permissions 保持 `No access`
+14. `Where can this GitHub App be installed?` 选择 `Only on this account`
+15. 点击 `Create GitHub App`
+16. 创建完成后进入 App 详情页
+17. 点击 `Generate a private key`
+18. 下载 `.pem` 私钥文件并安全保存
+19. 点击 `Install App`
+20. 选择当前账号
+21. `Repository access` 选 `Only select repositories`
+22. 勾选：
+23. `docs-stratego`
+24. 所有会被 `source_mode=remote` 拉取的私有源仓
+
+### 9.3 写入 GitHub Actions
+
+在根仓 `Settings -> Secrets and variables -> Actions` 中：
+
+1. 新建 Variable：`DOCS_SOURCE_APP_ID`
+2. 填入上一步 GitHub App 的 App ID
+3. 新建 Secret：`DOCS_SOURCE_APP_PRIVATE_KEY`
+4. 粘贴 `.pem` 私钥完整内容
+5. 保留已有部署 Secrets：`DOCS_DEPLOY_HOST`、`DOCS_DEPLOY_USER`、`DOCS_DEPLOY_SSH_KEY` 等
+
+### 9.4 当前 workflow 的行为
+
+1. 关闭 `actions/checkout` 对根仓 `GITHUB_TOKEN` 的持久化
+2. 校验 `DOCS_SOURCE_APP_ID` 和 `DOCS_SOURCE_APP_PRIVATE_KEY` 必填
+3. 通过 `actions/create-github-app-token@v3` 为当前 owner 生成 installation token
+4. 用该 token 配置 Git 凭证映射
+5. 执行 `sync_sources -> build_site -> mkdocs build`
+6. 上传 `site/` 与 `private_locations.conf`
+7. 在服务器安装制品并按需 reload Nginx
+
+## 10. 首次人工验证
 
 至少验证：
 
 ```bash
-cd ~/docs-stratego
-docker compose -f deploy/docker-compose.yml ps
+cd ~/docs-stratego/deploy
+docker compose ps
 curl -I http://127.0.0.1:4180/oauth2/auth
+curl -I http://127.0.0.1:8081
 curl -I https://docs.example.com
 curl -I https://auth.docs.example.com
 ```
@@ -423,107 +557,16 @@ curl -I https://auth.docs.example.com
 1. 打开 `https://auth.docs.example.com`
 2. 确认 Casdoor 登录页可访问
 3. 打开 `https://docs.example.com`
-4. 当前即使站点内容还没发布，只要 Nginx 能返回页面或 404，就说明链路已经接通
+4. 访问一个私有页面并确认会跳登录
 
-## 9. 配置 GitHub Actions 自动发布
-
-到仓库 `Settings -> Secrets and variables -> Actions`，至少配置：
-
-| Secret                        | 说明                                                               |
-| ----------------------------- | ---------------------------------------------------------------- |
-| `DOCS_DEPLOY_HOST`            | 服务器 IP 或域名                                                       |
-| `DOCS_DEPLOY_USER`            | SSH 用户                                                           |
-| `DOCS_DEPLOY_SSH_KEY`         | 部署私钥                                                             |
-| `DOCS_DEPLOY_PORT`            | SSH 端口，默认 `22`                                                   |
-| `DOCS_DEPLOY_SITE_DIR`        | 可选；默认 `/var/www/docs-stratego`                                   |
-| `DOCS_PRIVATE_LOCATIONS_PATH` | 可选；默认 `/etc/nginx/snippets/docs-stratego/private_locations.conf` |
-| `DOCS_RELOAD_HOST_NGINX`      | 可选；默认 `1`                                                        |
-
-配置方式：
-
-1. 打开仓库 `Settings -> Secrets and variables -> Actions`
-2. 点击 `New repository secret`
-3. 逐个创建上表中的参数
-
-说明：
-
-- 严格必填的是 `DOCS_DEPLOY_HOST`、`DOCS_DEPLOY_USER`、`DOCS_DEPLOY_SSH_KEY`
-- `DOCS_DEPLOY_PORT`、`DOCS_DEPLOY_SITE_DIR`、`DOCS_PRIVATE_LOCATIONS_PATH`、`DOCS_RELOAD_HOST_NGINX` 都有默认值
-- 但生产环境建议 7 个都显式配置，避免后续忘记当前部署目标
-
-部署账号还需要满足一个条件：
-
-- `DOCS_DEPLOY_USER` 必须能无密码执行 `sudo install`、`sudo rm`、`sudo mv`、`sudo find`、`sudo nginx -t`、`sudo systemctl reload nginx`
-
-原因是 workflow 要把文件安装到 `/var/www` 与 `/etc/nginx`，普通 SSH 用户通常没有这些目录的写权限。
-
-当前 workflow 的日常发布逻辑是：
-
-1. Runner 执行 `sync_sources -> build_site -> mkdocs build`
-2. 生成 `site/` 和 `.generated/nginx/private_locations.conf`
-3. `validate` job 把这两类结果上传成 GitHub Actions artifact
-4. `deploy` job 下载 artifact
-5. 只把 `site/` 发布到 `/var/www/docs-stratego`
-6. 只把 `private_locations.conf` 安装到 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-7. 执行 `nginx -t` 与 reload
-
-标准发布不会在服务器上编译文档，也不会自动覆盖你已经手工改过的认证应用配置文件。
-
-## 10. 为什么要保留 artifact 7 天
-
-先说最核心的一点：这份 artifact 不是线上运行目录，而是 GitHub Actions 两个 job 之间的交接包。
-
-原因是：
-
-1. `validate` 和 `deploy` 是两个独立 job
-2. 两个 job 运行在不同 Runner 上
-3. `validate` 构建出来的 `site/` 和 `private_locations.conf`，`deploy` 不能直接看到
-4. 所以必须先上传成 artifact，再由 `deploy` 下载
-
-保留 7 天的原因是：
-
-- workflow 完成后，GitHub 继续保留 7 天，方便你下载当次构建出来的 `site/` 和 `private_locations.conf`
-- 如果部署失败，可以直接检查这次构建产物，而不用马上重跑
-- 7 天只是一个短期排障窗口，不是线上依赖
-
-简单说：
-
-- 服务器真正运行只需要 `/var/www/docs-stratego` 和 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-- artifact 保留 7 天，是为了让 `deploy` job 能接着发布，并给你留一个短期可下载的构建快照
-
-如果你不想保留这么久，可以把 workflow 里的 `retention-days` 改成 `1`。
-它不会影响线上运行，只影响 GitHub 保留下载件的时间。
-
-## 11. 触发第一次站点发布
-
-完成上面的服务器准备后，第一次站点发布可以通过下面任一方式触发：
-
-1. 向 `main` 或 `master` 推送一次提交
-2. 在 GitHub Actions 页面手工执行 `Deploy Docs`
-
-发布成功后检查：
-
-```bash
-ls -ld /var/www/docs-stratego
-ls -l /etc/nginx/snippets/docs-stratego/private_locations.conf
-sudo nginx -t
-```
-
-然后浏览器抽查：
-
-1. 打开 `https://docs.example.com`
-2. 打开一个公开页面
-3. 打开一个私有页面
-4. 确认会跳登录
-5. 登录后回到原页面
-
-## 12. 常见失败与处理
+## 11. 常见失败与处理
 
 | 现象 | 可能原因 | 处理方式 |
 | --- | --- | --- |
-| 私有页面直接 500 | Nginx 未引入 `private_locations.conf` | 检查 `/etc/nginx/sites-available/docs.example.com` |
+| `postgres` 启动失败 | `deploy/.env` 缺少数据库变量 | 检查 `DB_USER`、`DB_PASSWORD`、`DB_NAME` |
+| `casdoor` 启动失败 | `app.conf` 或数据库配置仍沿用旧版口径 | 确认 `driverName=postgres`、`dataSourceName=${DB_DSN}` |
+| `oauth2-proxy` 无法启动 | Redis 网络不通 | 确认 `DOCS_REDIS_DOCKER_NETWORK` 与 `redis_connection_url` |
+| `git submodule update` 要求用户名密码 | `remote` 模式读取私有仓缺少凭证 | 本地补 Git 凭证；Actions 检查 GitHub App 配置和安装仓库范围 |
+| 私有页面直接 500 | Nginx 未引入 `private_locations.conf` | 检查站点文件中的 `include` |
 | 登录后回不来 | `redirect_url` 或域名不一致 | 检查 `oauth2-proxy.cfg` 与 Casdoor Application |
-| oauth2-proxy 无法启动 | Redis 网络不通 | 确认 `oauth2-proxy` 已接入 Redis 所在网络 |
-| Casdoor 登录页打不开 | 宿主机未正确反代 `auth.docs.example.com` | 检查 `/etc/nginx/sites-available/auth.docs.example.com` |
-| Actions 成功但页面没更新 | `DOCS_DEPLOY_SITE_DIR` 与 Nginx `root` 不一致 | 检查 Secrets 与 `docs.example.com` 站点文件 |
-| 权限改了但没生效 | `private_locations.conf` 没更新或 Nginx 没 reload | 检查 `/etc/nginx/snippets/docs-stratego/private_locations.conf` 与 reload 日志 |
+| Actions 成功但页面没更新 | `DOCS_DEPLOY_SITE_DIR` 与 Nginx `root` 不一致 | 检查 Actions 配置与站点文件 |

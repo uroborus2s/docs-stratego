@@ -15,12 +15,21 @@
 
 ### 2.1 `config/source-repos.json`
 
-当前推荐写法是一份配置文件同时声明两种 source mode：
+当前推荐写法是只保留一份 `config/source-repos.json`，并在同一条仓库定义里同时声明两种 source mode：
 
 - `local`
   本地调试直接读取维护机上的项目文档目录
 - `remote`
-  CI/CD 或维护机侧全量重建时先初始化 submodule，再在子仓内显式拉取目标分支后构建文档
+  GitHub Actions 或正式生产构建时，先初始化 submodule，再在子仓内显式拉取目标分支后构建文档
+
+规则收口为：
+
+- `source-repos.json` 是唯一源仓配置文件
+- 每个仓库都必须同时声明 `modes.local` 与 `modes.remote`
+- 本地开发默认使用 `source_mode=local`
+- 本地生产预演使用 `source_mode=remote`
+- GitHub Actions 正式生产构建使用 `source_mode=remote`
+- 只要某个仓库保留在 `source-repos.json` 中，remote 构建就会真实拉取并校验它
 
 顶层字段：
 
@@ -78,8 +87,8 @@
 
 | 配置 | 说明 | 建议 |
 | --- | --- | --- |
-| `driverName` | 认证数据存储类型 | `sqlite3` |
-| `dataSourceName` | SQLite 路径 | `/data/casdoor.db` |
+| `driverName` | 认证数据存储类型 | `postgres` |
+| `dataSourceName` | 数据源占位符 | `${DB_DSN}` |
 | `httpport` | 容器内监听端口 | `8000` |
 
 ### 2.3 `deploy/oauth2-proxy/oauth2-proxy.cfg`
@@ -106,6 +115,18 @@
 | `DOCS_PRIVATE_LOCATIONS_PATH` | 宿主机私有规则文件路径；不填时 workflow 默认使用 `/etc/nginx/snippets/docs-stratego/private_locations.conf` | `/etc/nginx/snippets/docs-stratego/private_locations.conf` |
 | `DOCS_RELOAD_HOST_NGINX` | 发布后是否 reload 宿主机 Nginx | `1` |
 
+Actions Variables：
+
+| 变量 | 说明 | 示例 |
+| --- | --- | --- |
+| `DOCS_SOURCE_APP_ID` | 源码读取 GitHub App 的 App ID | `1234567` |
+
+Actions Secrets：
+
+| Secret | 说明 | 示例 |
+| --- | --- | --- |
+| `DOCS_SOURCE_APP_PRIVATE_KEY` | 推荐；源码读取 GitHub App 的私钥 | `-----BEGIN RSA PRIVATE KEY-----` |
+
 默认同步目标：
 
 - `/var/www/docs-stratego`
@@ -120,8 +141,27 @@
 
 - 服务器真正消费 `site/` 与 `private_locations.conf`
 - artifact 的主要用途是把 `validate` job 的构建结果传给 `deploy` job
+- workflow 会强制使用 GitHub App installation token 读取私有源仓
+- workflow 已关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 干扰后续跨仓拉取
 
-### 2.5 维护机全量重建 fallback
+## 3. 模式边界
+
+这里需要明确区分两件事：
+
+- `source_mode`
+  只决定“文档从哪里读”，取值只有 `local` 或 `remote`
+- `运行场景`
+  决定“这次构建是本地开发、本地生产预演，还是正式生产发布”
+
+推荐口径：
+
+| 运行场景 | 典型入口 | `source_mode` | 说明 |
+| --- | --- | --- | --- |
+| 本地开发 | `./start.sh` | `local` | 直接读取维护机本地工作副本，迭代最快 |
+| 本地生产预演 | `./start.sh --build-only --source-mode remote` 或手动 `build_site + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
+| 正式生产发布 | GitHub Actions `validate -> deploy` | `remote` | 强制从 GitHub 远程仓库重新拉取，验证真实发布输入 |
+
+## 4. 维护机全量重建
 
 如果走 `scripts/deploy_remote.sh` 做全量重建，需要一个包含完整仓库的维护工作区；标准生产服务器上的稀疏运行目录不适合直接执行它。
 
@@ -133,7 +173,7 @@
 | `DOCS_INTERNAL_DOCKER_NETWORK` | 文档站内部网络 | `docs-auth-internal` |
 | `DOCS_REDIS_DOCKER_NETWORK` | Redis 所在现有网络 | `webapp_wps_net` |
 
-## 3. 环境差异
+## 5. 环境差异
 
 ### 本地开发
 
@@ -156,7 +196,7 @@
 - 服务器标准运行目录只需要稀疏拉取的 `deploy/` 运行文件，不需要完整仓库与 Python 构建环境
 - 宿主机 `Nginx` 站点配置由运维按安装文档手工维护，不再作为仓库模板交付
 
-## 4. 配置变更要求
+## 6. 配置变更要求
 
 改下面任一内容时，必须同步更新文档：
 

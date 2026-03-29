@@ -29,7 +29,7 @@ def resolve_source_mode(payload: dict, source_mode: str | None = None) -> str:
 
 def normalize_repository_config(item: dict, source_mode: str) -> dict:
     if "modes" not in item:
-        return item
+        raise ValueError(f'{item["name"]} missing modes configuration')
 
     mode_payload = item["modes"].get(source_mode)
     if not mode_payload:

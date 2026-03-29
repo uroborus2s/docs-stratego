@@ -34,9 +34,6 @@ mkdocs:
         - title: 使用说明
           path: 02-user-guide/usage.md
           access: public
-        - title: 云服务器部署与 CI/CD 实操
-          path: 02-user-guide/cloud-server-cicd-playbook.md
-          access: public
         - title: 管理员指南
           path: 02-user-guide/admin-guide.md
           access: public

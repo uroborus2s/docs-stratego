@@ -92,6 +92,5 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 如果是云服务器私有化部署，请优先阅读：
 
 - [安装说明](./docs/02-user-guide/installation.md)
-- [云服务器部署与 CI/CD 实操](./docs/02-user-guide/cloud-server-cicd-playbook.md)
 - [配置说明](./docs/02-user-guide/configuration.md)
 - [管理员指南](./docs/02-user-guide/admin-guide.md)

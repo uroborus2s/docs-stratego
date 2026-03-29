@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,6 +42,27 @@ jobs:
 
       - name: Run unit tests
         run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack
+
+      - name: Validate source repo GitHub App config
+        env:
+          DOCS_SOURCE_APP_ID: ${{ vars.DOCS_SOURCE_APP_ID }}
+          DOCS_SOURCE_APP_PRIVATE_KEY: ${{ secrets.DOCS_SOURCE_APP_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DOCS_SOURCE_APP_ID" || { echo "Missing Actions variable: DOCS_SOURCE_APP_ID" >&2; exit 1; }
+          test -n "$DOCS_SOURCE_APP_PRIVATE_KEY" || { echo "Missing Actions secret: DOCS_SOURCE_APP_PRIVATE_KEY" >&2; exit 1; }
+
+      - name: Create source repo GitHub App token
+        id: source-app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.DOCS_SOURCE_APP_ID }}
+          private-key: ${{ secrets.DOCS_SOURCE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-contents: read
+
+      - name: Configure source repo credentials from GitHub App
+        run: git config --global url."https://x-access-token:${{ steps.source-app-token.outputs.token }}@github.com/".insteadOf https://github.com/
 
       - name: Sync sources
         run: uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode remote

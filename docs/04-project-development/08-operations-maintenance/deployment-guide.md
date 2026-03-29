@@ -31,7 +31,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 
 - 首次部署建议按“HTTP 引导配置 -> Certbot -> HTTPS 正式配置”顺序执行
 - 运维负责审核并安装 `Nginx` 配置，发布脚本不会自动覆盖 `/etc/nginx/sites-available/*.conf`
-- 详细步骤见 [云服务器部署与 CI/CD 实操](../../02-user-guide/cloud-server-cicd-playbook.md)
+- 详细步骤见 [安装说明](../../02-user-guide/installation.md)
 
 ## 3. 关键目录
 
@@ -66,7 +66,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ### Casdoor
 
 - 提供本地用户名密码和 GitHub 登录
-- 使用 SQLite 保存账号与应用配置
+- 使用 Postgres 保存账号与应用配置
 
 ### oauth2-proxy
 
@@ -111,7 +111,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 2. 重新同步 `site/` 与 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
 3. reload 宿主机 `Nginx`
 
-fallback：
+如需在维护机做一次完整重建：
 
 ```bash
 cd ~/docs-stratego-full
@@ -122,7 +122,7 @@ bash scripts/deploy_remote.sh
 
 回滚不会清空：
 
-- Casdoor SQLite 数据
+- Casdoor Postgres 数据
 - Redis 会话库
 
 如果你需要强制用户重新登录，可以单独清理 Redis 中 oauth2-proxy 使用的会话键。

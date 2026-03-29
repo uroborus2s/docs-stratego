@@ -6,3 +6,7 @@
 	path = sources/stratix
 	url = https://github.com/uroborus2s/obsync-root.git
 	branch = main
+[submodule "sources/ride-loop"]
+	path = sources/ride-loop
+	url = https://github.com/uroborus2s/ride-loop.git
+	branch = main
