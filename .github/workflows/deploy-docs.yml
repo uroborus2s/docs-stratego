@@ -176,19 +176,10 @@ jobs:
             rm -rf "$STAGING_DIR"
             rm -f "$TMP_DIR/site.tar.gz" "$TMP_DIR/private_locations.conf"
             if [ "${{ secrets.DOCS_RELOAD_HOST_NGINX || '1' }}" = "1" ]; then
-              if [ "${EUID}" -eq 0 ]; then
-                nginx -t
-                if command -v systemctl >/dev/null 2>&1; then
-                  systemctl reload nginx
-                else
-                  nginx -s reload
-                fi
+              sudo nginx -t
+              if command -v systemctl >/dev/null 2>&1; then
+                sudo systemctl reload nginx
               else
-                sudo nginx -t
-                if command -v systemctl >/dev/null 2>&1; then
-                  sudo systemctl reload nginx
-                else
-                  sudo nginx -s reload
-                fi
+                sudo nginx -s reload
               fi
             fi
