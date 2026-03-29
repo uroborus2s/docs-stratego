@@ -1,0 +1,42 @@
+{
+  "preset": "custom",
+  "title": "docs-stratego 文档装配仓技术画像",
+  "stack": "MkDocs Material + Python/uv + git submodule + sparse-checkout + Casdoor + oauth2-proxy + Nginx + Gemini CLI/Codex",
+  "summary": "一个以源仓 `docs/` 自治、单站点页面级鉴权和构建期权限清单为核心的静态文档入口仓。",
+  "projects": [
+    "docs-stratego"
+  ],
+  "modules": [
+    "source-sync",
+    "site-builder",
+    "authz-manifest",
+    "auth-gateway"
+  ],
+  "rules": [
+    "源项目仓中的 docs 目录为事实源，根仓不复制或改写内容",
+    "统一使用最新生命周期目录结构",
+    "页面权限只能在根 docs/index.md 中声明",
+    "左侧导航由根 docs/index.md 的全站清单决定",
+    "默认关闭匿名全文搜索，避免私有内容进入搜索索引"
+  ],
+  "admin_requirements": [
+    "维护 sources 下的 git submodule 与 sparse-checkout 工作区",
+    "审核源仓根 docs/index.md、目录结构和页面权限声明",
+    "维护 Casdoor、oauth2-proxy 与 Nginx 部署配置",
+    "执行构建与部署"
+  ],
+  "commands": [
+    "uv run python scripts/sync_sources.py --config config/source-repos.json --project-root .",
+    "uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated",
+    "uv run mkdocs build -f .generated/mkdocs.generated.yml -d site"
+  ],
+  "guides": [
+    "docs/04-project-development/04-design/technical-selection.md",
+    "docs/04-project-development/04-design/module-boundaries.md",
+    "docs/04-project-development/08-operations-maintenance/deployment-guide.md",
+    "docs/02-user-guide/admin-guide.md"
+  ],
+  "owner": "uroborus",
+  "note": "当前处于单站点页面级鉴权与云服务器私有化部署收口阶段。",
+  "applied_at": "2026-03-27T21:10:00+08:00"
+}

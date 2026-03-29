@@ -1,0 +1,23 @@
+# 变更摘要
+
+- 删除旧的双站构建、挂载目录和中间聚合同步逻辑
+- 新增 `sync_sources.py`，通过 Git submodule + sparse-checkout 只同步源仓 `docs/`
+- 新增 `build_site.py`，从根 `docs/index.md` 全站清单生成导航、权限清单和 Nginx 规则
+- 新增 Casdoor、oauth2-proxy、Nginx Docker 部署骨架
+- 重写 README、需求、方案、运维与管理员文档，明确源仓根 `docs/index.md` 负责目录、导航和页面权限
+- 完成 `docs/` 从旧生命周期目录到四大模块结构的迁移，重写内部文档链接并刷新根索引与各级概览页
+- 基于项目当前功能、读者和暴露能力确定 `docs_profile`，暂不启用 `03-developer-guide`，并据此刷新根索引与发布策略
+- 调整 MkDocs Material 导航交互：顶部项目 Tab 支持生产可用的点击下拉，左侧目录仅展示当前一级模块内容，并移除“项目入口”
+- 重构部署架构为“宿主机 Nginx + Docker 内 Casdoor/oauth2-proxy + 现有 Redis”，发布脚本负责站点构建、容器更新和可选 Nginx reload
+- 补齐 `02-user-guide/` 的安装、配置、使用、管理员内容，形成云服务器私有化部署与 GitHub 自动发布手册
+- 修复 `sync_sources.py` 在已存在稀疏仓切换远程分支时失败的问题
+- 将正式生产配置收口到当前可构建的源集合，并把不合规外部源仓保留在 pending 状态
+- 调整发布边界：宿主机 Nginx 站点配置改为运维手工渲染与安装，部署脚本不再自动覆盖主机配置文件
+- 将 Redis 接入方案改为复用现有业务网络，并让 `oauth2-proxy` 采用双网络连接模式
+- 新增生产可用的 GitHub Actions CI/CD：`validate` 先跑 `uv sync --frozen`、单元测试和 MkDocs 构建，`deploy` 再上传 `site/` 与 `private_locations.conf` 并按需 reload 宿主机 Nginx；`site/` 与 `private_locations.conf` 作为 artifact 保留 7 天
+- 新增按域名拆分的 HTTP 引导版与 HTTPS 正式版 Nginx 模板，并在渲染脚本中支持私有规则文件路径变量
+- 新增“云服务器部署与 CI/CD 实操”文档，细化双域名 DNS、Certbot、GitHub App、Casdoor 配置、Actions Secrets 与上线验证
+- 将源仓配置升级为单文件双模式结构：每个仓库同时声明 `modes.local` 与 `modes.remote`
+- 调整本地与发布工作流：`start.sh` 默认走 `source_mode=local`，`deploy_remote.sh` 与 GitHub Actions 默认走 `source_mode=remote`
+- 扩展 `sync_sources.py`、`build_site.py` 和测试用例，支持按 `--source-mode` 在本地目录直读与远程 submodule 更新之间切换
+- 将生产部署布局重构为“`~/docs-stratego` 稀疏运行目录 + `/var/www/docs-stratego` 静态站点 + `/etc/nginx/snippets/docs-stratego/private_locations.conf` 私有规则”，并把安装文档扩展为面向新手的完整手工部署手册

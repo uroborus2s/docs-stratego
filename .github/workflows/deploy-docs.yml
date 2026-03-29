@@ -1,0 +1,159 @@
+name: Deploy Docs
+
+concurrency:
+  group: docs-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  repository_dispatch:
+    types:
+      - source-docs-updated
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run unit tests
+        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack
+
+      - name: Sync sources
+        run: uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode remote
+
+      - name: Build site metadata
+        run: uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
+
+      - name: Build MkDocs site
+        run: uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build-output
+          path: |
+            site
+            .generated/nginx/private_locations.conf
+          retention-days: 7
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-build-output
+          path: .
+
+      - name: Prepare upload bundle
+        run: |
+          set -euo pipefail
+          tar -czf site.tar.gz site
+          cp .generated/nginx/private_locations.conf private_locations.conf
+
+      - name: Ensure remote directories
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DOCS_DEPLOY_HOST }}
+          username: ${{ secrets.DOCS_DEPLOY_USER }}
+          key: ${{ secrets.DOCS_DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DOCS_DEPLOY_PORT || '22' }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            SITE_DIR="${{ secrets.DOCS_DEPLOY_SITE_DIR }}"
+            if [ -z "$SITE_DIR" ]; then
+              SITE_DIR="/var/www/docs-stratego"
+            fi
+            PRIVATE_LOCATIONS_PATH="${{ secrets.DOCS_PRIVATE_LOCATIONS_PATH }}"
+            if [ -z "$PRIVATE_LOCATIONS_PATH" ]; then
+              PRIVATE_LOCATIONS_PATH="/etc/nginx/snippets/docs-stratego/private_locations.conf"
+            fi
+            TMP_DIR="$HOME/.docs-stratego-deploy-tmp"
+            mkdir -p "$TMP_DIR"
+            sudo install -d -m 0755 "$SITE_DIR"
+            sudo install -d -m 0755 "$(dirname "$PRIVATE_LOCATIONS_PATH")"
+
+      - name: Upload site tarball
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DOCS_DEPLOY_HOST }}
+          username: ${{ secrets.DOCS_DEPLOY_USER }}
+          key: ${{ secrets.DOCS_DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DOCS_DEPLOY_PORT || '22' }}
+          source: "site.tar.gz,private_locations.conf"
+          target: ".docs-stratego-deploy-tmp"
+
+      - name: Publish site and rules
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DOCS_DEPLOY_HOST }}
+          username: ${{ secrets.DOCS_DEPLOY_USER }}
+          key: ${{ secrets.DOCS_DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DOCS_DEPLOY_PORT || '22' }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            SITE_DIR="${{ secrets.DOCS_DEPLOY_SITE_DIR }}"
+            if [ -z "$SITE_DIR" ]; then
+              SITE_DIR="/var/www/docs-stratego"
+            fi
+            PRIVATE_LOCATIONS_PATH="${{ secrets.DOCS_PRIVATE_LOCATIONS_PATH }}"
+            if [ -z "$PRIVATE_LOCATIONS_PATH" ]; then
+              PRIVATE_LOCATIONS_PATH="/etc/nginx/snippets/docs-stratego/private_locations.conf"
+            fi
+            TMP_DIR="$HOME/.docs-stratego-deploy-tmp"
+            STAGING_DIR="$TMP_DIR/site-staging"
+            mkdir -p "$TMP_DIR"
+            rm -rf "$STAGING_DIR"
+            mkdir -p "$STAGING_DIR"
+            tar -xzf "$TMP_DIR/site.tar.gz" -C "$STAGING_DIR"
+            sudo rm -rf "$SITE_DIR"
+            sudo mv "$STAGING_DIR/site" "$SITE_DIR"
+            sudo find "$SITE_DIR" -type d -exec chmod 0755 {} +
+            sudo find "$SITE_DIR" -type f -exec chmod 0644 {} +
+            sudo install -m 0644 "$TMP_DIR/private_locations.conf" "$PRIVATE_LOCATIONS_PATH"
+            rm -rf "$STAGING_DIR"
+            rm -f "$TMP_DIR/site.tar.gz" "$TMP_DIR/private_locations.conf"
+            if [ "${{ secrets.DOCS_RELOAD_HOST_NGINX || '1' }}" = "1" ]; then
+              if [ "${EUID}" -eq 0 ]; then
+                nginx -t
+                if command -v systemctl >/dev/null 2>&1; then
+                  systemctl reload nginx
+                else
+                  nginx -s reload
+                fi
+              else
+                sudo nginx -t
+                if command -v systemctl >/dev/null 2>&1; then
+                  sudo systemctl reload nginx
+                else
+                  sudo nginx -s reload
+                fi
+              fi
+            fi

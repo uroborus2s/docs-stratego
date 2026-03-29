@@ -1,0 +1,34 @@
+services:
+  casdoor:
+    image: casbin/casdoor:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8000"
+    volumes:
+      - ./casdoor/app.conf:/conf/app.conf
+      - ./casdoor/data:/data
+    networks:
+      - docs_internal
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    restart: unless-stopped
+    depends_on:
+      - casdoor
+    ports:
+      - "127.0.0.1:4180:4180"
+    volumes:
+      - ./oauth2-proxy/oauth2-proxy.cfg:/etc/oauth2-proxy/oauth2-proxy.cfg:ro
+    command:
+      - --config=/etc/oauth2-proxy/oauth2-proxy.cfg
+    networks:
+      - docs_internal
+      - redis_shared
+
+networks:
+  docs_internal:
+    external: true
+    name: ${DOCS_INTERNAL_DOCKER_NETWORK:-docs-auth-internal}
+  redis_shared:
+    external: true
+    name: ${DOCS_REDIS_DOCKER_NETWORK:-webapp_wps_net}

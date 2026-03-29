@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+TEMPLATE_PATH="${1:-}"
+OUTPUT_PATH="${2:-}"
+
+if [[ -z "$TEMPLATE_PATH" || -z "$OUTPUT_PATH" ]]; then
+  echo "usage: render_host_nginx_conf.sh <template> <output>" >&2
+  exit 1
+fi
+
+: "${DOCS_SERVER_NAME:?missing DOCS_SERVER_NAME}"
+: "${AUTH_SERVER_NAME:?missing AUTH_SERVER_NAME}"
+: "${SITE_DIR:?missing SITE_DIR}"
+: "${PRIVATE_LOCATIONS_PATH:?missing PRIVATE_LOCATIONS_PATH}"
+: "${OAUTH2_PROXY_UPSTREAM:?missing OAUTH2_PROXY_UPSTREAM}"
+: "${CASDOOR_UPSTREAM:?missing CASDOOR_UPSTREAM}"
+DOCS_SSL_CERT_PATH="${DOCS_SSL_CERT_PATH:-}"
+DOCS_SSL_KEY_PATH="${DOCS_SSL_KEY_PATH:-}"
+AUTH_SSL_CERT_PATH="${AUTH_SSL_CERT_PATH:-}"
+AUTH_SSL_KEY_PATH="${AUTH_SSL_KEY_PATH:-}"
+
+sed \
+  -e "s|__DOCS_SERVER_NAME__|$DOCS_SERVER_NAME|g" \
+  -e "s|__AUTH_SERVER_NAME__|$AUTH_SERVER_NAME|g" \
+  -e "s|__SITE_DIR__|$SITE_DIR|g" \
+  -e "s|__PRIVATE_LOCATIONS_PATH__|$PRIVATE_LOCATIONS_PATH|g" \
+  -e "s|__OAUTH2_PROXY_UPSTREAM__|$OAUTH2_PROXY_UPSTREAM|g" \
+  -e "s|__CASDOOR_UPSTREAM__|$CASDOOR_UPSTREAM|g" \
+  -e "s|__DOCS_SSL_CERT_PATH__|$DOCS_SSL_CERT_PATH|g" \
+  -e "s|__DOCS_SSL_KEY_PATH__|$DOCS_SSL_KEY_PATH|g" \
+  -e "s|__AUTH_SSL_CERT_PATH__|$AUTH_SSL_CERT_PATH|g" \
+  -e "s|__AUTH_SSL_KEY_PATH__|$AUTH_SSL_KEY_PATH|g" \
+  "$TEMPLATE_PATH" > "$OUTPUT_PATH"

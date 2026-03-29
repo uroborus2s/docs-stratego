@@ -1,0 +1,491 @@
+{
+  "version": 1,
+  "project_name": "章略·墨衡",
+  "project_root": "/Users/uroborus/AiProject/docs-stratego",
+  "owner": "uroborus",
+  "idea": "建设一个集中维护多个项目文档集合与知识库的静态文档工程。根仓 docs-stratego 通过 git submodule 登记各源仓，并在子仓内只展开 `docs/`，再根据根 `docs/index.md` 的全站清单生成导航与权限清单，构建单个 MkDocs 站点，并通过 Casdoor、oauth2-proxy 与 Nginx 实现页面级登录保护。",
+  "stack": "MkDocs Material + Python/uv + git submodule + sparse-checkout + Casdoor + oauth2-proxy + Nginx + Gemini CLI/Codex",
+  "created_at": "2026-03-25T11:29:16.894077+00:00",
+  "active_mode": "cli_direct",
+  "supported_modes": ["cli_direct", "api_platform"],
+  "v1_scope_note": "当前版本只落地 Codex 或 Gemini CLI 直接使用方式，API Agent 平台作为后续演进目标保留。",
+  "stage": "IMPLEMENTATION",
+  "docs_profile": {
+    "project_kind": "docs_site",
+    "audiences": ["maintainer", "operator", "user", "integrator"],
+    "surfaces": {
+      "end_user_usage": true,
+      "public_api": false,
+      "sdk": false,
+      "plugin_extensibility": false,
+      "secondary_development": false,
+      "self_hosted": true
+    },
+    "modules": {
+      "01-getting-started": "required",
+      "02-user-guide": "required",
+      "03-developer-guide": "omit",
+      "04-project-development": "required"
+    },
+    "reasons": {
+      "01-getting-started": "项目需要为首次接触仓库的维护者和协作者提供定位、阅读路径和最小启动说明。",
+      "02-user-guide": "项目存在源仓接入、构建执行、部署运维和管理员操作场景，需要保留用户指南。",
+      "03-developer-guide": "当前未暴露稳定 SDK、公共 API 或插件扩展机制；源仓接入标准属于运维和接入约束，暂由用户指南与内部设计文档承载。",
+      "04-project-development": "需求、设计、测试、发布、运维和追踪过程仍需集中维护在内部项目文档中。"
+    },
+    "source": "manual-evaluation",
+    "detected_at": "2026-03-28T12:15:00+08:00"
+  },
+  "ai_runtime_docs": [
+    "/Users/uroborus/.agent/skills/software-factory-cli/references/ai-runtime-protocol.md",
+    "/Users/uroborus/.agent/skills/software-factory-cli/references/ai-role-charter.md"
+  ],
+  "human_workflow_docs": [
+    "/Users/uroborus/.agent/workflows/software-factory-requirements-and-design.md",
+    "/Users/uroborus/.agent/workflows/software-factory-user-guide.md"
+  ],
+  "workflow_docs": [
+    "/Users/uroborus/.agent/workflows/software-factory-requirements-and-design.md",
+    "/Users/uroborus/.agent/workflows/software-factory-user-guide.md"
+  ],
+  "stage_order": [
+    "BRAINSTORM",
+    "REQUIREMENTS",
+    "ANALYSIS",
+    "DESIGN",
+    "PLAN",
+    "IMPLEMENTATION",
+    "TESTING",
+    "ACCEPTANCE",
+    "RELEASE",
+    "MAINTENANCE"
+  ],
+  "shared_skills": [
+    {
+      "name": "brainstorming",
+      "path": "/Users/uroborus/.agent/skills/brainstorming/SKILL.md",
+      "purpose": "在实施前探索产品意图、约束条件、备选方案，并完成设计确认。"
+    },
+    {
+      "name": "document-templates",
+      "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+      "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+    },
+    {
+      "name": "requirements-engineering",
+      "path": "/Users/uroborus/.agent/skills/requirements-engineering/SKILL.md",
+      "purpose": "用稳定 ID 编写 REQ、NFR、验收标准和需求分析文档。"
+    },
+    {
+      "name": "doc-coauthoring",
+      "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+      "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+    },
+    {
+      "name": "api-design",
+      "path": "/Users/uroborus/.agent/skills/api-design/SKILL.md",
+      "purpose": "设计资源导向的 API，包括状态码、校验、分页和错误契约。"
+    },
+    {
+      "name": "backend-patterns",
+      "path": "/Users/uroborus/.agent/skills/backend-patterns/SKILL.md",
+      "purpose": "设计服务层、仓储层、中间件、校验和数据访问模式。"
+    },
+    {
+      "name": "python-uv-project",
+      "path": "/Users/uroborus/.agent/skills/python-uv-project/SKILL.md",
+      "purpose": "在 Python 项目中统一使用 uv 管理 Python 版本、虚拟环境、依赖、锁文件与开发工具，并约束 pyproject、pytest、ruff、mypy 工作流。"
+    },
+    {
+      "name": "frontend-patterns",
+      "path": "/Users/uroborus/.agent/skills/frontend-patterns/SKILL.md",
+      "purpose": "实现 React 组件、状态管理、数据流和可访问的响应式界面模式。"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "path": "/Users/uroborus/.agent/skills/ui-ux-pro-max/SKILL.md",
+      "purpose": "生成 UI 体系、配色、字体和页面结构建议。"
+    },
+    {
+      "name": "tdd-workflow",
+      "path": "/Users/uroborus/.agent/skills/tdd-workflow/SKILL.md",
+      "purpose": "通过测试、覆盖率和回归验证驱动实施过程。"
+    },
+    {
+      "name": "webapp-testing",
+      "path": "/Users/uroborus/.agent/skills/webapp-testing/SKILL.md",
+      "purpose": "在需要界面验证时，用 Playwright 驱动本地 Web 应用测试。"
+    }
+  ],
+  "roles": [
+    {
+      "id": "coordinator",
+      "title": "项目协调者",
+      "aliases": ["项目经理", "会话协调者", "pm", "coordinator"],
+      "description": "负责阶段推进、跨角色协作、审批门禁和交接节奏控制。",
+      "stages": [
+        "BRAINSTORM",
+        "REQUIREMENTS",
+        "ANALYSIS",
+        "DESIGN",
+        "PLAN",
+        "IMPLEMENTATION",
+        "TESTING",
+        "ACCEPTANCE",
+        "RELEASE",
+        "MAINTENANCE"
+      ],
+      "preferred_tools": ["codex", "gemini"],
+      "docs": [
+        "docs/03-solution/technical-selection.md",
+        ".factory/process/multi-agent-board.md",
+        ".factory/process/role-handoffs.md",
+        ".factory/process/execution-log.md",
+        ".factory/process/chat-bootstrap.md"
+      ],
+      "skill_names": ["brainstorming", "document-templates", "doc-coauthoring"],
+      "skills": [
+        {
+          "name": "brainstorming",
+          "path": "/Users/uroborus/.agent/skills/brainstorming/SKILL.md",
+          "purpose": "在实施前探索产品意图、约束条件、备选方案，并完成设计确认。"
+        },
+        {
+          "name": "document-templates",
+          "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+          "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    },
+    {
+      "id": "requirements-analyst",
+      "title": "需求分析师",
+      "aliases": ["需求负责人", "ba", "analyst", "requirements"],
+      "description": "负责澄清目标、拆解需求、补齐 REQ/NFR、维护需求一致性。",
+      "stages": ["BRAINSTORM", "REQUIREMENTS", "ANALYSIS"],
+      "preferred_tools": ["gemini", "codex"],
+      "docs": [
+        "docs/00-governance/project-charter.md",
+        "docs/01-discovery/input.md",
+        "docs/01-discovery/brainstorm-record.md",
+        "docs/02-requirements/prd.md",
+        "docs/02-requirements/requirements-analysis.md",
+        "docs/02-requirements/requirements-verification.md",
+        "docs/traceability/requirements-matrix.md"
+      ],
+      "skill_names": [
+        "brainstorming",
+        "requirements-engineering",
+        "document-templates",
+        "doc-coauthoring"
+      ],
+      "skills": [
+        {
+          "name": "brainstorming",
+          "path": "/Users/uroborus/.agent/skills/brainstorming/SKILL.md",
+          "purpose": "在实施前探索产品意图、约束条件、备选方案，并完成设计确认。"
+        },
+        {
+          "name": "requirements-engineering",
+          "path": "/Users/uroborus/.agent/skills/requirements-engineering/SKILL.md",
+          "purpose": "用稳定 ID 编写 REQ、NFR、验收标准和需求分析文档。"
+        },
+        {
+          "name": "document-templates",
+          "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+          "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    },
+    {
+      "id": "solution-architect",
+      "title": "解决方案架构师",
+      "aliases": ["架构负责人", "architect", "solution"],
+      "description": "负责系统拆分、接口契约、后端边界和技术风险控制。",
+      "stages": ["ANALYSIS", "DESIGN", "PLAN"],
+      "preferred_tools": ["gemini", "codex"],
+      "docs": [
+        "docs/03-solution/technical-selection.md",
+        "docs/03-solution/system-architecture.md",
+        "docs/03-solution/module-boundaries.md",
+        "docs/03-solution/api-design.md",
+        "docs/03-solution/backend-design.md",
+        "docs/03-solution/database-design.md",
+        "docs/traceability/requirements-matrix.md"
+      ],
+      "skill_names": [
+        "api-design",
+        "backend-patterns",
+        "frontend-patterns",
+        "doc-coauthoring"
+      ],
+      "skills": [
+        {
+          "name": "api-design",
+          "path": "/Users/uroborus/.agent/skills/api-design/SKILL.md",
+          "purpose": "设计资源导向的 API，包括状态码、校验、分页和错误契约。"
+        },
+        {
+          "name": "backend-patterns",
+          "path": "/Users/uroborus/.agent/skills/backend-patterns/SKILL.md",
+          "purpose": "设计服务层、仓储层、中间件、校验和数据访问模式。"
+        },
+        {
+          "name": "frontend-patterns",
+          "path": "/Users/uroborus/.agent/skills/frontend-patterns/SKILL.md",
+          "purpose": "实现 React 组件、状态管理、数据流和可访问的响应式界面模式。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    },
+    {
+      "id": "ux-designer",
+      "title": "UX/UI 设计师",
+      "aliases": ["设计负责人", "designer", "ux", "ui"],
+      "description": "负责用户流程、界面结构、交互状态与体验一致性。",
+      "stages": ["DESIGN", "PLAN"],
+      "preferred_tools": ["gemini", "codex"],
+      "docs": [
+        "docs/03-solution/technical-selection.md",
+        "docs/03-solution/ux-ui-design.md",
+        "docs/03-solution/assets/README.md",
+        "docs/03-solution/system-architecture.md",
+        "docs/03-solution/module-boundaries.md",
+        "docs/04-delivery/wbs.md"
+      ],
+      "skill_names": ["ui-ux-pro-max", "frontend-patterns", "doc-coauthoring"],
+      "skills": [
+        {
+          "name": "ui-ux-pro-max",
+          "path": "/Users/uroborus/.agent/skills/ui-ux-pro-max/SKILL.md",
+          "purpose": "生成 UI 体系、配色、字体和页面结构建议。"
+        },
+        {
+          "name": "frontend-patterns",
+          "path": "/Users/uroborus/.agent/skills/frontend-patterns/SKILL.md",
+          "purpose": "实现 React 组件、状态管理、数据流和可访问的响应式界面模式。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    },
+    {
+      "id": "backend-engineer",
+      "title": "后端工程师",
+      "aliases": ["后端负责人", "backend", "server", "codex-backend"],
+      "description": "负责服务实现、接口落地、数据一致性和工程化执行。",
+      "stages": ["PLAN", "IMPLEMENTATION", "TESTING"],
+      "preferred_tools": ["codex", "gemini"],
+      "docs": [
+        "docs/03-solution/technical-selection.md",
+        "docs/03-solution/module-boundaries.md",
+        "docs/03-solution/backend-design.md",
+        "docs/03-solution/api-design.md",
+        "docs/04-delivery/implementation-plan.md",
+        ".factory/process/execution-log.md",
+        "docs/05-quality/test-plan.md"
+      ],
+      "skill_names": ["backend-patterns", "api-design", "tdd-workflow"],
+      "skills": [
+        {
+          "name": "backend-patterns",
+          "path": "/Users/uroborus/.agent/skills/backend-patterns/SKILL.md",
+          "purpose": "设计服务层、仓储层、中间件、校验和数据访问模式。"
+        },
+        {
+          "name": "api-design",
+          "path": "/Users/uroborus/.agent/skills/api-design/SKILL.md",
+          "purpose": "设计资源导向的 API，包括状态码、校验、分页和错误契约。"
+        },
+        {
+          "name": "tdd-workflow",
+          "path": "/Users/uroborus/.agent/skills/tdd-workflow/SKILL.md",
+          "purpose": "通过测试、覆盖率和回归验证驱动实施过程。"
+        }
+      ]
+    },
+    {
+      "id": "frontend-engineer",
+      "title": "前端工程师",
+      "aliases": ["前端负责人", "frontend", "web", "codex-frontend"],
+      "description": "负责界面实现、交互联调、前端状态管理和可访问性。",
+      "stages": ["PLAN", "IMPLEMENTATION", "TESTING"],
+      "preferred_tools": ["codex", "gemini"],
+      "docs": [
+        "docs/03-solution/technical-selection.md",
+        "docs/03-solution/ux-ui-design.md",
+        "docs/03-solution/system-architecture.md",
+        "docs/04-delivery/implementation-plan.md",
+        ".factory/process/execution-log.md",
+        "docs/05-quality/test-plan.md"
+      ],
+      "skill_names": ["frontend-patterns", "ui-ux-pro-max", "tdd-workflow"],
+      "skills": [
+        {
+          "name": "frontend-patterns",
+          "path": "/Users/uroborus/.agent/skills/frontend-patterns/SKILL.md",
+          "purpose": "实现 React 组件、状态管理、数据流和可访问的响应式界面模式。"
+        },
+        {
+          "name": "ui-ux-pro-max",
+          "path": "/Users/uroborus/.agent/skills/ui-ux-pro-max/SKILL.md",
+          "purpose": "生成 UI 体系、配色、字体和页面结构建议。"
+        },
+        {
+          "name": "tdd-workflow",
+          "path": "/Users/uroborus/.agent/skills/tdd-workflow/SKILL.md",
+          "purpose": "通过测试、覆盖率和回归验证驱动实施过程。"
+        }
+      ]
+    },
+    {
+      "id": "qa-engineer",
+      "title": "测试工程师",
+      "aliases": ["质量负责人", "qa", "tester", "quality"],
+      "description": "负责测试计划、回归验证、Gate 前检查和质量风险暴露。",
+      "stages": ["IMPLEMENTATION", "TESTING", "ACCEPTANCE"],
+      "preferred_tools": ["codex", "gemini"],
+      "docs": [
+        "docs/05-quality/test-plan.md",
+        "docs/05-quality/test-cases.md",
+        "docs/05-quality/test-report.md",
+        ".factory/process/stage-check-report.md",
+        ".factory/process/quality-check-report.md",
+        "docs/traceability/requirements-matrix.md"
+      ],
+      "skill_names": ["tdd-workflow", "webapp-testing", "document-templates"],
+      "skills": [
+        {
+          "name": "tdd-workflow",
+          "path": "/Users/uroborus/.agent/skills/tdd-workflow/SKILL.md",
+          "purpose": "通过测试、覆盖率和回归验证驱动实施过程。"
+        },
+        {
+          "name": "webapp-testing",
+          "path": "/Users/uroborus/.agent/skills/webapp-testing/SKILL.md",
+          "purpose": "在需要界面验证时，用 Playwright 驱动本地 Web 应用测试。"
+        },
+        {
+          "name": "document-templates",
+          "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+          "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+        }
+      ]
+    },
+    {
+      "id": "release-manager",
+      "title": "发布经理",
+      "aliases": ["发布负责人", "release", "ops", "handover"],
+      "description": "负责交付说明、部署运行、发布准备和交接闭环。",
+      "stages": ["ACCEPTANCE", "RELEASE", "MAINTENANCE"],
+      "preferred_tools": ["gemini", "codex"],
+      "docs": [
+        "docs/04-project-development/07-release-delivery/release-notes.md",
+        "docs/04-project-development/07-release-delivery/delivery-package.md",
+        "docs/04-project-development/08-operations-maintenance/deployment-guide.md",
+        "docs/02-user-guide/user-guide.md",
+        "docs/02-user-guide/admin-guide.md"
+      ],
+      "skill_names": ["document-templates", "doc-coauthoring"],
+      "skills": [
+        {
+          "name": "document-templates",
+          "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+          "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    },
+    {
+      "id": "memory-manager",
+      "title": "文档与记忆管理员",
+      "aliases": ["memory", "ai-memory", "文档管理员", "记忆管理员"],
+      "description": "负责人类文档与 AI 记忆同步、摘要收敛和项目上下文恢复。",
+      "stages": [
+        "BRAINSTORM",
+        "REQUIREMENTS",
+        "ANALYSIS",
+        "DESIGN",
+        "PLAN",
+        "IMPLEMENTATION",
+        "TESTING",
+        "ACCEPTANCE",
+        "RELEASE",
+        "MAINTENANCE"
+      ],
+      "preferred_tools": ["gemini", "codex"],
+      "docs": [
+        ".factory/memory/project-index.md",
+        ".factory/memory/current-state.md",
+        ".factory/memory/tasks.summary.md",
+        ".factory/memory/change-summary.md",
+        ".factory/memory/agent-session.md",
+        ".factory/process/daily-status.md",
+        ".factory/process/role-handoffs.md",
+        "docs/traceability/requirements-matrix.md"
+      ],
+      "skill_names": ["document-templates", "doc-coauthoring"],
+      "skills": [
+        {
+          "name": "document-templates",
+          "path": "/Users/uroborus/.agent/skills/document-templates/SKILL.md",
+          "purpose": "初始化并维护标准的 docs/ 和 .factory/ 文档结构。"
+        },
+        {
+          "name": "doc-coauthoring",
+          "path": "/Users/uroborus/.agent/skills/doc-coauthoring/SKILL.md",
+          "purpose": "通过迭代方式共同创作设计文档、提案和决策文档。"
+        }
+      ]
+    }
+  ],
+  "technical_profile": {
+    "preset": "custom",
+    "title": "自定义技术画像",
+    "stack": "MkDocs Material + Python/uv + multirepo docs aggregation + Nginx + Obsidian + Gemini CLI/Codex",
+    "summary": "",
+    "projects": [],
+    "modules": [],
+    "rules": [],
+    "admin_requirements": [],
+    "commands": [],
+    "guides": [],
+    "owner": "uroborus",
+    "note": "",
+    "applied_at": ""
+  },
+  "technical_profile_history": [],
+  "design_assets": [],
+  "pr_workflow": {
+    "enabled": true,
+    "required_for_prefixes": ["TASK-", "CR-", "BUG-"],
+    "gate_required_for": ["implementation", "testing", "acceptance", "release"],
+    "remote_tools": ["gh", "glab", "record-only"]
+  },
+  "last_project_rules_refresh_at": "2026-03-25 22:29:48",
+  "last_project_rules_refresh_owner": "Codex",
+  "last_agent_session_at": "2026-03-25 22:31:53",
+  "last_agent_session_owner": "会话协调者",
+  "last_agent_session_focus": ""
+}

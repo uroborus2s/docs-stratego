@@ -1,0 +1,23 @@
+[project]
+name = "docs-stratego"
+version = "0.1.0"
+description = "Central documentation hub for multi-repo software projects"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mkdocs>=1.6,<2.0",
+  "mkdocs-material>=9.6,<10.0",
+  "pyyaml>=6.0,<7.0"
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = []

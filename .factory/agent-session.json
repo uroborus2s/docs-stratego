@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-03-25 22:31:53",
+  "owner": "会话协调者",
+  "project_name": "章略·墨衡",
+  "stage": "DESIGN",
+  "active_mode": "cli_direct",
+  "focus": "",
+  "reads": [
+    ".factory/project.json",
+    ".factory/memory/current-state.md",
+    ".factory/memory/tech-stack.summary.md",
+    ".factory/memory/design-assets.summary.md",
+    ".factory/memory/tasks.summary.md",
+    "docs/03-solution/system-architecture.md",
+    "docs/03-solution/technical-selection.md",
+    "docs/03-solution/module-boundaries.md",
+    "docs/03-solution/api-design.md",
+    "docs/03-solution/backend-design.md",
+    "docs/03-solution/database-design.md",
+    "docs/03-solution/ux-ui-design.md"
+  ],
+  "recommended_commands": [
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch board --project \"/Users/uroborus/AiProject/docs-stratego\" --owner \"会话协调者\" --focus \"刷新角色协作视图\"",
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch tech --project \"/Users/uroborus/AiProject/docs-stratego\" --preset stratix-admin --owner \"会话协调者\"",
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch design-assets --project \"/Users/uroborus/AiProject/docs-stratego\" --title \"关键页面参考图\" --images \"/absolute/path/to/mockup.png\" --owner \"会话协调者\"",
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch plan --project \"/Users/uroborus/AiProject/docs-stratego\" --iteration \"迭代 1\" --owner \"会话协调者\" --create-items",
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch memory --project \"/Users/uroborus/AiProject/docs-stratego\"",
+    "python3 /Users/uroborus/.agent/scripts/factory-dispatch chat --project \"/Users/uroborus/AiProject/docs-stratego\" --tool generic --role coordinator --owner \"会话协调者\" --focus \"继续当前工作\""
+  ],
+  "active_items": [],
+  "blocked_items": [],
+  "open_risks": ["- 当前无开放风险。"],
+  "recent_logs": [
+    "- 收口 `uv` 为统一项目入口，更新同步与构建命令",
+    "- 为同步脚本补充测试，并把站点路径从 `repo/docs/...` 收敛到 `repo/...`",
+    "- 新增 `sources/stratix-core-docs` 文档源，补齐 Stratix 使用、应用开发、插件开发与生态插件文档"
+  ],
+  "lock": {
+    "path": "/Users/uroborus/AiProject/docs-stratego/.factory/project.lock",
+    "locked": false,
+    "by_current_process": false,
+    "payload": {}
+  }
+}

@@ -1,0 +1,13 @@
+[runmode]
+runmode = dev
+
+[server]
+httpport = 8000
+
+[database]
+driverName = sqlite3
+dataSourceName = /data/casdoor.db
+
+[log]
+mode = normal
+level = Info
