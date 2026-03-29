@@ -58,21 +58,19 @@
 宿主机 `Nginx` 站点配置不在发布时自动覆盖。  
 正确流程是：
 
-1. 项目提供分域名的 `deploy/nginx/docs*.template` 与 `deploy/nginx/auth*.template`
-2. 运维手工安装 `/etc/nginx/sites-available/docs.example.com` 与 `/etc/nginx/sites-available/auth.docs.example.com`
-3. 首次部署时通过 sparse-checkout 拉取认证运行目录并手工启动 Docker 认证服务
-4. 后续发布只更新 `/var/www/docs-stratego` 与 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-5. Docker 认证服务仅在镜像或运行时配置变化时更新
+1. 运维按安装文档手工安装 `/etc/nginx/sites-available/docs.example.com` 与 `/etc/nginx/sites-available/auth.docs.example.com`
+2. 首次部署时通过 sparse-checkout 拉取认证运行目录并手工启动 Docker 认证服务
+3. 后续发布只更新 `/var/www/docs-stratego` 与 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
+4. Docker 认证服务仅在镜像或运行时配置变化时更新
 
 ## 5. 配置边界
 
 ### 5.1 可进仓内容
 
 - `deploy/docker-compose.yml`
-- `deploy/nginx/docs.conf.template`
-- `deploy/nginx/auth.conf.template`
 - `scripts/deploy_remote.sh`
-- `scripts/render_host_nginx_conf.sh`
+- `docs/02-user-guide/installation.md`
+- `docs/02-user-guide/cloud-server-cicd-playbook.md`
 
 ### 5.2 运行时内容
 
@@ -124,6 +122,6 @@ Workflow 只负责：
 | --- | --- | --- |
 | 外部源仓分支不存在 | Runner 构建失败 | `config/source-repos.json` 固定真实分支 |
 | oauth2-proxy 未接入 Redis 所在网络 | oauth2-proxy 启动失败 | 首次部署前先验证双网络连通性 |
-| 域名与回调不一致 | 登录后回不来 | 严格绑定手工渲染的 Nginx 域名与 `redirect_url` |
+| 域名与回调不一致 | 登录后回不来 | 严格绑定运维手工维护的 Nginx 域名与 `redirect_url` |
 | 制品上传不完整 | 页面或权限规则未更新 | 将 `site/`、`private_locations.conf` 作为发布包校验，并保留 7 天 artifact 便于排障 |
 | 运维安装的宿主机 Nginx 配置未引入 `/etc/nginx/snippets/docs-stratego/private_locations.conf` | 私有页面不受保护 | 首次上线和每次站点调整后都执行人工配置审查 |

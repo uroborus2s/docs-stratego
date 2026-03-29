@@ -37,14 +37,15 @@
 - GitHub Actions 发布口径已更新为“Runner 构建 + 上传 `site/`、`private_locations.conf`”，不再把服务器侧 `git pull + build` 作为日常主路径
 - GitHub Actions 现已补齐 `validate -> deploy` 两阶段，先做依赖安装、单元测试和 MkDocs 构建，再上传制品并按需 reload 宿主机 Nginx；`site/` 与 `private_locations.conf` 会作为 artifact 保留 7 天
 - 宿主机 Nginx 现改为运维手工安装 `sites-available/sites-enabled` 域名文件；发布侧只依赖 `/etc/nginx/snippets/docs-stratego/private_locations.conf` 和可选 reload
-- 宿主机 Nginx 模板已拆为 `docs/auth` 两组 HTTP 引导版与正式 HTTPS 版，便于按域名单独维护
+- 仓库已移除 `deploy/nginx/` 与 `render_host_nginx_conf.sh`；宿主机 Nginx 配置仅保留文档示例，由运维按安装文档手工维护
 - Redis 接入策略已收口为“保持现有业务网络不动，由 oauth2-proxy 同时加入内部网络与 Redis 现有网络”
 - 服务器侧认证应用目录改为稀疏拉取的 `~/docs-stratego`，只保留 `deploy/docker-compose.yml`、`deploy/casdoor/`、`deploy/oauth2-proxy/`
 - 服务器侧静态站点目录改为 `/var/www/docs-stratego`，私有规则文件改为 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix` 三个项目
+- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix`、`ride-loop` 四个项目
 - 当前源仓配置已升级为单文件双模式：同一 `config/source-repos.json` 同时声明 `modes.local` 与 `modes.remote`
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录，服务器发布与 GitHub Actions 默认使用 `source_mode=remote`
 - `start.sh`、`sync_sources.py`、`build_site.py`、`deploy_remote.sh` 与 GitHub Actions 已统一接入 `--source-mode`
+- `ride-loop` 已作为新文档源接入，本地模式指向 `/Users/uroborus/NodeProject/ride-loop/docs`，远程模式指向 `https://github.com/uroborus2s/ride-loop.git@main`
 
 ## 下一步建议
 

@@ -133,28 +133,6 @@
 | `DOCS_INTERNAL_DOCKER_NETWORK` | 文档站内部网络 | `docs-auth-internal` |
 | `DOCS_REDIS_DOCKER_NETWORK` | Redis 所在现有网络 | `webapp_wps_net` |
 
-### 2.6 `render_host_nginx_conf.sh` 环境变量
-
-渲染宿主机 `Nginx` 配置时，至少要提供：
-
-| 变量 | 说明 | 示例 |
-| --- | --- | --- |
-| `DOCS_SERVER_NAME` | 文档站域名 | `docs.example.com` |
-| `AUTH_SERVER_NAME` | 认证域名 | `auth.docs.example.com` |
-| `SITE_DIR` | 静态站点目录 | `/var/www/docs-stratego` |
-| `PRIVATE_LOCATIONS_PATH` | 私有规则文件路径 | `/etc/nginx/snippets/docs-stratego/private_locations.conf` |
-| `OAUTH2_PROXY_UPSTREAM` | oauth2-proxy 本地 upstream | `http://127.0.0.1:4180` |
-| `CASDOOR_UPSTREAM` | Casdoor 本地 upstream | `http://127.0.0.1:8000` |
-
-如果渲染正式 HTTPS 模板，还需要：
-
-| 变量 | 说明 | 示例 |
-| --- | --- | --- |
-| `DOCS_SSL_CERT_PATH` | 文档站证书 | `/etc/letsencrypt/live/docs.example.com/fullchain.pem` |
-| `DOCS_SSL_KEY_PATH` | 文档站私钥 | `/etc/letsencrypt/live/docs.example.com/privkey.pem` |
-| `AUTH_SSL_CERT_PATH` | 认证域名证书 | `/etc/letsencrypt/live/auth.docs.example.com/fullchain.pem` |
-| `AUTH_SSL_KEY_PATH` | 认证域名私钥 | `/etc/letsencrypt/live/auth.docs.example.com/privkey.pem` |
-
 ## 3. 环境差异
 
 ### 本地开发
@@ -176,6 +154,7 @@
 - GitHub Actions 默认在 Runner 侧构建，再把 `site/` 与 `private_locations.conf` 上传到服务器
 - `site/` 与 `private_locations.conf` 默认作为 artifact 保留 7 天，供作业间传递和排障时下载
 - 服务器标准运行目录只需要稀疏拉取的 `deploy/` 运行文件，不需要完整仓库与 Python 构建环境
+- 宿主机 `Nginx` 站点配置由运维按安装文档手工维护，不再作为仓库模板交付
 
 ## 4. 配置变更要求
 

@@ -15,9 +15,10 @@
 - 调整发布边界：宿主机 Nginx 站点配置改为运维手工渲染与安装，部署脚本不再自动覆盖主机配置文件
 - 将 Redis 接入方案改为复用现有业务网络，并让 `oauth2-proxy` 采用双网络连接模式
 - 新增生产可用的 GitHub Actions CI/CD：`validate` 先跑 `uv sync --frozen`、单元测试和 MkDocs 构建，`deploy` 再上传 `site/` 与 `private_locations.conf` 并按需 reload 宿主机 Nginx；`site/` 与 `private_locations.conf` 作为 artifact 保留 7 天
-- 新增按域名拆分的 HTTP 引导版与 HTTPS 正式版 Nginx 模板，并在渲染脚本中支持私有规则文件路径变量
+- 删除 `deploy/nginx/` 与 `render_host_nginx_conf.sh`，将宿主机 Nginx 配置边界完全收口到安装文档和运维手工维护流程
 - 新增“云服务器部署与 CI/CD 实操”文档，细化双域名 DNS、Certbot、GitHub App、Casdoor 配置、Actions Secrets 与上线验证
 - 将源仓配置升级为单文件双模式结构：每个仓库同时声明 `modes.local` 与 `modes.remote`
 - 调整本地与发布工作流：`start.sh` 默认走 `source_mode=local`，`deploy_remote.sh` 与 GitHub Actions 默认走 `source_mode=remote`
 - 扩展 `sync_sources.py`、`build_site.py` 和测试用例，支持按 `--source-mode` 在本地目录直读与远程 submodule 更新之间切换
 - 将生产部署布局重构为“`~/docs-stratego` 稀疏运行目录 + `/var/www/docs-stratego` 静态站点 + `/etc/nginx/snippets/docs-stratego/private_locations.conf` 私有规则”，并把安装文档扩展为面向新手的完整手工部署手册
+- 新增 `ride-loop`（千乘坊）文档源，接入本地 `../../NodeProject/ride-loop/docs` 与远程 `https://github.com/uroborus2s/ride-loop.git@main` 双模式配置

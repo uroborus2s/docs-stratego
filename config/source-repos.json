@@ -52,6 +52,24 @@
           "docs_path": "docs"
         }
       }
+    },
+    {
+      "name": "ride-loop",
+      "title": "千乘坊",
+      "repo_url": "https://github.com/uroborus2s/ride-loop",
+      "modes": {
+        "local": {
+          "source_type": "local",
+          "local_path": "../../NodeProject/ride-loop/docs"
+        },
+        "remote": {
+          "source_type": "submodule_sparse",
+          "git_url": "https://github.com/uroborus2s/ride-loop.git",
+          "branch": "main",
+          "submodule_path": "sources/ride-loop",
+          "docs_path": "docs"
+        }
+      }
     }
   ]
 }

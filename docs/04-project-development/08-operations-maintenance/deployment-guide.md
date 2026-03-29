@@ -29,8 +29,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 
 注意：
 
-- `scripts/render_host_nginx_conf.sh` 只用于首次部署或域名、路径变更时生成宿主机 `Nginx` 配置
-- 首次部署建议按“HTTP 引导模板 -> Certbot -> HTTPS 模板”顺序执行
+- 首次部署建议按“HTTP 引导配置 -> Certbot -> HTTPS 正式配置”顺序执行
 - 运维负责审核并安装 `Nginx` 配置，发布脚本不会自动覆盖 `/etc/nginx/sites-available/*.conf`
 - 详细步骤见 [云服务器部署与 CI/CD 实操](../../02-user-guide/cloud-server-cicd-playbook.md)
 

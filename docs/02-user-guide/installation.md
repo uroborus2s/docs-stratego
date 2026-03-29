@@ -128,7 +128,7 @@ docker network create docs-auth-internal
 服务器不需要完整仓库。只需要把本仓中认证运行所需的路径拉到本地：
 
 ```bash
-git clone --filter=blob:none --no-checkout https://github.com/uroborus2s/stratego-docs.git ~/docs-stratego
+git clone --filter=blob:none --no-checkout https://github.com/uroborus2s/docs-stratego.git ~/docs-stratego
 cd ~/docs-stratego
 git sparse-checkout init --no-cone
 git sparse-checkout set /deploy/docker-compose.yml /deploy/casdoor/ /deploy/casdoor/** /deploy/oauth2-proxy/ /deploy/oauth2-proxy/**
