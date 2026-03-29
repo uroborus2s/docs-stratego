@@ -426,12 +426,21 @@ server {
 
   location / {
     proxy_pass http://127.0.0.1:8081;
-    proxy_http_version 1.1;
+    # --- 必须配置：透传真实的客户端IP和协议 ---
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # --- 必须配置：防止 Nginx 拦截或丢弃包含 Body 的 POST 请求 ---
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_pass_request_body on;
+    proxy_pass_request_headers on;
+
+    # --- 强烈建议：调大缓冲区，防止大的 JSON 包被截断 ---
+    proxy_buffer_size 128k;
+    proxy_buffers 4 256k;
+    proxy_busy_buffers_size 256k;
   }
 }
 ```
@@ -586,12 +595,12 @@ curl -I https://auth.docs.example.com
 
 ## 11. 常见失败与处理
 
-| 现象 | 可能原因 | 处理方式 |
-| --- | --- | --- |
-| `postgres` 启动失败 | `deploy/.env` 缺少数据库变量 | 检查 `DB_USER`、`DB_PASSWORD`、`DB_NAME` |
-| `casdoor` 启动失败 | `app.conf` 或数据库配置仍沿用旧版口径 | 确认 `driverName=postgres`、`dataSourceName=${DB_DSN}` |
-| `oauth2-proxy` 无法启动 | Redis 网络不通 | 确认 `DOCS_REDIS_DOCKER_NETWORK` 与 `redis_connection_url` |
-| `git submodule update` 要求用户名密码 | `remote` 模式读取私有仓缺少凭证 | 本地补 Git 凭证；Actions 检查 GitHub App 配置和安装仓库范围 |
-| 私有页面直接 500 | Nginx 未引入 `private_locations.conf` | 检查站点文件中的 `include` |
-| 登录后回不来 | `redirect_url` 或域名不一致 | 检查 `oauth2-proxy.cfg` 与 Casdoor Application |
-| Actions 成功但页面没更新 | `DOCS_DEPLOY_SITE_DIR` 与 Nginx `root` 不一致 | 检查 Actions 配置与站点文件 |
+| 现象                                  | 可能原因                                      | 处理方式                                                    |
+| ------------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| `postgres` 启动失败                   | `deploy/.env` 缺少数据库变量                  | 检查 `DB_USER`、`DB_PASSWORD`、`DB_NAME`                    |
+| `casdoor` 启动失败                    | `app.conf` 或数据库配置仍沿用旧版口径         | 确认 `driverName=postgres`、`dataSourceName=${DB_DSN}`      |
+| `oauth2-proxy` 无法启动               | Redis 网络不通                                | 确认 `DOCS_REDIS_DOCKER_NETWORK` 与 `redis_connection_url`  |
+| `git submodule update` 要求用户名密码 | `remote` 模式读取私有仓缺少凭证               | 本地补 Git 凭证；Actions 检查 GitHub App 配置和安装仓库范围 |
+| 私有页面直接 500                      | Nginx 未引入 `private_locations.conf`         | 检查站点文件中的 `include`                                  |
+| 登录后回不来                          | `redirect_url` 或域名不一致                   | 检查 `oauth2-proxy.cfg` 与 Casdoor Application              |
+| Actions 成功但页面没更新              | `DOCS_DEPLOY_SITE_DIR` 与 Nginx `root` 不一致 | 检查 Actions 配置与站点文件                                 |

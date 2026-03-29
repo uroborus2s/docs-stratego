@@ -275,7 +275,7 @@ a.docs-private-link::after {
 
 .docs-auth-modal__dialog {
   position: relative;
-  width: min(30rem, 100%);
+  width: min(52rem, 100%);
   padding: 1.4rem 1.3rem 1.2rem;
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.98);
@@ -319,6 +319,22 @@ a.docs-private-link::after {
   margin: 0.85rem 0 0;
   color: #667085;
   font-size: 0.92rem;
+}
+
+.docs-auth-modal__frame-shell {
+  margin-top: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.docs-auth-modal__frame {
+  display: block;
+  width: 100%;
+  min-height: 32rem;
+  border: 0;
+  background: #fff;
 }
 
 .docs-auth-modal__actions {
@@ -1060,7 +1076,7 @@ def write_access_control_js(site_docs_dir: Path, pages: list[dict]) -> None:
 let authModal = null;
 let authModalTitle = null;
 let authModalStatus = null;
-let authPopup = null;
+let authFrame = null;
 let authPollTimer = null;
 let authPollBusy = false;
 let pendingTargetUrl = "";
@@ -1109,22 +1125,6 @@ function stopAuthPolling() {{
   }}
 }}
 
-function closeAuthPopup() {{
-  if (authPopup && !authPopup.closed) {{
-    authPopup.close();
-  }}
-  authPopup = null;
-}}
-
-function openAuthPopup(signInUrl) {{
-  authPopup = window.open(signInUrl, "docs-login", "popup=yes,width=520,height=720");
-  if (!authPopup) {{
-    return false;
-  }}
-  authPopup.focus();
-  return true;
-}}
-
 function setAuthStatus(message) {{
   if (authModalStatus) {{
     authModalStatus.textContent = message;
@@ -1133,8 +1133,10 @@ function setAuthStatus(message) {{
 
 function closeAuthModal() {{
   stopAuthPolling();
-  closeAuthPopup();
   pendingTargetUrl = "";
+  if (authFrame) {{
+    authFrame.src = "about:blank";
+  }}
   if (!authModal) {{
     return;
   }}
@@ -1155,8 +1157,11 @@ function ensureAuthModal() {{
       <button class="docs-auth-modal__close" type="button" aria-label="关闭登录框">&times;</button>
       <p class="docs-auth-modal__eyebrow">受保护文档</p>
       <h2 class="docs-auth-modal__title" id="docs-auth-modal-title">此文档需要登录</h2>
-      <p class="docs-auth-modal__desc">公开文档仍可匿名浏览。点击私有文档时会自动拉起 Casdoor 登录窗口；登录成功后，会自动跳回你刚才点开的目标文档。</p>
+      <p class="docs-auth-modal__desc">公开文档仍可匿名浏览。请在当前登录框内完成 Casdoor 登录；登录成功后，会自动跳回你刚才点开的目标文档。</p>
       <p class="docs-auth-modal__status" role="status">关闭后可继续浏览公开文档。</p>
+      <div class="docs-auth-modal__frame-shell">
+        <iframe class="docs-auth-modal__frame" title="Casdoor 登录" src="about:blank"></iframe>
+      </div>
       <div class="docs-auth-modal__actions">
         <button class="docs-auth-modal__button docs-auth-modal__button--secondary" type="button" data-docs-auth-action="close">继续浏览公开文档</button>
       </div>
@@ -1165,6 +1170,7 @@ function ensureAuthModal() {{
 
   authModalTitle = authModal.querySelector(".docs-auth-modal__title");
   authModalStatus = authModal.querySelector(".docs-auth-modal__status");
+  authFrame = authModal.querySelector(".docs-auth-modal__frame");
   authModal.querySelector(".docs-auth-modal__close")?.addEventListener("click", () => {{
     closeAuthModal();
   }});
@@ -1192,18 +1198,13 @@ function openAuthModal(targetUrl, targetTitle) {{
 }}
 
 function beginAuthFlow() {{
-  if (!pendingTargetUrl) {{
+  if (!pendingTargetUrl || !authFrame) {{
     return;
   }}
 
   const signInUrl = `/oauth2/sign_in?rd=${{encodeURIComponent(pendingTargetUrl)}}`;
-  const popupOpened = openAuthPopup(signInUrl);
-  if (!popupOpened) {{
-    setAuthStatus("浏览器拦截了登录窗口；请允许弹窗后重新点击私有文档。");
-    return;
-  }}
-
-  setAuthStatus("Casdoor 登录窗口已打开；完成登录后会自动跳转。");
+  authFrame.src = signInUrl;
+  setAuthStatus("请在登录框中完成 Casdoor 登录。");
   stopAuthPolling();
   authPollTimer = window.setInterval(async () => {{
     if (authPollBusy || !pendingTargetUrl) {{
@@ -1214,16 +1215,10 @@ function beginAuthFlow() {{
       const authenticated = await checkAuthStatus();
       if (authenticated) {{
         stopAuthPolling();
-        closeAuthPopup();
         const targetUrl = pendingTargetUrl;
         closeAuthModal();
         window.location.assign(targetUrl);
         return;
-      }}
-      if (authPopup && authPopup.closed) {{
-        closeAuthPopup();
-        stopAuthPolling();
-        setAuthStatus("登录窗口已关闭；如不登录，也可以继续浏览公开文档。");
       }}
     }} finally {{
       authPollBusy = false;

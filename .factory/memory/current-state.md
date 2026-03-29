@@ -52,7 +52,7 @@
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
 - `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
-- 站点静态资源现新增 `access-control.js`：私有链接会显示“锁定”标记，匿名用户点击私有页面时会自动拉起 Casdoor 登录窗口，并显示一个可关闭的站内提示层；关闭后可继续浏览公开文档
+- 站点静态资源现新增 `access-control.js`：私有链接会显示“锁定”标记，匿名用户点击私有页面时会在当前页面弹出内嵌 Casdoor 登录框；关闭后可继续浏览公开文档，登录成功后再打开目标私有页
 - 生成的 `private_locations.conf` 现显式标注“只允许私有 URL 进入鉴权”，用于约束宿主机 Nginx 不要把 `location /` 误配成整站登录
 - 用户指南、安装说明、运维手册与 UX 设计文档已同步更新，新增“首页不得直接跳登录”的排障口径
 
