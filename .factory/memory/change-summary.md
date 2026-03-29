@@ -33,5 +33,6 @@
 - 扩充 `usage.md`，明确 GitHub Actions 固定使用 `source_mode=remote`，并补充子仓文档更新后的根仓重建流程
 - 修复 deploy 工作流的制品路径错位：MkDocs 产物现在显式输出到工作区根 `site/`，并要求 artifact 缺文件时在 validate 阶段直接失败
 - 为静态站点新增前端按需鉴权交互：私有链接显示“锁定”标记，匿名用户点击私有页面时同步拉起 oauth2-proxy / Casdoor 登录小窗；登录成功后由同源桥接页 `assets/auth/popup-complete.html` 使用 `postMessage` 通知主页面并关闭小窗，关闭小窗则留在公开页
+- 补充小窗收口行为：用户点回主页面或主页面重新获得焦点时，未完成的登录小窗会被主动关闭，避免浏览器仅把它压到后台
 - 更新权限生成产物与运维文档，明确 `private_locations.conf` 只允许私有 URL 进入鉴权，禁止把宿主机 `location /` 配成整站登录
 - 修复 GitHub Actions deploy 远端 reload 的误失败：去掉 `ssh-action` 中会被误判的 `EUID` 条件分支，统一改为 `sudo nginx -t` 与 `sudo systemctl reload nginx`，并补充回归断言

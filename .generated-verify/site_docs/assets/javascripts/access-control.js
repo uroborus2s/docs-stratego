@@ -75,6 +75,14 @@ function closeAuthPopup() {
   authPopup = null;
 }
 
+function dismissAuthPopupOnBackgroundInteraction() {
+  if (!authPopup || authPopup.closed) {
+    authPopup = null;
+    return;
+  }
+  closeAuthPopup();
+}
+
 function buildAuthPopupFeatures() {
   const width = 480;
   const height = 760;
@@ -253,5 +261,7 @@ document$.subscribe(() => {
     }
     handlePrivateLinkClick(event, anchor);
   });
+  document.addEventListener("pointerdown", dismissAuthPopupOnBackgroundInteraction, true);
+  window.addEventListener("focus", dismissAuthPopupOnBackgroundInteraction);
   window.addEventListener("message", handleAuthPopupMessage);
 });
