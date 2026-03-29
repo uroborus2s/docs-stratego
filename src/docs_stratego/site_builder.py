@@ -274,98 +274,37 @@ a.docs-private-link::after {
 }
 
 .docs-auth-modal__dialog {
-  position: relative;
-  width: min(52rem, 100%);
-  padding: 1.4rem 1.3rem 1.2rem;
+  width: min(24rem, calc(100vw - 2rem));
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.24);
-}
-
-.docs-auth-modal__close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  border: 0;
-  background: transparent;
-  color: #667085;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.docs-auth-modal__eyebrow {
-  margin: 0 0 0.35rem;
-  color: #b42318;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.docs-auth-modal__title {
-  margin: 0;
-  color: #101828;
-  font-size: 1.25rem;
-}
-
-.docs-auth-modal__desc {
-  margin: 0.7rem 0 0;
-  color: #475467;
-  line-height: 1.7;
-}
-
-.docs-auth-modal__status {
-  margin: 0.85rem 0 0;
-  color: #667085;
-  font-size: 0.92rem;
-}
-
-.docs-auth-modal__frame-shell {
-  margin-top: 1rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 0.9rem;
   overflow: hidden;
-  background: #f8fafc;
+  background: #fff;
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.24);
 }
 
 .docs-auth-modal__frame {
   display: block;
   width: 100%;
-  min-height: 32rem;
+  height: min(34rem, calc(100vh - 2rem));
   border: 0;
   background: #fff;
 }
 
-.docs-auth-modal__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.15rem;
-}
-
-.docs-auth-modal__button {
-  appearance: none;
-  border: 0;
-  border-radius: 999px;
-  padding: 0.72rem 1rem;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.docs-auth-modal__button--primary {
-  background: #111827;
-  color: #fff;
-}
-
-.docs-auth-modal__button--secondary {
-  background: rgba(15, 23, 42, 0.08);
-  color: #344054;
-}
-
 body.docs-auth-modal-open {
   overflow: hidden;
+}
+
+@media (max-width: 31rem) {
+  .docs-auth-modal {
+    padding: 0.75rem;
+  }
+
+  .docs-auth-modal__dialog {
+    width: min(100%, 23rem);
+  }
+
+  .docs-auth-modal__frame {
+    height: min(32rem, calc(100vh - 1.5rem));
+  }
 }
 """
 
@@ -1074,8 +1013,6 @@ def write_access_control_js(site_docs_dir: Path, pages: list[dict]) -> None:
         f"""const PRIVATE_URLS = new Set({json.dumps(private_urls, ensure_ascii=False)});
 
 let authModal = null;
-let authModalTitle = null;
-let authModalStatus = null;
 let authFrame = null;
 let authPollTimer = null;
 let authPollBusy = false;
@@ -1125,12 +1062,6 @@ function stopAuthPolling() {{
   }}
 }}
 
-function setAuthStatus(message) {{
-  if (authModalStatus) {{
-    authModalStatus.textContent = message;
-  }}
-}}
-
 function closeAuthModal() {{
   stopAuthPolling();
   pendingTargetUrl = "";
@@ -1142,7 +1073,6 @@ function closeAuthModal() {{
   }}
   authModal.classList.remove("is-open");
   document.body.classList.remove("docs-auth-modal-open");
-  setAuthStatus("关闭后可继续浏览公开文档。");
 }}
 
 function ensureAuthModal() {{
@@ -1153,30 +1083,12 @@ function ensureAuthModal() {{
   authModal = document.createElement("div");
   authModal.className = "docs-auth-modal";
   authModal.innerHTML = `
-    <div class="docs-auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="docs-auth-modal-title">
-      <button class="docs-auth-modal__close" type="button" aria-label="关闭登录框">&times;</button>
-      <p class="docs-auth-modal__eyebrow">受保护文档</p>
-      <h2 class="docs-auth-modal__title" id="docs-auth-modal-title">此文档需要登录</h2>
-      <p class="docs-auth-modal__desc">公开文档仍可匿名浏览。请在当前登录框内完成 Casdoor 登录；登录成功后，会自动跳回你刚才点开的目标文档。</p>
-      <p class="docs-auth-modal__status" role="status">关闭后可继续浏览公开文档。</p>
-      <div class="docs-auth-modal__frame-shell">
-        <iframe class="docs-auth-modal__frame" title="Casdoor 登录" src="about:blank"></iframe>
-      </div>
-      <div class="docs-auth-modal__actions">
-        <button class="docs-auth-modal__button docs-auth-modal__button--secondary" type="button" data-docs-auth-action="close">继续浏览公开文档</button>
-      </div>
+    <div class="docs-auth-modal__dialog" role="dialog" aria-modal="true" aria-label="受保护文档登录">
+      <iframe class="docs-auth-modal__frame" title="Casdoor 登录" src="about:blank"></iframe>
     </div>
   `;
 
-  authModalTitle = authModal.querySelector(".docs-auth-modal__title");
-  authModalStatus = authModal.querySelector(".docs-auth-modal__status");
   authFrame = authModal.querySelector(".docs-auth-modal__frame");
-  authModal.querySelector(".docs-auth-modal__close")?.addEventListener("click", () => {{
-    closeAuthModal();
-  }});
-  authModal.querySelector('[data-docs-auth-action="close"]')?.addEventListener("click", () => {{
-    closeAuthModal();
-  }});
   authModal.addEventListener("click", (event) => {{
     if (event.target === authModal) {{
       closeAuthModal();
@@ -1186,13 +1098,9 @@ function ensureAuthModal() {{
   return authModal;
 }}
 
-function openAuthModal(targetUrl, targetTitle) {{
+function openAuthModal(targetUrl) {{
   ensureAuthModal();
   pendingTargetUrl = targetUrl;
-  if (authModalTitle) {{
-    authModalTitle.textContent = targetTitle ? `《${{targetTitle}}》需要登录` : "此文档需要登录";
-  }}
-  setAuthStatus("关闭后可继续浏览公开文档。");
   authModal.classList.add("is-open");
   document.body.classList.add("docs-auth-modal-open");
 }}
@@ -1204,7 +1112,6 @@ function beginAuthFlow() {{
 
   const signInUrl = `/oauth2/sign_in?rd=${{encodeURIComponent(pendingTargetUrl)}}`;
   authFrame.src = signInUrl;
-  setAuthStatus("请在登录框中完成 Casdoor 登录。");
   stopAuthPolling();
   authPollTimer = window.setInterval(async () => {{
     if (authPollBusy || !pendingTargetUrl) {{
@@ -1262,13 +1169,12 @@ function shouldInterceptClick(event, anchor) {{
 async function handlePrivateLinkClick(event, anchor) {{
   event.preventDefault();
   const targetUrl = anchor.href;
-  const targetTitle = anchor.textContent?.trim() || anchor.getAttribute("title") || "";
   const authenticated = await checkAuthStatus();
   if (authenticated) {{
     window.location.assign(targetUrl);
     return;
   }}
-  openAuthModal(targetUrl, targetTitle);
+  openAuthModal(targetUrl);
   beginAuthFlow();
 }}
 
@@ -1293,6 +1199,12 @@ document$.subscribe(() => {{
       return;
     }}
     handlePrivateLinkClick(event, anchor);
+  }});
+
+  document.addEventListener("keydown", (event) => {{
+    if (event.key === "Escape" && authModal?.classList.contains("is-open")) {{
+      closeAuthModal();
+    }}
   }});
 }});
 """,

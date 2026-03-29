@@ -53,6 +53,7 @@
 - `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 - 站点静态资源现新增 `access-control.js`：私有链接会显示“锁定”标记，匿名用户点击私有页面时会在当前页面弹出内嵌 Casdoor 登录框；关闭后可继续浏览公开文档，登录成功后再打开目标私有页
+- 站内登录弹层现已裁剪为仅显示登录框本体，不再额外展示标题、说明与底部按钮，尺寸收敛到接近 Casdoor 登录卡片
 - 生成的 `private_locations.conf` 现显式标注“只允许私有 URL 进入鉴权”，用于约束宿主机 Nginx 不要把 `location /` 误配成整站登录
 - 用户指南、安装说明、运维手册与 UX 设计文档已同步更新，新增“首页不得直接跳登录”的排障口径
 - GitHub Actions deploy 远端 reload 步骤已去掉基于 `EUID` 的分支判断，改为固定走 `sudo nginx -t` 与 `sudo systemctl reload nginx`，避免 `appleboy/ssh-action` 将条件判断的非零退出码误判为部署失败
