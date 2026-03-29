@@ -105,6 +105,9 @@ class SiteBuilderTests(unittest.TestCase):
             nav_js_text = (output_dir / "site_docs" / "assets" / "javascripts" / "navigation.js").read_text(
                 encoding="utf-8"
             )
+            access_js_text = (
+                output_dir / "site_docs" / "assets" / "javascripts" / "access-control.js"
+            ).read_text(encoding="utf-8")
             private_kinds = {
                 (item["url"], item["kind"]) for item in permissions["pages"] if item["access"] == "private"
             }
@@ -129,6 +132,7 @@ class SiteBuilderTests(unittest.TestCase):
         self.assertIn("fontawesome/brands/github", mkdocs_text)
         self.assertIn("extra_javascript:", mkdocs_text)
         self.assertIn("assets/javascripts/navigation.js", mkdocs_text)
+        self.assertIn("assets/javascripts/access-control.js", mkdocs_text)
         self.assertNotIn("navigation.expand", mkdocs_text)
         self.assertIn('"平台文档":', mkdocs_text)
         self.assertIn('"参考设计":', mkdocs_text)
@@ -147,6 +151,17 @@ class SiteBuilderTests(unittest.TestCase):
         self.assertIn('overviewLabel.textContent = sectionTitle', nav_js_text)
         self.assertNotIn('docs-drawer-projects', nav_js_text)
         self.assertIn('.md-tabs__list {\n  contain: none !important;', home_css_text)
+        self.assertIn(".docs-private-link", home_css_text)
+        self.assertIn(".docs-auth-modal", home_css_text)
+        self.assertIn("const PRIVATE_URLS = new Set(", access_js_text)
+        self.assertIn("/platform/03-solution/system-architecture/", access_js_text)
+        self.assertIn("/platform/03-solution/reference-design/assets/detail.png", access_js_text)
+        self.assertIn('fetch("/oauth2/auth"', access_js_text)
+        self.assertIn('window.open(signInUrl, "docs-login"', access_js_text)
+        self.assertIn("closeAuthModal()", access_js_text)
+        self.assertIn("继续浏览公开文档", access_js_text)
+        self.assertNotIn("去登录", access_js_text)
+        self.assertNotIn("location = / {", nginx_text)
 
     def test_builder_rejects_undeclared_markdown_pages(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

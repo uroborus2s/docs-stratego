@@ -302,6 +302,13 @@ server {
 }
 ```
 
+注意：
+
+- `location /` 只能保留静态站点的 `try_files`
+- 不要在 `server {}` 根层或 `location /` 上手工写 `auth_request`
+- 只有 `include /etc/nginx/snippets/docs-stratego/private_locations.conf;` 里列出的私有 URL 才应该触发登录
+- 如果首页 `https://docs.example.com/` 一打开就跳 `/oauth2/sign_in`、`/oauth2/start` 或 `/login`，基本可以判定为宿主机 `Nginx` 被误配成了整站鉴权
+
 ### 7.2 创建 HTTP 引导版 `auth.docs.example.com`
 
 ```bash
@@ -388,6 +395,12 @@ server {
 }
 ```
 
+这里的边界仍然一样：
+
+- `include /etc/nginx/snippets/docs-stratego/private_locations.conf;` 负责挂入私有页面规则
+- `location /` 只负责静态文件命中，不负责整站登录
+- 不要额外把 `auth_request`、`error_page 401 = /oauth2/sign_in;` 写到 `location /`
+
 `auth.docs.example.com`：
 
 ```nginx
@@ -429,6 +442,18 @@ server {
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+
+### 7.6 上线后先做两条快速验证
+
+```bash
+curl -I https://docs.example.com/
+curl -I https://docs.example.com/docs-stratego/04-project-development/
+```
+
+预期结果：
+
+- 首页应返回 `200`、`304` 或其他静态站点正常响应，不能直接跳到登录页
+- 一个明确的私有页面在匿名状态下应进入登录链路
 
 ## 8. 本地生产预演
 

@@ -242,6 +242,115 @@ HOME_CSS = """:root {
 .docs-sidebar-section-only .md-nav__item--nested {
   margin-top: 0;
 }
+
+a.docs-private-link::after {
+  content: "锁定";
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.35rem;
+  padding: 0.02rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(180, 35, 24, 0.12);
+  color: #b42318;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+
+.docs-auth-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.56);
+  z-index: 999;
+}
+
+.docs-auth-modal.is-open {
+  display: flex;
+}
+
+.docs-auth-modal__dialog {
+  position: relative;
+  width: min(30rem, 100%);
+  padding: 1.4rem 1.3rem 1.2rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.24);
+}
+
+.docs-auth-modal__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: #667085;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.docs-auth-modal__eyebrow {
+  margin: 0 0 0.35rem;
+  color: #b42318;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.docs-auth-modal__title {
+  margin: 0;
+  color: #101828;
+  font-size: 1.25rem;
+}
+
+.docs-auth-modal__desc {
+  margin: 0.7rem 0 0;
+  color: #475467;
+  line-height: 1.7;
+}
+
+.docs-auth-modal__status {
+  margin: 0.85rem 0 0;
+  color: #667085;
+  font-size: 0.92rem;
+}
+
+.docs-auth-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.15rem;
+}
+
+.docs-auth-modal__button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.72rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.docs-auth-modal__button--primary {
+  background: #111827;
+  color: #fff;
+}
+
+.docs-auth-modal__button--secondary {
+  background: rgba(15, 23, 42, 0.08);
+  color: #344054;
+}
+
+body.docs-auth-modal-open {
+  overflow: hidden;
+}
 """
 
 ALLOWED_ACCESS = {"public", "private"}
@@ -941,6 +1050,261 @@ document$.subscribe(() => {{
     )
 
 
+def write_access_control_js(site_docs_dir: Path, pages: list[dict]) -> None:
+    js_path = site_docs_dir / "assets" / "javascripts" / "access-control.js"
+    js_path.parent.mkdir(parents=True, exist_ok=True)
+    private_urls = sorted({item["url"] for item in pages if item["access"] == "private"})
+    js_path.write_text(
+        f"""const PRIVATE_URLS = new Set({json.dumps(private_urls, ensure_ascii=False)});
+
+let authModal = null;
+let authModalTitle = null;
+let authModalStatus = null;
+let authPopup = null;
+let authPollTimer = null;
+let authPollBusy = false;
+let pendingTargetUrl = "";
+
+function normalizeSitePath(rawUrl) {{
+  try {{
+    const url = new URL(rawUrl, window.location.origin);
+    if (url.origin !== window.location.origin) {{
+      return null;
+    }}
+    let path = url.pathname || "/";
+    if (path.endsWith("/index.html")) {{
+      path = path.slice(0, -10) || "/";
+    }} else if (path.endsWith(".html")) {{
+      path = `${{path.slice(0, -5)}}/`;
+    }} else if (!path.endsWith("/") && !path.split("/").pop().includes(".")) {{
+      path = `${{path}}/`;
+    }}
+    return path || "/";
+  }} catch (_error) {{
+    return null;
+  }}
+}}
+
+function isPrivateUrl(rawUrl) {{
+  const normalizedPath = normalizeSitePath(rawUrl);
+  return normalizedPath ? PRIVATE_URLS.has(normalizedPath) : false;
+}}
+
+async function checkAuthStatus() {{
+  try {{
+    const response = await fetch("/oauth2/auth", {{
+      credentials: "same-origin",
+      cache: "no-store",
+    }});
+    return response.status >= 200 && response.status < 300;
+  }} catch (_error) {{
+    return false;
+  }}
+}}
+
+function stopAuthPolling() {{
+  if (authPollTimer) {{
+    window.clearInterval(authPollTimer);
+    authPollTimer = null;
+  }}
+}}
+
+function closeAuthPopup() {{
+  if (authPopup && !authPopup.closed) {{
+    authPopup.close();
+  }}
+  authPopup = null;
+}}
+
+function openAuthPopup(signInUrl) {{
+  authPopup = window.open(signInUrl, "docs-login", "popup=yes,width=520,height=720");
+  if (!authPopup) {{
+    return false;
+  }}
+  authPopup.focus();
+  return true;
+}}
+
+function setAuthStatus(message) {{
+  if (authModalStatus) {{
+    authModalStatus.textContent = message;
+  }}
+}}
+
+function closeAuthModal() {{
+  stopAuthPolling();
+  closeAuthPopup();
+  pendingTargetUrl = "";
+  if (!authModal) {{
+    return;
+  }}
+  authModal.classList.remove("is-open");
+  document.body.classList.remove("docs-auth-modal-open");
+  setAuthStatus("关闭后可继续浏览公开文档。");
+}}
+
+function ensureAuthModal() {{
+  if (authModal) {{
+    return authModal;
+  }}
+
+  authModal = document.createElement("div");
+  authModal.className = "docs-auth-modal";
+  authModal.innerHTML = `
+    <div class="docs-auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="docs-auth-modal-title">
+      <button class="docs-auth-modal__close" type="button" aria-label="关闭登录框">&times;</button>
+      <p class="docs-auth-modal__eyebrow">受保护文档</p>
+      <h2 class="docs-auth-modal__title" id="docs-auth-modal-title">此文档需要登录</h2>
+      <p class="docs-auth-modal__desc">公开文档仍可匿名浏览。点击私有文档时会自动拉起 Casdoor 登录窗口；登录成功后，会自动跳回你刚才点开的目标文档。</p>
+      <p class="docs-auth-modal__status" role="status">关闭后可继续浏览公开文档。</p>
+      <div class="docs-auth-modal__actions">
+        <button class="docs-auth-modal__button docs-auth-modal__button--secondary" type="button" data-docs-auth-action="close">继续浏览公开文档</button>
+      </div>
+    </div>
+  `;
+
+  authModalTitle = authModal.querySelector(".docs-auth-modal__title");
+  authModalStatus = authModal.querySelector(".docs-auth-modal__status");
+  authModal.querySelector(".docs-auth-modal__close")?.addEventListener("click", () => {{
+    closeAuthModal();
+  }});
+  authModal.querySelector('[data-docs-auth-action="close"]')?.addEventListener("click", () => {{
+    closeAuthModal();
+  }});
+  authModal.addEventListener("click", (event) => {{
+    if (event.target === authModal) {{
+      closeAuthModal();
+    }}
+  }});
+  document.body.appendChild(authModal);
+  return authModal;
+}}
+
+function openAuthModal(targetUrl, targetTitle) {{
+  ensureAuthModal();
+  pendingTargetUrl = targetUrl;
+  if (authModalTitle) {{
+    authModalTitle.textContent = targetTitle ? `《${{targetTitle}}》需要登录` : "此文档需要登录";
+  }}
+  setAuthStatus("关闭后可继续浏览公开文档。");
+  authModal.classList.add("is-open");
+  document.body.classList.add("docs-auth-modal-open");
+}}
+
+function beginAuthFlow() {{
+  if (!pendingTargetUrl) {{
+    return;
+  }}
+
+  const signInUrl = `/oauth2/sign_in?rd=${{encodeURIComponent(pendingTargetUrl)}}`;
+  const popupOpened = openAuthPopup(signInUrl);
+  if (!popupOpened) {{
+    setAuthStatus("浏览器拦截了登录窗口；请允许弹窗后重新点击私有文档。");
+    return;
+  }}
+
+  setAuthStatus("Casdoor 登录窗口已打开；完成登录后会自动跳转。");
+  stopAuthPolling();
+  authPollTimer = window.setInterval(async () => {{
+    if (authPollBusy || !pendingTargetUrl) {{
+      return;
+    }}
+    authPollBusy = true;
+    try {{
+      const authenticated = await checkAuthStatus();
+      if (authenticated) {{
+        stopAuthPolling();
+        closeAuthPopup();
+        const targetUrl = pendingTargetUrl;
+        closeAuthModal();
+        window.location.assign(targetUrl);
+        return;
+      }}
+      if (authPopup && authPopup.closed) {{
+        closeAuthPopup();
+        stopAuthPolling();
+        setAuthStatus("登录窗口已关闭；如不登录，也可以继续浏览公开文档。");
+      }}
+    }} finally {{
+      authPollBusy = false;
+    }}
+  }}, 1000);
+}}
+
+function annotatePrivateLinks(root = document) {{
+  root.querySelectorAll("a[href]").forEach((anchor) => {{
+    if (anchor.dataset.docsPrivateAnnotated === "true") {{
+      return;
+    }}
+    const href = anchor.getAttribute("href") || anchor.href;
+    if (!isPrivateUrl(href)) {{
+      return;
+    }}
+    anchor.dataset.docsPrivateAnnotated = "true";
+    anchor.classList.add("docs-private-link");
+    const label = anchor.getAttribute("aria-label") || anchor.textContent?.trim() || "受保护文档";
+    anchor.setAttribute("aria-label", `${{label}}（需要登录）`);
+  }});
+}}
+
+function shouldInterceptClick(event, anchor) {{
+  if (event.defaultPrevented || event.button !== 0) {{
+    return false;
+  }}
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {{
+    return false;
+  }}
+  if (anchor.hasAttribute("download")) {{
+    return false;
+  }}
+  const target = anchor.getAttribute("target");
+  if (target && target !== "_self") {{
+    return false;
+  }}
+  return isPrivateUrl(anchor.href);
+}}
+
+async function handlePrivateLinkClick(event, anchor) {{
+  event.preventDefault();
+  const targetUrl = anchor.href;
+  const targetTitle = anchor.textContent?.trim() || anchor.getAttribute("title") || "";
+  const authenticated = await checkAuthStatus();
+  if (authenticated) {{
+    window.location.assign(targetUrl);
+    return;
+  }}
+  openAuthModal(targetUrl, targetTitle);
+  beginAuthFlow();
+}}
+
+document$.subscribe(() => {{
+  ensureAuthModal();
+  annotatePrivateLinks();
+
+  if (window.__docsAccessControlHandlersBound) {{
+    return;
+  }}
+  window.__docsAccessControlHandlersBound = true;
+
+  document.addEventListener("click", (event) => {{
+    if (!(event.target instanceof Element)) {{
+      return;
+    }}
+    const anchor = event.target.closest("a[href]");
+    if (!(anchor instanceof HTMLAnchorElement)) {{
+      return;
+    }}
+    if (!shouldInterceptClick(event, anchor)) {{
+      return;
+    }}
+    handlePrivateLinkClick(event, anchor);
+  }});
+}});
+""",
+        encoding="utf-8",
+    )
+
+
 def write_permissions(output_dir: Path, pages: list[dict]) -> None:
     authz_dir = output_dir / "authz"
     authz_dir.mkdir(parents=True, exist_ok=True)
@@ -955,7 +1319,11 @@ def write_nginx_private_locations(output_dir: Path, pages: list[dict]) -> None:
     nginx_dir = output_dir / "nginx"
     nginx_dir.mkdir(parents=True, exist_ok=True)
     private_urls = sorted({item["url"] for item in pages if item["access"] == "private"})
-    lines: list[str] = []
+    lines: list[str] = [
+        "# generated by docs-stratego",
+        "# only private URLs belong here; do not add auth_request to site root or location /",
+        "",
+    ]
     for url in private_urls:
         lines.extend(
             [
@@ -1005,6 +1373,7 @@ def write_mkdocs_config(output_dir: Path, nav_items: list[dict]) -> None:
         "  - assets/stylesheets/home.css",
         "extra_javascript:",
         "  - assets/javascripts/navigation.js",
+        "  - assets/javascripts/access-control.js",
         "plugins: []",
         "nav:",
         '  - "首页": index.md',
@@ -1058,6 +1427,7 @@ def build_site(repositories: list[SourceRepository], output_dir: Path, project_r
 
     write_root_index(site_docs_dir, repositories, repo_pages)
     write_navigation_js(site_docs_dir, repo_tab_links)
+    write_access_control_js(site_docs_dir, entries)
     write_permissions(output_dir, entries)
     write_nginx_private_locations(output_dir, entries)
     write_mkdocs_config(output_dir, top_level_nav)

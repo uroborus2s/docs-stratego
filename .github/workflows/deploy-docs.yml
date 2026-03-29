@@ -109,7 +109,7 @@ jobs:
           port: ${{ secrets.DOCS_DEPLOY_PORT || '22' }}
           script_stop: true
           script: |
-            set -euo pipefail
+            set -euxo pipefail
             SITE_DIR="${{ secrets.DOCS_DEPLOY_SITE_DIR }}"
             if [ -z "$SITE_DIR" ]; then
               SITE_DIR="/var/www/docs-stratego"
@@ -119,6 +119,10 @@ jobs:
               PRIVATE_LOCATIONS_PATH="/etc/nginx/snippets/docs-stratego/private_locations.conf"
             fi
             TMP_DIR="$HOME/.docs-stratego-deploy-tmp"
+            echo "Preparing remote directories"
+            echo "SITE_DIR=$SITE_DIR"
+            echo "PRIVATE_LOCATIONS_PATH=$PRIVATE_LOCATIONS_PATH"
+            echo "TMP_DIR=$TMP_DIR"
             mkdir -p "$TMP_DIR"
             sudo install -d -m 0755 "$SITE_DIR"
             sudo install -d -m 0755 "$(dirname "$PRIVATE_LOCATIONS_PATH")"
@@ -142,7 +146,7 @@ jobs:
           port: ${{ secrets.DOCS_DEPLOY_PORT || '22' }}
           script_stop: true
           script: |
-            set -euo pipefail
+            set -euxo pipefail
             SITE_DIR="${{ secrets.DOCS_DEPLOY_SITE_DIR }}"
             if [ -z "$SITE_DIR" ]; then
               SITE_DIR="/var/www/docs-stratego"
@@ -153,6 +157,13 @@ jobs:
             fi
             TMP_DIR="$HOME/.docs-stratego-deploy-tmp"
             STAGING_DIR="$TMP_DIR/site-staging"
+            echo "Publishing uploaded bundle"
+            echo "SITE_DIR=$SITE_DIR"
+            echo "PRIVATE_LOCATIONS_PATH=$PRIVATE_LOCATIONS_PATH"
+            echo "TMP_DIR=$TMP_DIR"
+            test -f "$TMP_DIR/site.tar.gz" || { echo "Missing uploaded bundle: $TMP_DIR/site.tar.gz" >&2; exit 1; }
+            test -f "$TMP_DIR/private_locations.conf" || { echo "Missing uploaded rules: $TMP_DIR/private_locations.conf" >&2; exit 1; }
+            ls -la "$TMP_DIR"
             mkdir -p "$TMP_DIR"
             rm -rf "$STAGING_DIR"
             mkdir -p "$STAGING_DIR"
