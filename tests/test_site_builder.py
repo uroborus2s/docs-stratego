@@ -108,6 +108,9 @@ class SiteBuilderTests(unittest.TestCase):
             access_js_text = (
                 output_dir / "site_docs" / "assets" / "javascripts" / "access-control.js"
             ).read_text(encoding="utf-8")
+            popup_complete_text = (
+                output_dir / "site_docs" / "assets" / "auth" / "popup-complete.html"
+            ).read_text(encoding="utf-8")
             private_kinds = {
                 (item["url"], item["kind"]) for item in permissions["pages"] if item["access"] == "private"
             }
@@ -152,26 +155,21 @@ class SiteBuilderTests(unittest.TestCase):
         self.assertNotIn('docs-drawer-projects', nav_js_text)
         self.assertIn('.md-tabs__list {\n  contain: none !important;', home_css_text)
         self.assertIn(".docs-private-link", home_css_text)
-        self.assertIn(".docs-auth-modal", home_css_text)
-        self.assertIn(".docs-auth-modal__dialog", home_css_text)
-        self.assertIn(".docs-auth-modal__frame", home_css_text)
-        self.assertIn("width: min(24rem, calc(100vw - 2rem));", home_css_text)
-        self.assertNotIn(".docs-auth-modal__eyebrow", home_css_text)
-        self.assertNotIn(".docs-auth-modal__desc", home_css_text)
-        self.assertNotIn(".docs-auth-modal__status", home_css_text)
-        self.assertNotIn(".docs-auth-modal__actions", home_css_text)
+        self.assertNotIn(".docs-auth-modal", home_css_text)
         self.assertIn("const PRIVATE_URLS = new Set(", access_js_text)
+        self.assertIn('const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";', access_js_text)
+        self.assertIn('const AUTH_POPUP_CALLBACK_PATH = "/assets/auth/popup-complete.html";', access_js_text)
         self.assertIn("/platform/03-solution/system-architecture/", access_js_text)
         self.assertIn("/platform/03-solution/reference-design/assets/detail.png", access_js_text)
         self.assertIn('fetch("/oauth2/auth"', access_js_text)
-        self.assertIn('class="docs-auth-modal__frame"', access_js_text)
-        self.assertIn('aria-label="受保护文档登录"', access_js_text)
-        self.assertIn("authFrame.src = signInUrl", access_js_text)
-        self.assertIn('authFrame.src = "about:blank"', access_js_text)
-        self.assertIn("closeAuthModal()", access_js_text)
-        self.assertIn('event.key === "Escape" && authModal?.classList.contains("is-open")', access_js_text)
-        self.assertNotIn("继续浏览公开文档", access_js_text)
-        self.assertNotIn("此文档需要登录", access_js_text)
+        self.assertIn('window.open("about:blank", "docsAuthPopup"', access_js_text)
+        self.assertIn("window.addEventListener(\"message\"", access_js_text)
+        self.assertIn("window.opener.postMessage", popup_complete_text)
+        self.assertIn("window.close()", popup_complete_text)
+        self.assertIn("docs-auth-popup-complete", popup_complete_text)
+        self.assertIn("/assets/auth/popup-complete.html", access_js_text)
+        self.assertIn("authPopup.closed", access_js_text)
+        self.assertNotIn("iframe", access_js_text)
         self.assertNotIn("去登录", access_js_text)
         self.assertNotIn("window.open(signInUrl", access_js_text)
         self.assertNotIn("location = / {", nginx_text)

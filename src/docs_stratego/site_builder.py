@@ -257,55 +257,6 @@ a.docs-private-link::after {
   line-height: 1.45;
   vertical-align: middle;
 }
-
-.docs-auth-modal {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.56);
-  z-index: 999;
-}
-
-.docs-auth-modal.is-open {
-  display: flex;
-}
-
-.docs-auth-modal__dialog {
-  width: min(24rem, calc(100vw - 2rem));
-  border-radius: 1rem;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.24);
-}
-
-.docs-auth-modal__frame {
-  display: block;
-  width: 100%;
-  height: min(34rem, calc(100vh - 2rem));
-  border: 0;
-  background: #fff;
-}
-
-body.docs-auth-modal-open {
-  overflow: hidden;
-}
-
-@media (max-width: 31rem) {
-  .docs-auth-modal {
-    padding: 0.75rem;
-  }
-
-  .docs-auth-modal__dialog {
-    width: min(100%, 23rem);
-  }
-
-  .docs-auth-modal__frame {
-    height: min(32rem, calc(100vh - 1.5rem));
-  }
-}
 """
 
 ALLOWED_ACCESS = {"public", "private"}
@@ -1011,11 +962,12 @@ def write_access_control_js(site_docs_dir: Path, pages: list[dict]) -> None:
     private_urls = sorted({item["url"] for item in pages if item["access"] == "private"})
     js_path.write_text(
         f"""const PRIVATE_URLS = new Set({json.dumps(private_urls, ensure_ascii=False)});
+const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";
+const AUTH_POPUP_CALLBACK_PATH = "/assets/auth/popup-complete.html";
 
-let authModal = null;
-let authFrame = null;
-let authPollTimer = null;
-let authPollBusy = false;
+let authPopup = null;
+let authPopupMonitor = null;
+let authFlowId = 0;
 let pendingTargetUrl = "";
 
 function normalizeSitePath(rawUrl) {{
@@ -1043,6 +995,18 @@ function isPrivateUrl(rawUrl) {{
   return normalizedPath ? PRIVATE_URLS.has(normalizedPath) : false;
 }}
 
+function resolveSameOriginUrl(rawUrl) {{
+  try {{
+    const url = new URL(rawUrl, window.location.origin);
+    if (url.origin !== window.location.origin) {{
+      return null;
+    }}
+    return url.toString();
+  }} catch (_error) {{
+    return null;
+  }}
+}}
+
 async function checkAuthStatus() {{
   try {{
     const response = await fetch("/oauth2/auth", {{
@@ -1055,82 +1019,142 @@ async function checkAuthStatus() {{
   }}
 }}
 
-function stopAuthPolling() {{
-  if (authPollTimer) {{
-    window.clearInterval(authPollTimer);
-    authPollTimer = null;
+function stopAuthPopupMonitor() {{
+  if (authPopupMonitor) {{
+    window.clearInterval(authPopupMonitor);
+    authPopupMonitor = null;
   }}
 }}
 
-function closeAuthModal() {{
-  stopAuthPolling();
-  pendingTargetUrl = "";
-  if (authFrame) {{
-    authFrame.src = "about:blank";
-  }}
-  if (!authModal) {{
-    return;
-  }}
-  authModal.classList.remove("is-open");
-  document.body.classList.remove("docs-auth-modal-open");
-}}
-
-function ensureAuthModal() {{
-  if (authModal) {{
-    return authModal;
-  }}
-
-  authModal = document.createElement("div");
-  authModal.className = "docs-auth-modal";
-  authModal.innerHTML = `
-    <div class="docs-auth-modal__dialog" role="dialog" aria-modal="true" aria-label="受保护文档登录">
-      <iframe class="docs-auth-modal__frame" title="Casdoor 登录" src="about:blank"></iframe>
-    </div>
-  `;
-
-  authFrame = authModal.querySelector(".docs-auth-modal__frame");
-  authModal.addEventListener("click", (event) => {{
-    if (event.target === authModal) {{
-      closeAuthModal();
+function closeAuthPopup() {{
+  stopAuthPopupMonitor();
+  if (authPopup && !authPopup.closed) {{
+    try {{
+      authPopup.close();
+    }} catch (_error) {{
+      // ignore popup close errors
     }}
-  }});
-  document.body.appendChild(authModal);
-  return authModal;
-}}
-
-function openAuthModal(targetUrl) {{
-  ensureAuthModal();
-  pendingTargetUrl = targetUrl;
-  authModal.classList.add("is-open");
-  document.body.classList.add("docs-auth-modal-open");
-}}
-
-function beginAuthFlow() {{
-  if (!pendingTargetUrl || !authFrame) {{
-    return;
   }}
+  authPopup = null;
+}}
 
-  const signInUrl = `/oauth2/sign_in?rd=${{encodeURIComponent(pendingTargetUrl)}}`;
-  authFrame.src = signInUrl;
-  stopAuthPolling();
-  authPollTimer = window.setInterval(async () => {{
-    if (authPollBusy || !pendingTargetUrl) {{
+function buildAuthPopupFeatures() {{
+  const width = 480;
+  const height = 760;
+  const left = Math.max(window.screenX + Math.round((window.outerWidth - width) / 2), 0);
+  const top = Math.max(window.screenY + Math.round((window.outerHeight - height) / 2), 0);
+  return `popup=yes,width=${{width}},height=${{height}},left=${{left}},top=${{top}},resizable=yes,scrollbars=yes`;
+}}
+
+function openAuthPopupShell() {{
+  closeAuthPopup();
+  const popup = window.open("about:blank", "docsAuthPopup", buildAuthPopupFeatures());
+  if (!popup) {{
+    return null;
+  }}
+  try {{
+    popup.document.title = "打开登录中";
+    popup.document.body.style.margin = "0";
+    popup.document.body.style.display = "grid";
+    popup.document.body.style.placeItems = "center";
+    popup.document.body.style.minHeight = "100vh";
+    popup.document.body.style.fontFamily = "system-ui, sans-serif";
+    popup.document.body.style.color = "#344054";
+    popup.document.body.textContent = "正在打开登录...";
+  }} catch (_error) {{
+    // ignore popup rendering errors
+  }}
+  return popup;
+}}
+
+function buildAuthPopupCallbackUrl(targetUrl, flowId) {{
+  const callbackUrl = new URL(AUTH_POPUP_CALLBACK_PATH, window.location.origin);
+  callbackUrl.searchParams.set("flow", String(flowId));
+  callbackUrl.searchParams.set("target", targetUrl);
+  return callbackUrl.toString();
+}}
+
+function startAuthPopupMonitor(flowId) {{
+  stopAuthPopupMonitor();
+  authPopupMonitor = window.setInterval(async () => {{
+    if (flowId !== authFlowId) {{
+      stopAuthPopupMonitor();
       return;
     }}
-    authPollBusy = true;
-    try {{
-      const authenticated = await checkAuthStatus();
-      if (authenticated) {{
-        stopAuthPolling();
-        const targetUrl = pendingTargetUrl;
-        closeAuthModal();
-        window.location.assign(targetUrl);
-        return;
-      }}
-    }} finally {{
-      authPollBusy = false;
+    if (!authPopup) {{
+      stopAuthPopupMonitor();
+      return;
     }}
-  }}, 1000);
+    if (!authPopup.closed) {{
+      return;
+    }}
+    stopAuthPopupMonitor();
+    authPopup = null;
+    if (!pendingTargetUrl) {{
+      return;
+    }}
+    const targetUrl = pendingTargetUrl;
+    pendingTargetUrl = "";
+    const authenticated = await checkAuthStatus();
+    if (authenticated) {{
+      window.location.assign(targetUrl);
+    }}
+  }}, 500);
+}}
+
+function handleAuthPopupMessage(event) {{
+  if (event.origin !== window.location.origin) {{
+    return;
+  }}
+  const data = event.data;
+  if (!data || data.type !== AUTH_POPUP_MESSAGE_TYPE) {{
+    return;
+  }}
+  if (String(data.flowId || "") !== String(authFlowId)) {{
+    return;
+  }}
+  const targetUrl = resolveSameOriginUrl(data.targetUrl) || pendingTargetUrl;
+  pendingTargetUrl = "";
+  closeAuthPopup();
+  if (targetUrl) {{
+    window.location.assign(targetUrl);
+  }}
+}}
+
+async function beginPopupAuthFlow(targetUrl) {{
+  const safeTargetUrl = resolveSameOriginUrl(targetUrl);
+  if (!safeTargetUrl) {{
+    return;
+  }}
+  pendingTargetUrl = safeTargetUrl;
+  authFlowId += 1;
+  const flowId = authFlowId;
+  const popup = openAuthPopupShell();
+  const authenticated = await checkAuthStatus();
+  if (authenticated) {{
+    pendingTargetUrl = "";
+    if (popup && !popup.closed) {{
+      popup.close();
+    }}
+    window.location.assign(safeTargetUrl);
+    return;
+  }}
+
+  const signInUrl = `/oauth2/sign_in?rd=${{encodeURIComponent(buildAuthPopupCallbackUrl(safeTargetUrl, flowId))}}`;
+  if (!popup) {{
+    window.location.assign(signInUrl);
+    return;
+  }}
+
+  authPopup = popup;
+  startAuthPopupMonitor(flowId);
+  try {{
+    popup.location.replace(signInUrl);
+    popup.focus();
+  }} catch (_error) {{
+    closeAuthPopup();
+    window.location.assign(signInUrl);
+  }}
 }}
 
 function annotatePrivateLinks(root = document) {{
@@ -1168,18 +1192,10 @@ function shouldInterceptClick(event, anchor) {{
 
 async function handlePrivateLinkClick(event, anchor) {{
   event.preventDefault();
-  const targetUrl = anchor.href;
-  const authenticated = await checkAuthStatus();
-  if (authenticated) {{
-    window.location.assign(targetUrl);
-    return;
-  }}
-  openAuthModal(targetUrl);
-  beginAuthFlow();
+  beginPopupAuthFlow(anchor.href);
 }}
 
 document$.subscribe(() => {{
-  ensureAuthModal();
   annotatePrivateLinks();
 
   if (window.__docsAccessControlHandlersBound) {{
@@ -1200,13 +1216,67 @@ document$.subscribe(() => {{
     }}
     handlePrivateLinkClick(event, anchor);
   }});
-
-  document.addEventListener("keydown", (event) => {{
-    if (event.key === "Escape" && authModal?.classList.contains("is-open")) {{
-      closeAuthModal();
-    }}
-  }});
+  window.addEventListener("message", handleAuthPopupMessage);
 }});
+""",
+        encoding="utf-8",
+    )
+
+
+def write_auth_popup_complete_html(site_docs_dir: Path) -> None:
+    popup_path = site_docs_dir / "assets" / "auth" / "popup-complete.html"
+    popup_path.parent.mkdir(parents=True, exist_ok=True)
+    popup_path.write_text(
+        """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录完成</title>
+  <script>
+    (() => {
+      const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";
+
+      function resolveSameOriginTarget(rawTarget) {
+        try {
+          const url = new URL(rawTarget || "/", window.location.origin);
+          if (url.origin !== window.location.origin) {
+            return new URL("/", window.location.origin).toString();
+          }
+          return url.toString();
+        } catch (_error) {
+          return new URL("/", window.location.origin).toString();
+        }
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const payload = {
+        type: AUTH_POPUP_MESSAGE_TYPE,
+        flowId: params.get("flow") || "",
+        targetUrl: resolveSameOriginTarget(params.get("target")),
+      };
+
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(payload, window.location.origin);
+          window.close();
+          setTimeout(() => {
+            window.location.replace(payload.targetUrl);
+          }, 250);
+          return;
+        }
+      } catch (_error) {
+        // ignore opener access errors
+      }
+
+      window.location.replace(payload.targetUrl);
+    })();
+  </script>
+</head>
+<body>
+  登录完成，正在返回文档...
+</body>
+</html>
 """,
         encoding="utf-8",
     )
@@ -1335,6 +1405,7 @@ def build_site(repositories: list[SourceRepository], output_dir: Path, project_r
     write_root_index(site_docs_dir, repositories, repo_pages)
     write_navigation_js(site_docs_dir, repo_tab_links)
     write_access_control_js(site_docs_dir, entries)
+    write_auth_popup_complete_html(site_docs_dir)
     write_permissions(output_dir, entries)
     write_nginx_private_locations(output_dir, entries)
     write_mkdocs_config(output_dir, top_level_nav)
