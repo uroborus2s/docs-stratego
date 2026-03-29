@@ -1,11 +1,15 @@
 const PRIVATE_URLS = new Set(["/crawler4j/04-project-development/", "/crawler4j/04-project-development/01-governance/", "/crawler4j/04-project-development/01-governance/project-charter/", "/crawler4j/04-project-development/02-discovery/", "/crawler4j/04-project-development/02-discovery/current-state-analysis/", "/crawler4j/04-project-development/02-discovery/input/", "/crawler4j/04-project-development/02-discovery/legacy-doc-audit/", "/crawler4j/04-project-development/03-requirements/", "/crawler4j/04-project-development/03-requirements/prd/", "/crawler4j/04-project-development/03-requirements/requirements-analysis/", "/crawler4j/04-project-development/03-requirements/requirements-verification/", "/crawler4j/04-project-development/04-design/", "/crawler4j/04-project-development/04-design/api-design/", "/crawler4j/04-project-development/04-design/module-boundaries/", "/crawler4j/04-project-development/04-design/system-architecture/", "/crawler4j/04-project-development/04-design/technical-selection/", "/crawler4j/04-project-development/05-development-process/", "/crawler4j/04-project-development/05-development-process/implementation-plan/", "/crawler4j/04-project-development/05-development-process/software-development-process/", "/crawler4j/04-project-development/06-testing-verification/", "/crawler4j/04-project-development/06-testing-verification/design-implementation-audit/", "/crawler4j/04-project-development/06-testing-verification/quality-gates/", "/crawler4j/04-project-development/06-testing-verification/test-plan/", "/crawler4j/04-project-development/07-release-delivery/", "/crawler4j/04-project-development/07-release-delivery/release-notes/", "/crawler4j/04-project-development/07-release-delivery/version-governance/", "/crawler4j/04-project-development/08-operations-maintenance/", "/crawler4j/04-project-development/08-operations-maintenance/core-maintainer-guide/", "/crawler4j/04-project-development/08-operations-maintenance/deployment-guide/", "/crawler4j/04-project-development/09-evolution/", "/crawler4j/04-project-development/09-evolution/skill-evolution-plan/", "/crawler4j/04-project-development/10-traceability/", "/crawler4j/04-project-development/10-traceability/document-index/", "/crawler4j/04-project-development/10-traceability/interface-matrix/", "/crawler4j/04-project-development/10-traceability/requirements-matrix/", "/docs-stratego/04-project-development/", "/docs-stratego/04-project-development/01-governance/", "/docs-stratego/04-project-development/01-governance/project-charter/", "/docs-stratego/04-project-development/02-discovery/", "/docs-stratego/04-project-development/02-discovery/brainstorm-record/", "/docs-stratego/04-project-development/02-discovery/input/", "/docs-stratego/04-project-development/03-requirements/", "/docs-stratego/04-project-development/03-requirements/changelog/", "/docs-stratego/04-project-development/03-requirements/prd/", "/docs-stratego/04-project-development/03-requirements/requirements-analysis/", "/docs-stratego/04-project-development/03-requirements/requirements-verification/", "/docs-stratego/04-project-development/04-design/", "/docs-stratego/04-project-development/04-design/api-design/", "/docs-stratego/04-project-development/04-design/backend-design/", "/docs-stratego/04-project-development/04-design/crawler4j-integration-package/", "/docs-stratego/04-project-development/04-design/database-design/", "/docs-stratego/04-project-development/04-design/deployment-architecture/", "/docs-stratego/04-project-development/04-design/module-boundaries/", "/docs-stratego/04-project-development/04-design/source-docs-standard/", "/docs-stratego/04-project-development/04-design/system-architecture/", "/docs-stratego/04-project-development/04-design/technical-selection/", "/docs-stratego/04-project-development/04-design/ux-ui-design/", "/docs-stratego/04-project-development/05-development-process/", "/docs-stratego/04-project-development/05-development-process/implementation-plan/", "/docs-stratego/04-project-development/05-development-process/software-development-process/", "/docs-stratego/04-project-development/05-development-process/task-breakdown/", "/docs-stratego/04-project-development/05-development-process/wbs/", "/docs-stratego/04-project-development/06-testing-verification/", "/docs-stratego/04-project-development/06-testing-verification/test-cases/", "/docs-stratego/04-project-development/06-testing-verification/test-plan/", "/docs-stratego/04-project-development/06-testing-verification/test-report/", "/docs-stratego/04-project-development/07-release-delivery/", "/docs-stratego/04-project-development/07-release-delivery/acceptance-checklist/", "/docs-stratego/04-project-development/07-release-delivery/delivery-package/", "/docs-stratego/04-project-development/07-release-delivery/release-notes/", "/docs-stratego/04-project-development/08-operations-maintenance/", "/docs-stratego/04-project-development/08-operations-maintenance/deployment-guide/", "/docs-stratego/04-project-development/08-operations-maintenance/operations-runbook/", "/docs-stratego/04-project-development/08-operations-maintenance/server-deployment-sop/", "/docs-stratego/04-project-development/09-evolution/", "/docs-stratego/04-project-development/09-evolution/retrospective/", "/docs-stratego/04-project-development/09-evolution/skill-evolution-plan/", "/docs-stratego/04-project-development/10-traceability/", "/docs-stratego/04-project-development/10-traceability/document-index/", "/docs-stratego/04-project-development/10-traceability/interface-matrix/", "/docs-stratego/04-project-development/10-traceability/requirements-matrix/", "/ride-loop/04-project-development/01-governance/", "/ride-loop/04-project-development/01-governance/project-charter/", "/ride-loop/04-project-development/02-discovery/", "/ride-loop/04-project-development/02-discovery/brainstorm-record/", "/ride-loop/04-project-development/02-discovery/input/", "/ride-loop/04-project-development/03-requirements/requirements-verification/", "/ride-loop/04-project-development/03-requirements/terminal-strategy/", "/ride-loop/04-project-development/04-design/", "/ride-loop/04-project-development/04-design/api-design/", "/ride-loop/04-project-development/04-design/backend-design/", "/ride-loop/04-project-development/04-design/database-design/", "/ride-loop/04-project-development/04-design/database-er-diagram/", "/ride-loop/04-project-development/04-design/design-token-component-spec/", "/ride-loop/04-project-development/04-design/design-tool-prompt-pack/", "/ride-loop/04-project-development/04-design/driver-heavy-app-spec/", "/ride-loop/04-project-development/04-design/driver-light-miniapp-spec/", "/ride-loop/04-project-development/04-design/module-boundaries/", "/ride-loop/04-project-development/04-design/openapi/", "/ride-loop/04-project-development/04-design/openapi/driver-heavy-app.openapi.yaml", "/ride-loop/04-project-development/04-design/openapi/driver-light-miniapp.openapi.yaml", "/ride-loop/04-project-development/04-design/openapi/ops-web.openapi.yaml", "/ride-loop/04-project-development/04-design/openapi/passenger-miniapp.openapi.yaml", "/ride-loop/04-project-development/04-design/ops-web-spec/", "/ride-loop/04-project-development/04-design/page-prompt-catalog/", "/ride-loop/04-project-development/04-design/system-architecture/", "/ride-loop/04-project-development/04-design/system-detailed-design/", "/ride-loop/04-project-development/04-design/technical-selection/", "/ride-loop/04-project-development/04-design/ui-page-detail-matrix/", "/ride-loop/04-project-development/04-design/ux-ui-design/", "/ride-loop/04-project-development/06-testing-verification/", "/ride-loop/04-project-development/06-testing-verification/test-plan/", "/ride-loop/04-project-development/07-release-delivery/", "/ride-loop/04-project-development/08-operations-maintenance/", "/ride-loop/04-project-development/08-operations-maintenance/deployment-guide/", "/ride-loop/04-project-development/09-evolution/", "/ride-loop/04-project-development/10-traceability/", "/ride-loop/04-project-development/10-traceability/requirements-matrix/", "/stratix/04-project-development/", "/stratix/04-project-development/01-governance/", "/stratix/04-project-development/01-governance/project-charter/", "/stratix/04-project-development/02-discovery/", "/stratix/04-project-development/02-discovery/brainstorm-record/", "/stratix/04-project-development/02-discovery/current-state-analysis/", "/stratix/04-project-development/02-discovery/input/", "/stratix/04-project-development/03-requirements/", "/stratix/04-project-development/03-requirements/prd/", "/stratix/04-project-development/03-requirements/requirements-analysis/", "/stratix/04-project-development/03-requirements/requirements-verification/", "/stratix/04-project-development/04-design/", "/stratix/04-project-development/04-design/api-design/", "/stratix/04-project-development/04-design/backend-design/", "/stratix/04-project-development/04-design/module-boundaries/", "/stratix/04-project-development/04-design/system-architecture/", "/stratix/04-project-development/04-design/technical-selection/", "/stratix/04-project-development/05-development-process/", "/stratix/04-project-development/05-development-process/implementation-plan/", "/stratix/04-project-development/06-testing-verification/", "/stratix/04-project-development/06-testing-verification/test-plan/", "/stratix/04-project-development/07-release-delivery/", "/stratix/04-project-development/07-release-delivery/release-notes/", "/stratix/04-project-development/08-operations-maintenance/", "/stratix/04-project-development/08-operations-maintenance/deployment-guide/", "/stratix/04-project-development/09-evolution/", "/stratix/04-project-development/10-traceability/", "/stratix/04-project-development/10-traceability/requirements-matrix/"]);
 const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";
 const AUTH_POPUP_CALLBACK_PATH = "/assets/auth/popup-complete.html";
+const AUTH_STATUS_TTL_MS = 60 * 1000;
 
 let authPopup = null;
 let authPopupMonitor = null;
 let authFlowId = 0;
 let pendingTargetUrl = "";
+let authStatus = "unknown";
+let authStatusCheckedAt = 0;
+let authStatusRequest = null;
 
 function normalizeSitePath(rawUrl) {
   try {
@@ -54,6 +58,58 @@ async function checkAuthStatus() {
   } catch (_error) {
     return false;
   }
+}
+
+function persistAuthState(authenticated) {
+  authStatus = authenticated ? "authenticated" : "anonymous";
+  authStatusCheckedAt = Date.now();
+  try {
+    sessionStorage.setItem("docsAuthState", authStatus);
+    sessionStorage.setItem("docsAuthStateCheckedAt", String(authStatusCheckedAt));
+  } catch (_error) {
+    // ignore sessionStorage access errors
+  }
+}
+
+function hydrateAuthState() {
+  try {
+    const storedState = sessionStorage.getItem("docsAuthState");
+    const storedCheckedAt = Number(sessionStorage.getItem("docsAuthStateCheckedAt") || "0");
+    if (!storedState || !storedCheckedAt) {
+      return;
+    }
+    if (Date.now() - storedCheckedAt > AUTH_STATUS_TTL_MS) {
+      return;
+    }
+    authStatus = storedState;
+    authStatusCheckedAt = storedCheckedAt;
+  } catch (_error) {
+    // ignore sessionStorage access errors
+  }
+}
+
+function hasFreshAuthenticatedSession() {
+  return authStatus === "authenticated" && Date.now() - authStatusCheckedAt <= AUTH_STATUS_TTL_MS;
+}
+
+async function refreshAuthState(force = false) {
+  if (!force && hasFreshAuthenticatedSession()) {
+    return true;
+  }
+  if (!force && authStatus === "anonymous" && Date.now() - authStatusCheckedAt <= AUTH_STATUS_TTL_MS) {
+    return false;
+  }
+  if (authStatusRequest) {
+    return authStatusRequest;
+  }
+  authStatusRequest = (async () => {
+    const authenticated = await checkAuthStatus();
+    persistAuthState(authenticated);
+    return authenticated;
+  })().finally(() => {
+    authStatusRequest = null;
+  });
+  return authStatusRequest;
 }
 
 function stopAuthPopupMonitor() {
@@ -140,7 +196,7 @@ function startAuthPopupMonitor(flowId) {
     }
     const targetUrl = pendingTargetUrl;
     pendingTargetUrl = "";
-    const authenticated = await checkAuthStatus();
+    const authenticated = await refreshAuthState(true);
     if (authenticated) {
       window.location.assign(targetUrl);
     }
@@ -158,6 +214,7 @@ function handleAuthPopupMessage(event) {
   if (String(data.flowId || "") !== String(authFlowId)) {
     return;
   }
+  persistAuthState(true);
   const targetUrl = resolveSameOriginUrl(data.targetUrl) || pendingTargetUrl;
   pendingTargetUrl = "";
   closeAuthPopup();
@@ -175,7 +232,7 @@ async function beginPopupAuthFlow(targetUrl) {
   authFlowId += 1;
   const flowId = authFlowId;
   const popup = openAuthPopupShell();
-  const authenticated = await checkAuthStatus();
+  const authenticated = await refreshAuthState(true);
   if (authenticated) {
     pendingTargetUrl = "";
     if (popup && !popup.closed) {
@@ -232,16 +289,26 @@ function shouldInterceptClick(event, anchor) {
   if (target && target !== "_self") {
     return false;
   }
+  if (isPrivateUrl(anchor.href) && hasFreshAuthenticatedSession()) {
+    return false;
+  }
   return isPrivateUrl(anchor.href);
 }
 
 async function handlePrivateLinkClick(event, anchor) {
   event.preventDefault();
+  const authenticated = await refreshAuthState();
+  if (authenticated) {
+    window.location.assign(anchor.href);
+    return;
+  }
   beginPopupAuthFlow(anchor.href);
 }
 
 document$.subscribe(() => {
+  hydrateAuthState();
   annotatePrivateLinks();
+  refreshAuthState();
 
   if (window.__docsAccessControlHandlersBound) {
     return;

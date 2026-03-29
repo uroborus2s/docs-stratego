@@ -964,11 +964,15 @@ def write_access_control_js(site_docs_dir: Path, pages: list[dict]) -> None:
         f"""const PRIVATE_URLS = new Set({json.dumps(private_urls, ensure_ascii=False)});
 const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";
 const AUTH_POPUP_CALLBACK_PATH = "/assets/auth/popup-complete.html";
+const AUTH_STATUS_TTL_MS = 60 * 1000;
 
 let authPopup = null;
 let authPopupMonitor = null;
 let authFlowId = 0;
 let pendingTargetUrl = "";
+let authStatus = "unknown";
+let authStatusCheckedAt = 0;
+let authStatusRequest = null;
 
 function normalizeSitePath(rawUrl) {{
   try {{
@@ -1017,6 +1021,58 @@ async function checkAuthStatus() {{
   }} catch (_error) {{
     return false;
   }}
+}}
+
+function persistAuthState(authenticated) {{
+  authStatus = authenticated ? "authenticated" : "anonymous";
+  authStatusCheckedAt = Date.now();
+  try {{
+    sessionStorage.setItem("docsAuthState", authStatus);
+    sessionStorage.setItem("docsAuthStateCheckedAt", String(authStatusCheckedAt));
+  }} catch (_error) {{
+    // ignore sessionStorage access errors
+  }}
+}}
+
+function hydrateAuthState() {{
+  try {{
+    const storedState = sessionStorage.getItem("docsAuthState");
+    const storedCheckedAt = Number(sessionStorage.getItem("docsAuthStateCheckedAt") || "0");
+    if (!storedState || !storedCheckedAt) {{
+      return;
+    }}
+    if (Date.now() - storedCheckedAt > AUTH_STATUS_TTL_MS) {{
+      return;
+    }}
+    authStatus = storedState;
+    authStatusCheckedAt = storedCheckedAt;
+  }} catch (_error) {{
+    // ignore sessionStorage access errors
+  }}
+}}
+
+function hasFreshAuthenticatedSession() {{
+  return authStatus === "authenticated" && Date.now() - authStatusCheckedAt <= AUTH_STATUS_TTL_MS;
+}}
+
+async function refreshAuthState(force = false) {{
+  if (!force && hasFreshAuthenticatedSession()) {{
+    return true;
+  }}
+  if (!force && authStatus === "anonymous" && Date.now() - authStatusCheckedAt <= AUTH_STATUS_TTL_MS) {{
+    return false;
+  }}
+  if (authStatusRequest) {{
+    return authStatusRequest;
+  }}
+  authStatusRequest = (async () => {{
+    const authenticated = await checkAuthStatus();
+    persistAuthState(authenticated);
+    return authenticated;
+  }})().finally(() => {{
+    authStatusRequest = null;
+  }});
+  return authStatusRequest;
 }}
 
 function stopAuthPopupMonitor() {{
@@ -1103,7 +1159,7 @@ function startAuthPopupMonitor(flowId) {{
     }}
     const targetUrl = pendingTargetUrl;
     pendingTargetUrl = "";
-    const authenticated = await checkAuthStatus();
+    const authenticated = await refreshAuthState(true);
     if (authenticated) {{
       window.location.assign(targetUrl);
     }}
@@ -1121,6 +1177,7 @@ function handleAuthPopupMessage(event) {{
   if (String(data.flowId || "") !== String(authFlowId)) {{
     return;
   }}
+  persistAuthState(true);
   const targetUrl = resolveSameOriginUrl(data.targetUrl) || pendingTargetUrl;
   pendingTargetUrl = "";
   closeAuthPopup();
@@ -1138,7 +1195,7 @@ async function beginPopupAuthFlow(targetUrl) {{
   authFlowId += 1;
   const flowId = authFlowId;
   const popup = openAuthPopupShell();
-  const authenticated = await checkAuthStatus();
+  const authenticated = await refreshAuthState(true);
   if (authenticated) {{
     pendingTargetUrl = "";
     if (popup && !popup.closed) {{
@@ -1195,16 +1252,26 @@ function shouldInterceptClick(event, anchor) {{
   if (target && target !== "_self") {{
     return false;
   }}
+  if (isPrivateUrl(anchor.href) && hasFreshAuthenticatedSession()) {{
+    return false;
+  }}
   return isPrivateUrl(anchor.href);
 }}
 
 async function handlePrivateLinkClick(event, anchor) {{
   event.preventDefault();
+  const authenticated = await refreshAuthState();
+  if (authenticated) {{
+    window.location.assign(anchor.href);
+    return;
+  }}
   beginPopupAuthFlow(anchor.href);
 }}
 
 document$.subscribe(() => {{
+  hydrateAuthState();
   annotatePrivateLinks();
+  refreshAuthState();
 
   if (window.__docsAccessControlHandlersBound) {{
     return;
@@ -1353,6 +1420,7 @@ def write_mkdocs_config(output_dir: Path, nav_items: list[dict]) -> None:
         "        icon: material/weather-sunny",
         "        name: 切换到浅色模式",
         "  features:",
+        "    - navigation.instant",
         "    - navigation.tabs",
         "    - navigation.top",
         "    - content.code.copy",
