@@ -14,7 +14,7 @@
 
 ### 目标
 
-验证页面路径、导航和构建结果。
+验证页面路径、导航和构建结果，并区分本地开发模式与本地生产预演模式。
 
 ### 前置条件
 
@@ -23,24 +23,42 @@
 
 ### 操作步骤
 
+本地开发模式：
+
 ```bash
 cd <project-root>
 ./start.sh
 ```
 
-如果你要在本机先更新子仓，再模拟服务器侧的远程构建：
+等价于：
+
+```bash
+cd <project-root>
+./start.sh --source-mode local
+```
+
+本地生产预演模式：
 
 ```bash
 cd <project-root>
 ./start.sh --source-mode remote
 ```
 
+如果你只想重建站点，不启动本地预览服务：
+
+```bash
+cd <project-root>
+./start.sh --build-only --source-mode local
+./start.sh --build-only --source-mode remote
+```
+
 ### 成功判断
 
 - `http://127.0.0.1:8001/` 可访问
 - 顶部导航和左侧目录显示正常
-- `local` 模式下直接读取本机项目目录中的 `docs/`
-- `remote` 模式下 `sources/` 中会更新远程 submodule，并只展开 `docs/` 目录
+- `local` 模式下直接读取本机项目目录中的 `docs/`，适合日常开发
+- `remote` 模式下会按 CI 相同方式更新远程子仓并只展开 `docs/`，适合发布前预演
+- `--build-only` 模式下会刷新 `.generated/` 与 `site/`，但不会启动 `mkdocs serve`
 
 ## 3. 首次服务器引导
 
@@ -87,9 +105,14 @@ docker compose -f deploy/docker-compose.yml ps
 
 1. 提交变更到 `main` 或 `master`
 2. 等待 GitHub Actions 执行 `Deploy Docs`
-3. 在 Actions 日志中确认 `site/` 与 `private_locations.conf` 上传完成
-4. 如本次权限规则发生变化，确认 workflow 已执行 `nginx -t && reload`
-5. 如需排障，可下载保留 7 天的 Actions artifact，查看 `site/` 与 `private_locations.conf`
+3. 在 Actions 日志中确认 `validate` 阶段固定使用 `--source-mode remote`
+4. 确认 `site/` 与 `private_locations.conf` 上传完成
+5. 如果这次是子仓文档变更，确认你已经触发了根仓 workflow：
+   - 直接在根仓 push
+   - 手工运行 `workflow_dispatch`
+   - 或由子仓向根仓发送 `repository_dispatch: source-docs-updated`
+6. 如本次权限规则发生变化，确认 workflow 已执行 `nginx -t && reload`
+7. 如需排障，可下载保留 7 天的 Actions artifact，查看 `site/` 与 `private_locations.conf`
 
 ### 成功判断
 
@@ -98,7 +121,32 @@ docker compose -f deploy/docker-compose.yml ps
 - `private_locations.conf` 与本次权限规则一致
 - 私有页面仍然正常登录
 
-## 5. 私有页面验证
+## 5. 子仓文档更新后如何更新网站
+
+### 目标
+
+让 `crawler4j`、`stratix`、`ride-loop` 等子仓的新文档重新进入聚合站点。
+
+### 关键原则
+
+- 子仓文档内容更新后，根仓线上站点不会自动变化，除非根仓 `Deploy Docs` 被再次触发
+- GitHub Actions 的正式发布固定使用 `source_mode=remote`
+- 因此线上更新看到的永远是“触发发布时，远程仓库上的最新文档状态”
+
+### 常用做法
+
+1. 子仓改完并 push 到配置中声明的目标分支
+2. 在根仓手工运行一次 `Deploy Docs`
+3. 或者在根仓再 push 一次文档/配置变更
+4. 如果后面要做全自动联动，再让子仓调用根仓的 `repository_dispatch: source-docs-updated`
+
+### 成功判断
+
+- 根仓 workflow 成功
+- 新文档页面出现在站点里
+- 权限和导航与子仓最新 `docs/index.md` 保持一致
+
+## 6. 私有页面验证
 
 ### 目标
 
@@ -120,7 +168,7 @@ docker compose -f deploy/docker-compose.yml ps
 - 登录后返回原页面
 - 私有资源文件同样受保护
 
-## 6. 回滚
+## 7. 回滚
 
 ### 目标
 
@@ -137,9 +185,10 @@ docker compose -f deploy/docker-compose.yml ps
 - 首页版本已回退
 - 私有页和认证流程正常
 
-## 7. 常见异常与处理
+## 8. 常见异常与处理
 
 - 构建失败：先看 `config/source-repos.json` 是否仍指向有效仓库和分支，再检查 `sources/<repo>/docs` 是否已初始化
+- `git submodule` 报 `pathspec ... did not match any file(s) known to git`：说明仓库条目虽然写进了 `config/source-repos.json` 或 `.gitmodules`，但还没有真正注册成根仓里的 git submodule
 - 登录失败：优先检查 `oidc_issuer_url`、`redirect_url`、Casdoor 应用配置和运维安装的 `Nginx` 配置
 - 私有页匿名可见：检查 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
 - Actions 成功但页面没更新：检查 `/var/www/docs-stratego` 是否与运维安装的宿主机 Nginx `root` 一致，以及 `site/` 是否上传到了正确目录

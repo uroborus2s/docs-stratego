@@ -28,3 +28,7 @@
 - 删除 `sync_sources.py` 对旧平铺源仓配置的兼容逻辑；仓库条目缺少 `modes` 时现在会直接报错
 - 将 GitHub Actions 的源码读取步骤升级为 `actions/create-github-app-token@v3`，并把 GitHub App 创建字段、权限和安装范围写入正式安装文档与管理员文档
 - 修正文档和配置中的旧仓库名 `stratego-docs`，统一为当前真实根仓 `docs-stratego`
+- 修复 `ride-loop` 只写入 `.gitmodules` / `source-repos.json`、但未真正登记为 git submodule 导致的 CI `pathspec 'sources/ride-loop'` 失败
+- 为 remote `submodule_sparse` 仓库新增索引校验与测试，避免未来再次出现“配置已写、gitlink 未登记”的线上故障
+- 扩充 `usage.md`，明确 GitHub Actions 固定使用 `source_mode=remote`，并补充子仓文档更新后的根仓重建流程
+- 修复 deploy 工作流的制品路径错位：MkDocs 产物现在显式输出到工作区根 `site/`，并要求 artifact 缺文件时在 validate 阶段直接失败

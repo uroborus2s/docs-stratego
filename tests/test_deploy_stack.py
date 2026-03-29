@@ -61,6 +61,8 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("actions/setup-python@v5", workflow_text)
         self.assertIn("astral-sh/setup-uv@v7", workflow_text)
         self.assertIn("uv sync --frozen", workflow_text)
+        self.assertIn('-d "$GITHUB_WORKSPACE/site"', workflow_text)
+        self.assertIn("if-no-files-found: error", workflow_text)
         self.assertIn("--source-mode remote", workflow_text)
         self.assertIn("/var/www/docs-stratego", workflow_text)
         self.assertIn("/etc/nginx/snippets/docs-stratego/private_locations.conf", workflow_text)

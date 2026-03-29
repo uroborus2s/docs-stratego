@@ -47,8 +47,11 @@
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录；本地生产预演与 GitHub Actions 正式发布都使用 `source_mode=remote`
 - `start.sh`、`sync_sources.py`、`build_site.py`、`deploy_remote.sh` 与 GitHub Actions 已统一接入 `--source-mode`
 - `ride-loop` 已作为新文档源接入，本地模式指向 `/Users/uroborus/NodeProject/ride-loop/docs`，远程模式指向 `https://github.com/uroborus2s/ride-loop.git@main`
+- `ride-loop` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 不再因 pathspec 缺失而失败
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
+- `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
+- GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 
 ## 下一步建议
 
