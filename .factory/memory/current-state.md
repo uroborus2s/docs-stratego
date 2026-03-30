@@ -52,7 +52,7 @@
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
 - `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
-- 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：私有链接会显示“锁定”标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
+- 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
 - 主页面现在会在重新获得焦点或接收到新的页面点击时主动关闭仍未完成的登录小窗，避免小窗仅退到后台
 - 私有链接前端鉴权现已增加短时登录态缓存与 `navigation.instant` 站内导航：已登录用户再次点击私有页面时优先走原生即时导航，减少额外整页刷新与白屏闪烁
 - 生成的 `private_locations.conf` 现显式标注“只允许私有 URL 进入鉴权”，用于约束宿主机 Nginx 不要把 `location /` 误配成整站登录

@@ -242,21 +242,6 @@ HOME_CSS = """:root {
 .docs-sidebar-section-only .md-nav__item--nested {
   margin-top: 0;
 }
-
-a.docs-private-link::after {
-  content: "锁定";
-  display: inline-flex;
-  align-items: center;
-  margin-left: 0.35rem;
-  padding: 0.02rem 0.4rem;
-  border-radius: 999px;
-  background: rgba(180, 35, 24, 0.12);
-  color: #b42318;
-  font-size: 0.68rem;
-  font-weight: 700;
-  line-height: 1.45;
-  vertical-align: middle;
-}
 """
 
 ALLOWED_ACCESS = {"public", "private"}
@@ -1232,9 +1217,6 @@ function annotatePrivateLinks(root = document) {{
       return;
     }}
     anchor.dataset.docsPrivateAnnotated = "true";
-    anchor.classList.add("docs-private-link");
-    const label = anchor.getAttribute("aria-label") || anchor.textContent?.trim() || "受保护文档";
-    anchor.setAttribute("aria-label", `${{label}}（需要登录）`);
   }});
 }}
 

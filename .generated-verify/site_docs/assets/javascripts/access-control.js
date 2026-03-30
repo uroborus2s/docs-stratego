@@ -269,9 +269,6 @@ function annotatePrivateLinks(root = document) {
       return;
     }
     anchor.dataset.docsPrivateAnnotated = "true";
-    anchor.classList.add("docs-private-link");
-    const label = anchor.getAttribute("aria-label") || anchor.textContent?.trim() || "受保护文档";
-    anchor.setAttribute("aria-label", `${label}（需要登录）`);
   });
 }
 
