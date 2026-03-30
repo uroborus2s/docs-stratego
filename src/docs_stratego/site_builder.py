@@ -497,8 +497,11 @@ def resolve_node_target(node: NavNode) -> str:
 
 def build_repo_tab_links(repo: SourceRepository, nodes: tuple[NavNode, ...]) -> list[RepoTabLink]:
     links = [
-        RepoTabLink(title=node.title, url=markdown_url(repo.name, resolve_node_target(node)), kind="section")
-        for node in nodes
+        RepoTabLink(title="简介", url=markdown_url(repo.name, "index.md"), kind="section"),
+        *[
+            RepoTabLink(title=node.title, url=markdown_url(repo.name, resolve_node_target(node)), kind="section")
+            for node in nodes
+        ],
     ]
     if repo.repo_url:
         links.append(RepoTabLink(title="GitHub 仓库", url=repo.repo_url, kind="external"))
@@ -881,32 +884,35 @@ document$.subscribe(() => {{
       return;
     }}
     parent.dataset.docsMenuBound = "true";
-    anchor.classList.add("docs-tab-toggle");
-    anchor.setAttribute("aria-haspopup", "true");
-    anchor.setAttribute("aria-expanded", "false");
-    anchor.setAttribute("role", "button");
-    if (!anchor.id) {{
-      anchor.id = `docs-tab-toggle-${{index}}`;
-    }}
+    const menuToggle = anchor.cloneNode(true);
+    menuToggle.classList.add("docs-tab-toggle");
+    menuToggle.removeAttribute("href");
+    menuToggle.setAttribute("aria-haspopup", "true");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("role", "button");
+    menuToggle.setAttribute("tabindex", "0");
+    menuToggle.setAttribute("aria-label", `${{title}} 菜单`);
+    menuToggle.id = anchor.id || `docs-tab-toggle-${{index}}`;
+    parent.replaceChild(menuToggle, anchor);
 
     const dropdown = document.createElement("div");
     dropdown.className = "docs-tab-dropdown";
     dropdown.setAttribute("role", "menu");
-    dropdown.setAttribute("data-owner-id", anchor.id);
+    dropdown.setAttribute("data-owner-id", menuToggle.id);
     appendMenuLinks(dropdown, items);
 
     parent.appendChild(dropdown);
-    anchor.addEventListener("click", (event) => {{
+    menuToggle.addEventListener("click", (event) => {{
       event.preventDefault();
       const opened = dropdown.classList.contains("is-open");
       if (!opened) {{
-        openProjectMenu(anchor, dropdown);
+        openProjectMenu(menuToggle, dropdown);
       }} else {{
         closeProjectMenus(document);
       }}
     }});
 
-    anchor.addEventListener("keydown", (event) => {{
+    menuToggle.addEventListener("keydown", (event) => {{
       if (!(event.key === "Enter" || event.key === " " || event.key === "ArrowDown")) {{
         if (event.key === "Escape") {{
           closeProjectMenus(document);
@@ -914,7 +920,7 @@ document$.subscribe(() => {{
         return;
       }}
       event.preventDefault();
-      openProjectMenu(anchor, dropdown);
+      openProjectMenu(menuToggle, dropdown);
       dropdown.querySelector(".docs-tab-dropdown__link")?.focus();
     }});
   }});

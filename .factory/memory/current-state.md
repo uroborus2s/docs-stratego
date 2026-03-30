@@ -30,7 +30,7 @@
 - 已新增 `.generated/authz/permissions.json` 与 `.generated/nginx/private_locations.conf`
 - 认证部署栈为宿主机 Nginx + Docker 内 Casdoor/oauth2-proxy + 现有 Redis
 - MkDocs 已切换为单站点构建，并默认关闭匿名全文搜索
-- 顶部项目 Tab 已支持点击下拉，内容来自各项目根 `docs/index.md` 的一级目录，尾项固定为 GitHub 仓库链接
+- 顶部项目 Tab 现保留 Material 原始 `<a class="md-tabs__link">` 结构与样式，只移除导航行为并改为菜单触发器；首次点击直接弹出下拉菜单，菜单首项固定为“简介”，其余内容来自各项目根 `docs/index.md` 的一级目录，尾项固定为 GitHub 仓库链接
 - 左侧主导航已收口为当前一级模块的目录列表，不再附加“项目入口”，模块首页不再显示通用“概览”文案
 - `02-user-guide/` 已补齐云服务器私有化部署、配置、使用与管理员内容
 - `02-user-guide/installation.md` 已收口为完整安装与 CI/CD 正式事实源，原先重复的 playbook 页面已删除

@@ -18,6 +18,24 @@
       }
     },
     {
+      "name": "shanforge",
+      "title": "山海工枢",
+      "repo_url": "https://github.com/uroborus2s/shanforge",
+      "modes": {
+        "local": {
+          "source_type": "local",
+          "local_path": "../shanforge/docs"
+        },
+        "remote": {
+          "source_type": "submodule_sparse",
+          "git_url": "https://github.com/uroborus2s/shanforge.git",
+          "branch": "main",
+          "submodule_path": "sources/shanforge",
+          "docs_path": "docs"
+        }
+      }
+    },
+    {
       "name": "crawler4j",
       "title": "蛛行演略",
       "repo_url": "https://github.com/uroborus2s/crawler4j",
@@ -67,24 +85,6 @@
           "git_url": "https://github.com/uroborus2s/ride-loop.git",
           "branch": "main",
           "submodule_path": "sources/ride-loop",
-          "docs_path": "docs"
-        }
-      }
-    },
-    {
-      "name": "shanforge",
-      "title": "山海工枢",
-      "repo_url": "https://github.com/uroborus2s/shanforge",
-      "modes": {
-        "local": {
-          "source_type": "local",
-          "local_path": "../shanforge/docs"
-        },
-        "remote": {
-          "source_type": "submodule_sparse",
-          "git_url": "https://github.com/uroborus2s/shanforge.git",
-          "branch": "main",
-          "submodule_path": "sources/shanforge",
           "docs_path": "docs"
         }
       }
