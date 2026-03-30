@@ -115,11 +115,9 @@ nav:
       - "文档地图": shanforge/01-getting-started/document-map.md
     - "用户指南":
       - "概览": shanforge/02-user-guide/index.md
-      - "用户指南": shanforge/02-user-guide/user-guide.md
-      - "安装说明": shanforge/02-user-guide/installation.md
-      - "配置说明": shanforge/02-user-guide/configuration.md
-      - "使用说明": shanforge/02-user-guide/usage.md
-      - "历史项目标准提示词模板": shanforge/02-user-guide/prompt-templates.md
+      - "使用指南": shanforge/02-user-guide/user-guide.md
+      - "提示词速查": shanforge/02-user-guide/prompt-templates.md
+      - "命令速查": shanforge/02-user-guide/command-cheatsheet.md
     - "开发者指南":
       - "概览": shanforge/03-developer-guide/index.md
       - "应用开发": shanforge/03-developer-guide/application-development.md

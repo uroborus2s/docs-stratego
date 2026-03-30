@@ -160,6 +160,8 @@ HOME_CSS = """:root {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .docs-tab-toggle::after {

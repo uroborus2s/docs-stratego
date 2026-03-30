@@ -50,9 +50,9 @@
 <h4>用户指南</h4>
 <ul class="project-section-list">
 <li><a href="/shanforge/02-user-guide/">概览</a></li>
-<li><a href="/shanforge/02-user-guide/user-guide/">用户指南</a></li>
-<li><a href="/shanforge/02-user-guide/installation/">安装说明</a></li>
-<li><a href="/shanforge/02-user-guide/configuration/">配置说明</a></li>
+<li><a href="/shanforge/02-user-guide/user-guide/">使用指南</a></li>
+<li><a href="/shanforge/02-user-guide/prompt-templates/">提示词速查</a></li>
+<li><a href="/shanforge/02-user-guide/command-cheatsheet/">命令速查</a></li>
 </ul>
 <h4>开发者指南</h4>
 <ul class="project-section-list">

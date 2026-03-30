@@ -1297,15 +1297,8 @@
     },
     {
       "source": "shanforge",
-      "path": "02-user-guide/configuration.md",
-      "url": "/shanforge/02-user-guide/configuration/",
-      "access": "public",
-      "kind": "page"
-    },
-    {
-      "source": "shanforge",
-      "path": "02-user-guide/installation.md",
-      "url": "/shanforge/02-user-guide/installation/",
+      "path": "02-user-guide/command-cheatsheet.md",
+      "url": "/shanforge/02-user-guide/command-cheatsheet/",
       "access": "public",
       "kind": "page"
     },
@@ -1313,13 +1306,6 @@
       "source": "shanforge",
       "path": "02-user-guide/prompt-templates.md",
       "url": "/shanforge/02-user-guide/prompt-templates/",
-      "access": "public",
-      "kind": "page"
-    },
-    {
-      "source": "shanforge",
-      "path": "02-user-guide/usage.md",
-      "url": "/shanforge/02-user-guide/usage/",
       "access": "public",
       "kind": "page"
     },
