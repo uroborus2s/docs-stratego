@@ -41,7 +41,7 @@
 - Redis 接入策略已收口为“保持现有业务网络不动，由 oauth2-proxy 同时加入内部网络与 Redis 现有网络”
 - 服务器侧认证应用目录改为稀疏拉取的 `~/docs-stratego`，只保留 `deploy/docker-compose.yml`、`deploy/casdoor/`、`deploy/oauth2-proxy/`
 - 服务器侧静态站点目录改为 `/var/www/docs-stratego`，私有规则文件改为 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix`、`ride-loop`、`shanforge` 五个项目；local 模式直接读本机工作副本，remote 模式在 GitHub Actions 中真实拉取并校验这些源仓
+- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler` 六个项目；local 模式直接读本机工作副本，remote 模式在 GitHub Actions 中真实拉取并校验这些源仓
 - 当前源仓配置已升级为单文件双模式：同一 `config/source-repos.json` 同时声明 `modes.local` 与 `modes.remote`
 - 旧的平铺源仓配置兼容逻辑已删除；仓库定义如果缺少 `modes` 会直接报错，不再接受旧格式
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录；本地生产预演与 GitHub Actions 正式发布都使用 `source_mode=remote`
@@ -49,6 +49,7 @@
 - `ride-loop` 已作为新文档源接入，本地模式指向 `/Users/uroborus/NodeProject/ride-loop/docs`，远程模式指向 `https://github.com/uroborus2s/ride-loop.git@main`
 - `ride-loop` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 不再因 pathspec 缺失而失败
 - `shanforge` 已作为新文档源接入，本地模式指向 `/Users/uroborus/AiProject/shanforge/docs`，远程模式指向 `https://github.com/uroborus2s/shanforge.git@main`
+- `ctrip_crawler` 已作为新文档源接入，本地模式指向 `/Users/uroborus/PythonProject/ctrip_crawler/docs`，远程模式指向 `https://github.com/uroborus2s/ctrip_crawler.git@main`
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
 - `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
@@ -67,5 +68,6 @@
 - 在部署环境中完成 Casdoor GitHub Provider 配置
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们
 - `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
+- `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
 - 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `sync_sources -> build_site -> mkdocs build`
 - 若工作项进入收尾，确认根仓文档与 `.factory/memory/` 已同步更新

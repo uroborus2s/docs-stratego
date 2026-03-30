@@ -14,3 +14,7 @@
 	path = sources/shanforge
 	url = https://github.com/uroborus2s/shanforge.git
 	branch = main
+[submodule "sources/ctrip_crawler"]
+	path = sources/ctrip_crawler
+	url = https://github.com/uroborus2s/ctrip_crawler.git
+	branch = main

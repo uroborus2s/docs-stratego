@@ -19,7 +19,7 @@
 ### 前置条件
 
 - 已安装 `uv`
-- 本机已存在 `crawler4j` 和 `obsync-root` 的工作副本，用于本地模式直接读取
+- 本机已存在各源仓工作副本，例如 `crawler4j`、`obsync-root`、`ride-loop`、`shanforge`、`ctrip_crawler`，用于本地模式直接读取
 
 ### 操作步骤
 
@@ -125,7 +125,7 @@ docker compose -f deploy/docker-compose.yml ps
 
 ### 目标
 
-让 `crawler4j`、`stratix`、`ride-loop`、`shanforge` 等子仓的新文档重新进入聚合站点。
+让 `crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler` 等子仓的新文档重新进入聚合站点。
 
 ### 关键原则
 

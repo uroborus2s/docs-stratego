@@ -88,6 +88,24 @@
           "docs_path": "docs"
         }
       }
+    },
+    {
+      "name": "ctrip_crawler",
+      "title": "携游数据管家",
+      "repo_url": "https://github.com/uroborus2s/ctrip_crawler",
+      "modes": {
+        "local": {
+          "source_type": "local",
+          "local_path": "../../PythonProject/ctrip_crawler/docs"
+        },
+        "remote": {
+          "source_type": "submodule_sparse",
+          "git_url": "https://github.com/uroborus2s/ctrip_crawler.git",
+          "branch": "main",
+          "submodule_path": "sources/ctrip_crawler",
+          "docs_path": "docs"
+        }
+      }
     }
   ]
 }
