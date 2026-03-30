@@ -117,3 +117,4 @@ htmlcov/
 /screenshots/
 .generated/
 .uv-cache/
+.generated-verify/

@@ -79,6 +79,7 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("scripts/sync_sources.py", start_script_text)
         self.assertIn('SOURCE_MODE="${DOCS_SOURCE_MODE:-local}"', start_script_text)
         self.assertIn("--source-mode", start_script_text)
+        self.assertNotIn("[[", start_script_text)
 
 
 if __name__ == "__main__":

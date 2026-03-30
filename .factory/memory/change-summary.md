@@ -24,7 +24,7 @@
 - 新增 `ride-loop`（千乘坊）文档源，接入本地 `../../NodeProject/ride-loop/docs` 与远程 `https://github.com/uroborus2s/ride-loop.git@main` 双模式配置
 - 新增 `shanforge`（山海工枢）文档源，接入本地 `../shanforge/docs` 与远程 `https://github.com/uroborus2s/shanforge.git@main` 双模式配置，并补齐 git submodule 登记
 - 新增 `ctrip_crawler`（携游数据管家）文档源，接入本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `https://github.com/uroborus2s/ctrip_crawler.git@main` 双模式配置，并补齐 git submodule 登记
-- 标记 `ctrip_crawler` 当前源仓文档标准缺口：根 `docs/index.md` 尚未把 9 个 Markdown 页面声明进 `mkdocs.nav`，导致聚合站点构建仍会按标准失败
+- 修复 `ctrip_crawler` 本地工作副本的根导航覆盖缺口：将 9 个既有 Markdown 页面补入根 `docs/index.md` 的 `mkdocs.nav`，恢复本地聚合构建
 - 为 GitHub Actions 增加 GitHub App 私有源仓读取方案，并关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 干扰跨仓 submodule 拉取
 - 将源仓配置策略收口为“唯一 `source-repos.json` + local/remote 双源模式”；dev/prod 只由执行场景区分，不再做 repo 级别条件启停
 - 将安装与 CI/CD 说明合并到 `installation.md`，并删除重复的 playbook 页面，避免双份事实源
@@ -35,6 +35,7 @@
 - 为 remote `submodule_sparse` 仓库新增索引校验与测试，避免未来再次出现“配置已写、gitlink 未登记”的线上故障
 - 扩充 `usage.md`，明确 GitHub Actions 固定使用 `source_mode=remote`，并补充子仓文档更新后的根仓重建流程
 - 修复 deploy 工作流的制品路径错位：MkDocs 产物现在显式输出到工作区根 `site/`，并要求 artifact 缺文件时在 validate 阶段直接失败
+- 将 `start.sh` 的参数解析改为 POSIX 兼容条件判断，避免 `sh start.sh` 场景受 Bash 专有 `[[ ... ]]` 语法影响
 - 为静态站点新增前端按需鉴权交互：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起 oauth2-proxy / Casdoor 登录小窗；登录成功后由同源桥接页 `assets/auth/popup-complete.html` 使用 `postMessage` 通知主页面并关闭小窗，关闭小窗则留在公开页
 - 补充小窗收口行为：用户点回主页面或主页面重新获得焦点时，未完成的登录小窗会被主动关闭，避免浏览器仅把它压到后台
 - 修复已登录私有页点击闪屏：启用 Material `navigation.instant`，并为前端私有链接增加短时登录态缓存与预热检查，优先让已登录场景走站内即时导航，仅在未登录时才接管点击并拉起登录小窗

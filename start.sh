@@ -33,7 +33,7 @@ stop_existing_server() {
 reset_venv=false
 build_only=false
 
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
   case "$1" in
     --reset-venv)
       reset_venv=true
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --source-mode)
-      if [[ $# -lt 2 ]]; then
+      if [ $# -lt 2 ]; then
         echo "Missing value for --source-mode" >&2
         usage
         exit 1
@@ -64,7 +64,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$SOURCE_MODE" != "local" && "$SOURCE_MODE" != "remote" ]]; then
+if [ "$SOURCE_MODE" != "local" ] && [ "$SOURCE_MODE" != "remote" ]; then
   echo "Unsupported source mode: $SOURCE_MODE" >&2
   usage
   exit 1
