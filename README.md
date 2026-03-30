@@ -53,11 +53,13 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ./start.sh --reset-venv
 ```
 
-当前正式配置已经包含 3 个项目：
+当前正式配置已经包含 5 个项目：
 
 - `docs-stratego`
 - `crawler4j`
 - `stratix`
+- `ride-loop`
+- `shanforge`
 
 当前配置文件已经支持同一仓库条目下的两种来源模式：
 

@@ -125,7 +125,7 @@ docker compose -f deploy/docker-compose.yml ps
 
 ### 目标
 
-让 `crawler4j`、`stratix`、`ride-loop` 等子仓的新文档重新进入聚合站点。
+让 `crawler4j`、`stratix`、`ride-loop`、`shanforge` 等子仓的新文档重新进入聚合站点。
 
 ### 关键原则
 

@@ -10,3 +10,7 @@
 	path = sources/ride-loop
 	url = https://github.com/uroborus2s/ride-loop.git
 	branch = main
+[submodule "sources/shanforge"]
+	path = sources/shanforge
+	url = https://github.com/uroborus2s/shanforge.git
+	branch = main
