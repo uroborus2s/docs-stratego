@@ -50,6 +50,7 @@
 - `ride-loop` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 不再因 pathspec 缺失而失败
 - `shanforge` 已作为新文档源接入，本地模式指向 `/Users/uroborus/AiProject/shanforge/docs`，远程模式指向 `https://github.com/uroborus2s/shanforge.git@main`
 - `ctrip_crawler` 已作为新文档源接入，本地模式指向 `/Users/uroborus/PythonProject/ctrip_crawler/docs`，远程模式指向 `https://github.com/uroborus2s/ctrip_crawler.git@main`
+- `ctrip_crawler` 当前源仓文档还存在 `mkdocs.nav` 覆盖缺口：`requirements-analysis.md`、`requirements-verification.md`、`backend-design.md`、`database-design.md`、`ux-ui-design.md`、`implementation-plan.md`、`task-breakdown.md`、`wbs.md`、`requirements-matrix.md` 尚未在根 `docs/index.md` 声明，聚合构建会因此失败
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
 - `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
@@ -69,5 +70,6 @@
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们
 - `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
 - `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
+- 在 `ctrip_crawler` 根 `docs/index.md` 补齐上述 9 个页面的 `mkdocs.nav` 声明后，再重新跑一次本地与远程模式构建
 - 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `sync_sources -> build_site -> mkdocs build`
 - 若工作项进入收尾，确认根仓文档与 `.factory/memory/` 已同步更新

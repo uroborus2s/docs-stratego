@@ -24,6 +24,7 @@
 - 新增 `ride-loop`（千乘坊）文档源，接入本地 `../../NodeProject/ride-loop/docs` 与远程 `https://github.com/uroborus2s/ride-loop.git@main` 双模式配置
 - 新增 `shanforge`（山海工枢）文档源，接入本地 `../shanforge/docs` 与远程 `https://github.com/uroborus2s/shanforge.git@main` 双模式配置，并补齐 git submodule 登记
 - 新增 `ctrip_crawler`（携游数据管家）文档源，接入本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `https://github.com/uroborus2s/ctrip_crawler.git@main` 双模式配置，并补齐 git submodule 登记
+- 标记 `ctrip_crawler` 当前源仓文档标准缺口：根 `docs/index.md` 尚未把 9 个 Markdown 页面声明进 `mkdocs.nav`，导致聚合站点构建仍会按标准失败
 - 为 GitHub Actions 增加 GitHub App 私有源仓读取方案，并关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 干扰跨仓 submodule 拉取
 - 将源仓配置策略收口为“唯一 `source-repos.json` + local/remote 双源模式”；dev/prod 只由执行场景区分，不再做 repo 级别条件启停
 - 将安装与 CI/CD 说明合并到 `installation.md`，并删除重复的 playbook 页面，避免双份事实源
