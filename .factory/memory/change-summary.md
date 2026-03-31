@@ -42,3 +42,7 @@
 - 调整顶部项目 Tab 交互：保留 Material 原始 `<a>` 结构与文字样式，移除其直接导航行为；首次点击直接弹出下拉菜单，菜单首项固定为“简介”，只有选择菜单项后才切换下部页面
 - 更新权限生成产物与运维文档，明确 `private_locations.conf` 只允许私有 URL 进入鉴权，禁止把宿主机 `location /` 配成整站登录
 - 修复 GitHub Actions deploy 远端 reload 的误失败：去掉 `ssh-action` 中会被误判的 `EUID` 条件分支，统一改为 `sudo nginx -t` 与 `sudo systemctl reload nginx`，并补充回归断言
+- 扩展源文档标准，正式收口为“根 `docs/index.md` 的 `access` 是唯一权限事实源；OpenAPI 用 Scalar；工具契约用 MCP tools 快照”
+- 扩展 `site_builder.py`，允许根 `docs/index.md` 的页面节点直接声明 `*.openapi.*` 与 `*.mcp-tools.*` 文件；OpenAPI 页面改为嵌入 Scalar API Reference，MCP tools 页面改为静态工具参考页
+- 为渲染后的契约页补齐权限继承与原始文件下载控制，确保渲染页与原始 `.yaml/.json` 使用同一套访问边界
+- 将仓库内规范示例从旧 `functions/` 迁移到 `tools/`，并新增 `docs/04-project-development/04-design/tools/` 的 MCP tools 示例目录用于站内可视化验证

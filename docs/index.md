@@ -107,6 +107,22 @@ mkdocs:
             - title: UI 与信息架构
               path: 04-project-development/04-design/ux-ui-design.md
               access: private
+            - title: OpenAPI 契约
+              children:
+                - title: 概览
+                  path: 04-project-development/04-design/openapi/index.md
+                  access: private
+                - title: Scalar 渲染示例
+                  path: 04-project-development/04-design/openapi/docs-rendering-example.openapi.yaml
+                  access: private
+            - title: 工具契约（MCP）
+              children:
+                - title: 概览
+                  path: 04-project-development/04-design/tools/index.md
+                  access: private
+                - title: 站点构建工具目录
+                  path: 04-project-development/04-design/tools/site-builder.mcp-tools.yaml
+                  access: private
             - title: crawler4j 接入包
               path: 04-project-development/04-design/crawler4j-integration-package.md
               access: private

@@ -118,3 +118,4 @@ htmlcov/
 .generated/
 .uv-cache/
 .generated-verify/
+.generated-local-check/

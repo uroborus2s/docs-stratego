@@ -24,6 +24,8 @@
 ## 最新集成
 
 - 当前文档标准由 `docs/04-project-development/04-design/source-docs-standard.md` 定义
+- 当前源文档标准已扩展为“Markdown 页面 + OpenAPI 契约 + MCP tools 快照”三类可声明内容；根 `docs/index.md` 的页面节点现在允许指向 `*.openapi.*` 与 `*.mcp-tools.*`
+- 页面权限当前只认根 `docs/index.md` 页面节点的 `access`；`external/`、`internal/` 只作为目录组织语义，不参与权限判断
 - 当前 `docs/index.md` 已按 `docs_profile` 刷新根导航，各级目录 `index.md` 已刷新为正文概览页
 - 当前未单独启用 `03-developer-guide`；稳定对外扩展能力仍由用户指南与内部设计文档承载
 - 当前构建链路为 `sync_sources.py` -> `build_site.py` -> `mkdocs build`
@@ -58,6 +60,8 @@
 - 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
 - 主页面现在会在重新获得焦点或接收到新的页面点击时主动关闭仍未完成的登录小窗，避免小窗仅退到后台
 - 私有链接前端鉴权现已增加短时登录态缓存与 `navigation.instant` 站内导航：已登录用户再次点击私有页面时优先走原生即时导航，减少额外整页刷新与白屏闪烁
+- `site_builder.py` 现可识别并渲染已在根导航声明的 OpenAPI 与 MCP tools 契约文件：`*.openapi.yaml|yml|json` 自动生成 Scalar API Reference 包装页，`*.mcp-tools.yaml|yml|json` 自动生成 MCP tools 静态参考页，同时保留原始契约文件下载地址并沿用同一套权限控制
+- `docs/04-project-development/04-design/openapi/` 与 `docs/04-project-development/04-design/tools/` 已作为当前仓库的规范示例目录接入根导航，用于验证契约渲染能力
 - 生成的 `private_locations.conf` 现显式标注“只允许私有 URL 进入鉴权”，用于约束宿主机 Nginx 不要把 `location /` 误配成整站登录
 - 用户指南、安装说明、运维手册与 UX 设计文档已同步更新，新增“首页不得直接跳登录”的排障口径
 - GitHub Actions deploy 远端 reload 步骤已去掉基于 `EUID` 的分支判断，改为固定走 `sudo nginx -t` 与 `sudo systemctl reload nginx`，避免 `appleboy/ssh-action` 将条件判断的非零退出码误判为部署失败
@@ -73,3 +77,4 @@
 - 将 `ctrip_crawler` 当前本地工作副本里的 `docs/index.md` 导航补丁提交并推送到 `main`，再重新跑一次 `source_mode=remote` 构建与 CI
 - 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `sync_sources -> build_site -> mkdocs build`
 - 若工作项进入收尾，确认根仓文档与 `.factory/memory/` 已同步更新
+- 在外部源仓接入 OpenAPI 或函数契约时，除更新目录说明页外，还要把契约文件本身显式加入根 `docs/index.md`，否则不会自动生成参考页

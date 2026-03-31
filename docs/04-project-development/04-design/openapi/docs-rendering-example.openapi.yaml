@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Docs Rendering Example API
+  version: 1.0.0
+  summary: 用于验证 docs-stratego 契约渲染能力的最小 OpenAPI 示例
+  description: |
+    这是文档渲染示例，不代表 docs-stratego 当前线上暴露了对应运行时接口。
+servers:
+  - url: https://docs-stratego.local
+tags:
+  - name: Docs
+    description: 文档站元信息读取接口示例
+paths:
+  /api/v1/docs/summary:
+    get:
+      tags: [Docs]
+      operationId: getDocsSummary
+      summary: 读取站点摘要信息
+      responses:
+        '200':
+          description: 返回站点摘要
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocsSummaryResponse'
+  /api/v1/docs/repositories/{repoName}:
+    get:
+      tags: [Docs]
+      operationId: getRepositoryDocSummary
+      summary: 读取单个仓库的文档摘要
+      parameters:
+        - in: path
+          name: repoName
+          required: true
+          description: 源仓标识
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 返回仓库摘要
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositorySummaryResponse'
+components:
+  schemas:
+    DocsSummaryResponse:
+      type: object
+      required: [siteName, repositoryCount]
+      properties:
+        siteName:
+          type: string
+        repositoryCount:
+          type: integer
+    RepositorySummaryResponse:
+      type: object
+      required: [name, title, publicPages, privatePages]
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        publicPages:
+          type: integer
+        privatePages:
+          type: integer

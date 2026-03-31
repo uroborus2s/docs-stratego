@@ -254,6 +254,167 @@ class SiteBuilderTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "assets directory cannot contain Markdown"):
                 self.module.build_site([repo], tmp_path / "build")
 
+    def test_builder_renders_openapi_and_mcp_tools_contract_pages(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            docs_root = tmp_path / "docs"
+            (docs_root / "03-developer-guide" / "openapi").mkdir(parents=True)
+            (docs_root / "03-developer-guide" / "tools").mkdir(parents=True)
+
+            (docs_root / "index.md").write_text(
+                "---\n"
+                "title: 平台文档\n"
+                "mkdocs:\n"
+                "  home_access: public\n"
+                "  nav:\n"
+                "    - title: 开发者指南\n"
+                "      children:\n"
+                "        - title: 概览\n"
+                "          path: 03-developer-guide/index.md\n"
+                "          access: public\n"
+                "        - title: OpenAPI 契约\n"
+                "          children:\n"
+                "            - title: 概览\n"
+                "              path: 03-developer-guide/openapi/index.md\n"
+                "              access: public\n"
+                "            - title: 平台开放接口\n"
+                "              path: 03-developer-guide/openapi/platform.openapi.yaml\n"
+                "              access: public\n"
+                "        - title: 工具契约（MCP）\n"
+                "          children:\n"
+                "            - title: 概览\n"
+                "              path: 03-developer-guide/tools/index.md\n"
+                "              access: public\n"
+                "            - title: 站点构建工具\n"
+                "              path: 03-developer-guide/tools/site-builder.mcp-tools.yaml\n"
+                "              access: private\n"
+                "---\n"
+                "# 平台文档\n",
+                encoding="utf-8",
+            )
+            (docs_root / "03-developer-guide" / "index.md").write_text(
+                "# 开发者指南\n", encoding="utf-8"
+            )
+            (docs_root / "03-developer-guide" / "openapi" / "index.md").write_text(
+                "# OpenAPI 契约\n", encoding="utf-8"
+            )
+            (docs_root / "03-developer-guide" / "tools" / "index.md").write_text(
+                "# 工具契约（MCP）\n", encoding="utf-8"
+            )
+            (docs_root / "03-developer-guide" / "openapi" / "platform.openapi.yaml").write_text(
+                "openapi: 3.1.0\n"
+                "info:\n"
+                "  title: 平台开放接口\n"
+                "  version: 1.0.0\n"
+                "  summary: 对外健康检查与版本信息接口\n"
+                "servers:\n"
+                "  - url: https://docs.example.com\n"
+                "tags:\n"
+                "  - name: Health\n"
+                "    description: 健康与状态接口\n"
+                "paths:\n"
+                "  /health:\n"
+                "    get:\n"
+                "      tags: [Health]\n"
+                "      operationId: getHealth\n"
+                "      summary: 获取健康状态\n"
+                "      responses:\n"
+                "        '200':\n"
+                "          description: OK\n"
+                "          content:\n"
+                "            application/json:\n"
+                "              schema:\n"
+                "                $ref: '#/components/schemas/HealthResponse'\n"
+                "components:\n"
+                "  schemas:\n"
+                "    HealthResponse:\n"
+                "      type: object\n"
+                "      description: 健康检查返回体\n"
+                "      required: [status]\n"
+                "      properties:\n"
+                "        status:\n"
+                "          type: string\n",
+                encoding="utf-8",
+            )
+            (docs_root / "03-developer-guide" / "tools" / "site-builder.mcp-tools.yaml").write_text(
+                "tools:\n"
+                "  - name: build_site\n"
+                "    title: 站点构建\n"
+                "    description: 构建聚合文档站点\n"
+                "    annotations:\n"
+                "      readOnlyHint: false\n"
+                "      destructiveHint: false\n"
+                "      idempotentHint: true\n"
+                "      openWorldHint: false\n"
+                "    inputSchema:\n"
+                "      type: object\n"
+                "      required: [config]\n"
+                "      properties:\n"
+                "        config:\n"
+                "          type: string\n"
+                "        output_dir:\n"
+                "          type: string\n"
+                "    outputSchema:\n"
+                "      type: object\n"
+                "      properties:\n"
+                "        outputDir:\n"
+                "          type: string\n",
+                encoding="utf-8",
+            )
+
+            repo = self.module.SourceRepository(
+                name="platform",
+                title="平台文档",
+                source_type="local",
+                repo_url="https://github.com/example/platform",
+                local_path=str(docs_root),
+            )
+            output_dir = tmp_path / "build"
+
+            self.module.build_site([repo], output_dir)
+
+            permissions = json.loads((output_dir / "authz" / "permissions.json").read_text(encoding="utf-8"))
+            mkdocs_text = (output_dir / "mkdocs.generated.yml").read_text(encoding="utf-8")
+            openapi_text = (
+                output_dir / "site_docs" / "platform" / "03-developer-guide" / "openapi" / "platform.openapi.md"
+            ).read_text(encoding="utf-8")
+            tools_text = (
+                output_dir
+                / "site_docs"
+                / "platform"
+                / "03-developer-guide"
+                / "tools"
+                / "site-builder.mcp-tools.md"
+            ).read_text(encoding="utf-8")
+            contracts_js_text = (
+                output_dir / "site_docs" / "assets" / "javascripts" / "contracts.js"
+            ).read_text(encoding="utf-8")
+
+            public_pages = {item["url"] for item in permissions["pages"] if item["kind"] == "page" and item["access"] == "public"}
+            private_pages = {item["url"] for item in permissions["pages"] if item["kind"] == "page" and item["access"] == "private"}
+            private_resources = {
+                item["url"] for item in permissions["pages"] if item["kind"] == "resource" and item["access"] == "private"
+            }
+
+        self.assertIn("/platform/03-developer-guide/openapi/platform.openapi/", public_pages)
+        self.assertIn("/platform/03-developer-guide/tools/site-builder.mcp-tools/", private_pages)
+        self.assertIn("/platform/03-developer-guide/tools/site-builder.mcp-tools.yaml", private_resources)
+        self.assertIn('platform/03-developer-guide/openapi/platform.openapi.md', mkdocs_text)
+        self.assertIn('platform/03-developer-guide/tools/site-builder.mcp-tools.md', mkdocs_text)
+        self.assertIn("assets/javascripts/contracts.js", mkdocs_text)
+        self.assertIn("# 平台开放接口", openapi_text)
+        self.assertIn("Scalar API Reference", openapi_text)
+        self.assertIn('class="docs-openapi-scalar', openapi_text)
+        self.assertIn('data-openapi-url="platform.openapi.yaml"', openapi_text)
+        self.assertIn('href="platform.openapi.yaml">下载原始契约<', openapi_text)
+        self.assertIn("loadScalarScript", contracts_js_text)
+        self.assertIn("createApiReference", contracts_js_text)
+        self.assertIn("# 站点构建工具", tools_text)
+        self.assertIn("## 工具总览", tools_text)
+        self.assertIn("build_site", tools_text)
+        self.assertIn("MCP Inspector", tools_text)
+        self.assertIn('href="site-builder.mcp-tools.yaml">下载原始快照<', tools_text)
+
 
 if __name__ == "__main__":
     unittest.main()

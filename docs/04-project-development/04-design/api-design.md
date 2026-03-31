@@ -52,8 +52,30 @@
 - 目录节点使用 `title + children`
 - 页面节点使用 `title + path + access`
 - 页面权限只在页面节点上声明
+- 页面节点的 `path` 目前允许三类文件：
+  - `*.md`
+  - `*.openapi.yaml|yml|json`
+  - `*.mcp-tools.yaml|yml|json`
 
 子目录 `index.md` 是普通页面，不再负责导航和权限。
+
+## 契约渲染契约
+
+当页面节点指向机器契约文件时，构建器会自动生成站内参考页：
+
+- `foo.openapi.yaml` -> `foo.openapi.md`
+- `bar.mcp-tools.yaml` -> `bar.mcp-tools.md`
+
+其中：
+
+- 渲染页进入 MkDocs 导航和页面 URL
+- 原始 `.yaml/.json` 文件保留为可下载资源
+- 页面节点声明的 `access` 同时作用于渲染页和原始契约文件
+
+当前支持的机器契约：
+
+- OpenAPI 3.x，站内使用 Scalar API Reference 渲染
+- MCP tools 快照，站内生成静态工具参考页
 
 ## 构建产物契约
 
@@ -63,3 +85,5 @@
 - `.generated/mkdocs.generated.yml`
 - `.generated/authz/permissions.json`
 - `.generated/nginx/private_locations.conf`
+
+其中 `.generated/site_docs/` 现在既包含源 Markdown 页面，也包含由 OpenAPI / Functions 文件自动生成的参考页。

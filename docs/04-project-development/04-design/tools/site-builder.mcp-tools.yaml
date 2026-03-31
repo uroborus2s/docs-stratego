@@ -1,0 +1,58 @@
+tools:
+  - name: sync_sources
+    title: 同步源仓文档
+    description: 同步源仓文档目录到聚合工作区。
+    annotations:
+      readOnlyHint: false
+      destructiveHint: false
+      idempotentHint: false
+      openWorldHint: false
+    inputSchema:
+      type: object
+      required: [config]
+      properties:
+        config:
+          type: string
+          description: 源仓配置文件路径
+        source_mode:
+          type: string
+          enum: [local, remote]
+          description: 文档源模式
+    outputSchema:
+      type: object
+      properties:
+        syncedRepositories:
+          type: integer
+        docsRoots:
+          type: array
+          items:
+            type: string
+  - name: build_site
+    title: 构建聚合文档站
+    description: 生成站点文档树、权限清单与 Nginx 私有规则。
+    annotations:
+      readOnlyHint: false
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    inputSchema:
+      type: object
+      required: [config, output_dir]
+      properties:
+        config:
+          type: string
+          description: 源仓配置文件路径
+        output_dir:
+          type: string
+          description: 构建输出目录
+    outputSchema:
+      type: object
+      properties:
+        docsDir:
+          type: string
+        mkdocsConfig:
+          type: string
+        permissionsFile:
+          type: string
+        privateLocationsFile:
+          type: string

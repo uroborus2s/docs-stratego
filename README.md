@@ -81,6 +81,8 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 - 只有根 `docs/index.md` 声明 `mkdocs.nav`
 - 根 `docs/index.md` 的正文只写简介和维护说明，不再重复写目录树或章节清单
 - 页面私有化只允许在根 `docs/index.md` 的页面节点中声明
+- 页面节点除了 `*.md`，还可以声明 `*.openapi.*` 与 `*.mcp-tools.*` 契约文件
+- 已声明的 OpenAPI 文件会自动生成 Scalar API Reference 页面；已声明的 MCP tools 快照会自动生成工具参考页，并保留原始 `.yaml/.json` 下载地址
 - 未声明的 Markdown 页面直接视为构建错误
 
 ## 认证与部署

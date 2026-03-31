@@ -15,6 +15,7 @@ HOME_CSS = """:root {
   --docs-card-bg: rgba(255, 255, 255, 0.82);
   --docs-muted: #5b6577;
   --md-grid-max-width: 100%;
+  --docs-contract-border: rgba(15, 23, 42, 0.1);
 }
 
 .md-grid {
@@ -244,9 +245,73 @@ HOME_CSS = """:root {
 .docs-sidebar-section-only .md-nav__item--nested {
   margin-top: 0;
 }
+
+.docs-contract-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.6rem 0 1rem;
+}
+
+.docs-contract-note {
+  margin: 0 0 1rem;
+  color: var(--docs-muted);
+}
+
+.docs-contract-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--docs-contract-border);
+  background: rgba(255, 255, 255, 0.85);
+  color: #22324d;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.docs-openapi-scalar {
+  min-height: 72vh;
+  border: 1px solid var(--docs-contract-border);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.docs-openapi-scalar.is-loading,
+.docs-openapi-scalar.is-error {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--docs-muted);
+}
+
+.docs-openapi-scalar__status {
+  font-size: 0.95rem;
+}
+
+.docs-openapi-scalar__error {
+  max-width: 42rem;
+  text-align: center;
+}
+
+.docs-openapi-scalar__error a {
+  font-weight: 700;
+}
 """
 
 ALLOWED_ACCESS = {"public", "private"}
+CONTRACT_FILE_SUFFIXES = (
+    (".openapi.yaml", "openapi"),
+    (".openapi.yml", "openapi"),
+    (".openapi.json", "openapi"),
+    (".mcp-tools.yaml", "mcp_tools"),
+    (".mcp-tools.yml", "mcp_tools"),
+    (".mcp-tools.json", "mcp_tools"),
+)
+SCALAR_CDN_URL = "https://cdn.jsdelivr.net/npm/@scalar/api-reference"
 
 
 @dataclass(frozen=True)
@@ -284,6 +349,7 @@ class NavNode:
     path: str | None = None
     access: str | None = None
     children: tuple[NavNode, ...] = ()
+    render_kind: str = "markdown"
 
 
 @dataclass(frozen=True)
@@ -298,6 +364,8 @@ class PageLink:
     title: str
     path: str
     access: str
+    source_path: str
+    render_kind: str = "markdown"
 
 
 @dataclass(frozen=True)
@@ -313,6 +381,100 @@ def normalize_access(value: str | None, context: Path) -> str | None:
     if value not in ALLOWED_ACCESS:
         raise ValueError(f"{context} has invalid access value: {value}")
     return value
+
+
+def detect_render_kind(raw_path: str, index_path: Path, title: str) -> str:
+    lower_path = raw_path.lower()
+    if lower_path.endswith(".md"):
+        return "markdown"
+    for suffix, render_kind in CONTRACT_FILE_SUFFIXES:
+        if lower_path.endswith(suffix):
+            return render_kind
+    raise ValueError(f"{index_path} page item '{title}' points to an unsupported file: {raw_path}")
+
+
+def rendered_page_path(relative_path: str, render_kind: str) -> str:
+    if render_kind == "markdown":
+        return relative_path
+    path = Path(relative_path)
+    if not path.suffix:
+        raise ValueError(f"{relative_path} missing file suffix")
+    return path.with_suffix(".md").as_posix()
+
+
+def load_structured_document(file_path: Path) -> tuple[dict, str]:
+    text = file_path.read_text(encoding="utf-8")
+    if file_path.suffix.lower() == ".json":
+        payload = json.loads(text)
+    else:
+        payload = yaml.safe_load(text) or {}
+    if not isinstance(payload, dict):
+        raise ValueError(f"{file_path} must contain a top-level object")
+    return payload, text
+
+
+def schema_ref_name(ref: str) -> str:
+    return ref.rsplit("/", 1)[-1]
+
+
+def summarize_schema(schema: object) -> str:
+    if not isinstance(schema, dict) or not schema:
+        return "-"
+    if "$ref" in schema:
+        return f"`{schema_ref_name(str(schema['$ref']))}`"
+    if "enum" in schema and isinstance(schema["enum"], list):
+        values = [str(item) for item in schema["enum"][:4]]
+        suffix = "..." if len(schema["enum"]) > 4 else ""
+        return f"`enum[{', '.join(values)}{suffix}]`"
+    schema_type = schema.get("type")
+    if schema_type == "object":
+        properties = schema.get("properties", {})
+        prop_names = list(properties.keys()) if isinstance(properties, dict) else []
+        required = schema.get("required", [])
+        prop_preview = ", ".join(prop_names[:5])
+        required_preview = ", ".join(str(item) for item in required[:5]) if isinstance(required, list) else ""
+        parts = ["object"]
+        if prop_preview:
+            parts.append(f"fields: {prop_preview}{'...' if len(prop_names) > 5 else ''}")
+        if required_preview:
+            parts.append(f"required: {required_preview}{'...' if len(required) > 5 else ''}")
+        return "; ".join(parts)
+    if schema_type == "array":
+        return f"array<{summarize_schema(schema.get('items'))}>"
+    if isinstance(schema_type, list):
+        return " | ".join(str(item) for item in schema_type)
+    if isinstance(schema_type, str):
+        return schema_type
+    if "oneOf" in schema and isinstance(schema["oneOf"], list):
+        options = [summarize_schema(item) for item in schema["oneOf"][:3]]
+        suffix = ", ..." if len(schema["oneOf"]) > 3 else ""
+        return f"oneOf({', '.join(options)}{suffix})"
+    if "anyOf" in schema and isinstance(schema["anyOf"], list):
+        options = [summarize_schema(item) for item in schema["anyOf"][:3]]
+        suffix = ", ..." if len(schema["anyOf"]) > 3 else ""
+        return f"anyOf({', '.join(options)}{suffix})"
+    return "-"
+
+
+def markdown_cell(value: object) -> str:
+    if value is None:
+        return ""
+    text = str(value).replace("\n", "<br>")
+    return text.replace("|", "\\|")
+
+
+def dump_code_block(data: object) -> str:
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def html_fragment_id(value: str) -> str:
+    sanitized = [
+        char.lower() if char.isalnum() else "-" for char in value
+    ]
+    collapsed = "".join(sanitized).strip("-")
+    while "--" in collapsed:
+        collapsed = collapsed.replace("--", "-")
+    return collapsed or "docs-contract"
 
 
 def extract_h1(markdown_text: str, file_path: Path) -> str:
@@ -389,6 +551,204 @@ def validate_markdown_title(file_path: Path) -> None:
     extract_h1(body, file_path)
 
 
+def validate_openapi_document(document: dict, file_path: Path) -> None:
+    openapi_version = document.get("openapi")
+    if not isinstance(openapi_version, str) or not openapi_version.startswith("3."):
+        raise ValueError(f"{file_path} must declare OpenAPI 3.x")
+    info = document.get("info")
+    if not isinstance(info, dict):
+        raise ValueError(f"{file_path} missing info block")
+    if not isinstance(info.get("title"), str) or not info["title"].strip():
+        raise ValueError(f"{file_path} missing info.title")
+    if not isinstance(info.get("version"), str) or not info["version"].strip():
+        raise ValueError(f"{file_path} missing info.version")
+    paths = document.get("paths")
+    if paths is not None and not isinstance(paths, dict):
+        raise ValueError(f"{file_path} paths must be an object")
+
+
+def extract_mcp_tools_payload(document: dict) -> dict:
+    if isinstance(document.get("tools"), list):
+        return document
+    result = document.get("result")
+    if isinstance(result, dict) and isinstance(result.get("tools"), list):
+        return result
+    raise ValueError("missing MCP tools payload")
+
+
+def validate_mcp_tools_document(document: dict, file_path: Path) -> dict:
+    payload = extract_mcp_tools_payload(document)
+    tools = payload.get("tools")
+    if not isinstance(tools, list) or not tools:
+        raise ValueError(f"{file_path} must declare a non-empty tools list")
+    for index, item in enumerate(tools, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"{file_path} tool #{index} must be an object")
+        if not isinstance(item.get("name"), str) or not item["name"].strip():
+            raise ValueError(f"{file_path} tool #{index} missing name")
+        if not isinstance(item.get("description"), str) or not item["description"].strip():
+            raise ValueError(f"{file_path} tool '{item['name']}' missing description")
+        input_schema = item.get("inputSchema")
+        if not isinstance(input_schema, dict):
+            raise ValueError(f"{file_path} tool '{item['name']}' missing inputSchema")
+    return payload
+
+
+def validate_contract_document(file_path: Path, render_kind: str) -> tuple[dict, str]:
+    document, raw_text = load_structured_document(file_path)
+    if render_kind == "openapi":
+        validate_openapi_document(document, file_path)
+        return document, raw_text
+    if render_kind == "mcp_tools":
+        return validate_mcp_tools_document(document, file_path), raw_text
+    raise ValueError(f"{file_path} unsupported render kind: {render_kind}")
+
+
+def render_markdown_table(headers: list[str], rows: list[list[object]]) -> list[str]:
+    if not rows:
+        return []
+    lines = [
+        "| " + " | ".join(markdown_cell(header) for header in headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
+    for row in rows:
+        lines.append("| " + " | ".join(markdown_cell(cell) for cell in row) + " |")
+    return lines
+
+
+def relative_link(from_path: str, to_path: str) -> str:
+    return os.path.relpath(to_path, Path(from_path).parent.as_posix())
+
+
+def render_openapi_page(page: PageLink, file_path: Path) -> str:
+    document, _raw_text = validate_contract_document(file_path, "openapi")
+    info = document["info"]
+    title = page.title
+    summary = info.get("summary") or info.get("description") or ""
+    container_id = html_fragment_id(page.path)
+    raw_contract_link = relative_link(page.path, page.source_path)
+    server_count = len(document.get("servers", [])) if isinstance(document.get("servers"), list) else 0
+    tag_count = len(document.get("tags", [])) if isinstance(document.get("tags"), list) else 0
+    path_count = len(document.get("paths", {})) if isinstance(document.get("paths"), dict) else 0
+
+    lines = [
+        f"# {title}",
+        "",
+        f"> 本页由 Scalar 渲染，源文件为 `{page.source_path}`",
+        "",
+    ]
+    if summary:
+        lines.extend([str(summary).strip(), ""])
+
+    lines.extend(
+        [
+            '<div class="docs-contract-meta">',
+            f'<span class="docs-contract-pill">OpenAPI {escape(str(document.get("openapi", "")))}</span>',
+            f'<span class="docs-contract-pill">Spec {escape(str(info.get("version", "")))}</span>',
+            f'<span class="docs-contract-pill">{path_count} paths</span>',
+            f'<span class="docs-contract-pill">{tag_count} tags</span>',
+            f'<span class="docs-contract-pill">{server_count} servers</span>',
+            f'<a class="docs-contract-pill" href="{escape(raw_contract_link)}">下载原始契约</a>',
+            "</div>",
+            "",
+            '<p class="docs-contract-note">交互式接口文档由 Scalar API Reference 提供；站点权限仍以根 <code>docs/index.md</code> 的 <code>access</code> 为准。</p>',
+            "",
+            f'<div id="{escape(container_id)}" class="docs-openapi-scalar is-loading" data-openapi-url="{escape(raw_contract_link)}" data-openapi-title="{escape(str(title))}" data-openapi-version="{escape(str(info.get("version", "")))}">',
+            '  <div class="docs-openapi-scalar__status">正在加载 Scalar API Reference...</div>',
+            "</div>",
+            "",
+        ]
+    )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_mcp_tools_page(page: PageLink, file_path: Path) -> str:
+    payload, raw_text = validate_contract_document(file_path, "mcp_tools")
+    tools = [item for item in payload.get("tools", []) if isinstance(item, dict)]
+
+    lines = [
+        f"# {page.title}",
+        "",
+        f"> 本页基于 MCP tools 快照渲染，源文件为 `{page.source_path}`",
+        "",
+        '<p class="docs-contract-note">MCP 目前没有像 Swagger UI 那样成熟的通用文档 UI；本页提供静态参考，交互调试建议使用 MCP Inspector。</p>',
+        "",
+        '<div class="docs-contract-meta">',
+        f'<span class="docs-contract-pill">{len(tools)} tools</span>',
+        f'<a class="docs-contract-pill" href="{escape(relative_link(page.path, page.source_path))}">下载原始快照</a>',
+        '<a class="docs-contract-pill" href="https://modelcontextprotocol.io/docs/tools/inspector" target="_blank" rel="noreferrer">MCP Inspector</a>',
+        "</div>",
+        "",
+        "## 工具总览",
+        "",
+    ]
+
+    overview_rows = []
+    for tool in tools:
+        overview_rows.append(
+            [
+                tool.get("name", ""),
+                tool.get("title", ""),
+                summarize_schema(tool.get("inputSchema")),
+                tool.get("description", ""),
+            ]
+        )
+    lines.extend(render_markdown_table(["名称", "标题", "输入", "说明"], overview_rows))
+    lines.append("")
+
+    for tool in tools:
+        name = tool.get("name", "")
+        lines.extend([f"### `{name}`", ""])
+        if tool.get("description"):
+            lines.extend([str(tool["description"]).strip(), ""])
+        detail_rows = [
+            ["标题", tool.get("title", "")],
+            ["输入 Schema", summarize_schema(tool.get("inputSchema"))],
+            ["输出 Schema", summarize_schema(tool.get("outputSchema"))],
+        ]
+        lines.extend(render_markdown_table(["字段", "值"], detail_rows))
+        lines.append("")
+
+        annotations = tool.get("annotations")
+        if isinstance(annotations, dict) and annotations:
+            annotation_rows = [[key, value] for key, value in annotations.items()]
+            lines.extend(["Annotations", ""])
+            lines.extend(render_markdown_table(["字段", "值"], annotation_rows))
+            lines.append("")
+
+        input_schema = tool.get("inputSchema")
+        if isinstance(input_schema, dict):
+            lines.extend(["输入 Schema", "", "```json", dump_code_block(input_schema), "```", ""])
+
+        output_schema = tool.get("outputSchema")
+        if isinstance(output_schema, dict):
+            lines.extend(["输出 Schema", "", "```json", dump_code_block(output_schema), "```", ""])
+
+    code_lang = "json" if file_path.suffix.lower() == ".json" else "yaml"
+    lines.extend(
+        [
+            "<details>",
+            "<summary>原始 MCP tools 快照</summary>",
+            "",
+            f"```{code_lang}",
+            raw_text.rstrip(),
+            "```",
+            "",
+            "</details>",
+            "",
+        ]
+    )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_contract_page(page: PageLink, file_path: Path) -> str:
+    if page.render_kind == "openapi":
+        return render_openapi_page(page, file_path)
+    if page.render_kind == "mcp_tools":
+        return render_mcp_tools_page(page, file_path)
+    raise ValueError(f"{file_path} unsupported render kind: {page.render_kind}")
+
+
 def parse_nav_node(item: dict, index_path: Path) -> NavNode:
     if not isinstance(item, dict):
         raise ValueError(f"{index_path} contains a non-object nav item")
@@ -409,14 +769,18 @@ def parse_nav_node(item: dict, index_path: Path) -> NavNode:
         relative_path = Path(raw_path)
         if relative_path.is_absolute() or ".." in relative_path.parts:
             raise ValueError(f"{index_path} nav item '{title}' contains forbidden path: {raw_path}")
-        if relative_path.suffix.lower() != ".md":
-            raise ValueError(f"{index_path} page item '{title}' must point to a Markdown file: {raw_path}")
         if is_hidden_path(relative_path) or is_resource_path(relative_path):
             raise ValueError(f"{index_path} page item '{title}' points to a forbidden location: {raw_path}")
+        render_kind = detect_render_kind(raw_path, index_path, title)
         access = normalize_access(item.get("access"), index_path)
         if access is None:
             raise ValueError(f"{index_path} page item '{title}' missing access")
-        return NavNode(title=title.strip(), path=relative_path.as_posix(), access=access)
+        return NavNode(
+            title=title.strip(),
+            path=relative_path.as_posix(),
+            access=access,
+            render_kind=render_kind,
+        )
 
     if item.get("access") is not None:
         raise ValueError(f"{index_path} section item '{title}' cannot define access")
@@ -463,17 +827,38 @@ def validate_directory_indexes(docs_root: Path) -> None:
 def collect_declared_pages(
     repo_name: str,
     nodes: tuple[NavNode, ...],
-    declared_pages: dict[str, str],
+    declared_pages: list[PageLink],
+    seen_sources: set[str],
+    seen_outputs: set[str],
 ) -> list[dict]:
     nav_items: list[dict] = []
     for node in nodes:
         if node.path is not None:
-            if node.path in declared_pages:
+            output_path = rendered_page_path(node.path, node.render_kind)
+            if node.path in seen_sources:
                 raise ValueError(f"duplicate page declaration: {node.path}")
-            declared_pages[node.path] = node.access or "public"
-            nav_items.append({node.title: f"{repo_name}/{node.path}"})
+            if output_path in seen_outputs:
+                raise ValueError(f"duplicate rendered page declaration: {output_path}")
+            seen_sources.add(node.path)
+            seen_outputs.add(output_path)
+            declared_pages.append(
+                PageLink(
+                    title=node.title,
+                    path=output_path,
+                    access=node.access or "public",
+                    source_path=node.path,
+                    render_kind=node.render_kind,
+                )
+            )
+            nav_items.append({node.title: f"{repo_name}/{output_path}"})
             continue
-        nav_items.append({node.title: collect_declared_pages(repo_name, node.children, declared_pages)})
+        nav_items.append(
+            {
+                node.title: collect_declared_pages(
+                    repo_name, node.children, declared_pages, seen_sources, seen_outputs
+                )
+            }
+        )
     return nav_items
 
 
@@ -481,7 +866,15 @@ def flatten_page_links(nodes: tuple[NavNode, ...]) -> list[PageLink]:
     pages: list[PageLink] = []
     for node in nodes:
         if node.path is not None:
-            pages.append(PageLink(title=node.title, path=node.path, access=node.access or "public"))
+            pages.append(
+                PageLink(
+                    title=node.title,
+                    path=rendered_page_path(node.path, node.render_kind),
+                    access=node.access or "public",
+                    source_path=node.path,
+                    render_kind=node.render_kind,
+                )
+            )
             continue
         pages.extend(flatten_page_links(node.children))
     return pages
@@ -489,7 +882,7 @@ def flatten_page_links(nodes: tuple[NavNode, ...]) -> list[PageLink]:
 
 def resolve_node_target(node: NavNode) -> str:
     if node.path is not None:
-        return node.path
+        return rendered_page_path(node.path, node.render_kind)
     for child in node.children:
         target = resolve_node_target(child)
         if target:
@@ -510,16 +903,19 @@ def build_repo_tab_links(repo: SourceRepository, nodes: tuple[NavNode, ...]) -> 
     return links
 
 
-def validate_declared_pages(docs_root: Path, declared_pages: dict[str, str]) -> None:
-    for relative_path in declared_pages:
-        file_path = docs_root / relative_path
+def validate_declared_pages(docs_root: Path, declared_pages: list[PageLink]) -> None:
+    for page in declared_pages:
+        file_path = docs_root / page.source_path
         if not file_path.exists():
             raise ValueError(f"{file_path} declared in root index but does not exist")
-        validate_markdown_title(file_path)
+        if page.render_kind == "markdown":
+            validate_markdown_title(file_path)
+            continue
+        validate_contract_document(file_path, page.render_kind)
 
 
-def validate_markdown_coverage(docs_root: Path, declared_pages: dict[str, str]) -> None:
-    declared_markdown = set(declared_pages)
+def validate_markdown_coverage(docs_root: Path, declared_pages: list[PageLink]) -> None:
+    declared_markdown = {page.source_path for page in declared_pages if page.render_kind == "markdown"}
     declared_markdown.add("index.md")
     undeclared: list[str] = []
 
@@ -541,12 +937,12 @@ def validate_markdown_coverage(docs_root: Path, declared_pages: dict[str, str]) 
         raise ValueError(f"Markdown files not declared in mkdocs.nav: {', '.join(undeclared)}")
 
 
-def build_directory_access_map(home_access: str, declared_pages: dict[str, str]) -> dict[Path, str]:
+def build_directory_access_map(home_access: str, declared_pages: list[PageLink]) -> dict[Path, str]:
     access_map = {Path(): home_access}
-    for relative_path, access in declared_pages.items():
-        path = Path(relative_path)
+    for page in declared_pages:
+        path = Path(page.source_path)
         if path.name == "index.md":
-            access_map[path.parent] = access
+            access_map[path.parent] = page.access
     return access_map
 
 
@@ -564,6 +960,7 @@ def collect_resource_entries(
     repo: SourceRepository,
     docs_root: Path,
     access_map: dict[Path, str],
+    source_access_overrides: dict[str, str],
     entries: list[dict],
 ) -> None:
     for file_path in sorted(path for path in docs_root.rglob("*") if path.is_file()):
@@ -572,7 +969,9 @@ def collect_resource_entries(
             continue
         if file_path.suffix.lower() == ".md":
             continue
-        access = resolve_resource_access(access_map, relative_path)
+        access = source_access_overrides.get(relative_path.as_posix()) or resolve_resource_access(
+            access_map, relative_path
+        )
         append_entry(
             entries,
             repo.name,
@@ -589,25 +988,28 @@ def build_repo_nav_and_entries(
     validate_directory_indexes(docs_root)
     root_metadata = parse_root_index(docs_root)
 
-    declared_pages: dict[str, str] = {}
-    repo_nav = collect_declared_pages(repo.name, root_metadata.nav, declared_pages)
+    declared_pages: list[PageLink] = []
+    repo_nav = collect_declared_pages(repo.name, root_metadata.nav, declared_pages, set(), set())
     validate_declared_pages(docs_root, declared_pages)
     validate_markdown_coverage(docs_root, declared_pages)
 
     entries: list[dict] = []
     append_entry(entries, repo.name, "index.md", markdown_url(repo.name, "index.md"), root_metadata.home_access, "page")
-    for relative_path, access in sorted(declared_pages.items()):
+    for page in sorted(declared_pages, key=lambda item: item.path):
         append_entry(
             entries,
             repo.name,
-            relative_path,
-            markdown_url(repo.name, relative_path),
-            access,
+            page.path,
+            markdown_url(repo.name, page.path),
+            page.access,
             "page",
         )
 
     access_map = build_directory_access_map(root_metadata.home_access, declared_pages)
-    collect_resource_entries(repo, docs_root, access_map, entries)
+    source_access_overrides = {
+        page.source_path: page.access for page in declared_pages if page.render_kind != "markdown"
+    }
+    collect_resource_entries(repo, docs_root, access_map, source_access_overrides, entries)
 
     return [{"概览": f"{repo.name}/index.md"}, *repo_nav], entries, root_metadata
 
@@ -673,7 +1075,9 @@ def classify_project_sections(repo: SourceRepository, pages: list[PageLink]) -> 
                     break
         return picked
 
-    intro: list[PageLink] = [PageLink(title="项目首页", path="index.md", access="public")]
+    intro: list[PageLink] = [
+        PageLink(title="项目首页", path="index.md", access="public", source_path="index.md")
+    ]
     used.add("index.md")
     intro.extend(pick(lambda page: matches_keywords(page, intro_keywords), limit=2, include_indexes=False))
 
@@ -943,6 +1347,118 @@ document$.subscribe(() => {{
       closeProjectMenus(document);
     }}
   }});
+}});
+""",
+        encoding="utf-8",
+    )
+
+
+def write_contracts_js(site_docs_dir: Path) -> None:
+    js_path = site_docs_dir / "assets" / "javascripts" / "contracts.js"
+    js_path.parent.mkdir(parents=True, exist_ok=True)
+    js_path.write_text(
+        f"""const SCALAR_CDN_URL = "{SCALAR_CDN_URL}";
+
+let scalarScriptPromise = null;
+let scalarMountedReferences = [];
+
+function loadScalarScript() {{
+  if (window.Scalar && typeof window.Scalar.createApiReference === "function") {{
+    return Promise.resolve(window.Scalar);
+  }}
+  if (scalarScriptPromise) {{
+    return scalarScriptPromise;
+  }}
+  scalarScriptPromise = new Promise((resolve, reject) => {{
+    const existing = document.querySelector('script[data-docs-scalar-cdn="true"]');
+    if (existing) {{
+      existing.addEventListener("load", () => resolve(window.Scalar), {{ once: true }});
+      existing.addEventListener("error", () => reject(new Error("Scalar CDN load failed")), {{ once: true }});
+      return;
+    }}
+    const script = document.createElement("script");
+    script.src = SCALAR_CDN_URL;
+    script.async = true;
+    script.dataset.docsScalarCdn = "true";
+    script.addEventListener("load", () => resolve(window.Scalar), {{ once: true }});
+    script.addEventListener("error", () => reject(new Error("Scalar CDN load failed")), {{ once: true }});
+    document.head.appendChild(script);
+  }});
+  return scalarScriptPromise;
+}}
+
+function resolveScalarTheme() {{
+  const scheme = document.body?.getAttribute("data-md-color-scheme") || "";
+  return scheme === "slate" ? "deepSpace" : "default";
+}}
+
+function clearMountedScalarReferences() {{
+  scalarMountedReferences.forEach((instance) => {{
+    if (instance && typeof instance.destroy === "function") {{
+      try {{
+        instance.destroy();
+      }} catch (_error) {{
+        // ignore Scalar cleanup errors
+      }}
+    }}
+  }});
+  scalarMountedReferences = [];
+}}
+
+function renderScalarError(container, specUrl) {{
+  container.classList.remove("is-loading");
+  container.classList.add("is-error");
+  container.innerHTML = `
+    <div class="docs-openapi-scalar__error">
+      <p>Scalar API Reference 加载失败。</p>
+      <p><a href="${{specUrl}}">打开原始契约</a></p>
+    </div>
+  `;
+}}
+
+async function mountScalarReferences(root = document) {{
+  const containers = Array.from(root.querySelectorAll(".docs-openapi-scalar[data-openapi-url]"));
+  if (!containers.length) {{
+    clearMountedScalarReferences();
+    return;
+  }}
+  clearMountedScalarReferences();
+  let scalarApi = null;
+  try {{
+    scalarApi = await loadScalarScript();
+  }} catch (_error) {{
+    containers.forEach((container) => renderScalarError(container, container.dataset.openapiUrl || "#"));
+    return;
+  }}
+  if (!scalarApi || typeof scalarApi.createApiReference !== "function") {{
+    containers.forEach((container) => renderScalarError(container, container.dataset.openapiUrl || "#"));
+    return;
+  }}
+  containers.forEach((container) => {{
+    const specUrl = container.dataset.openapiUrl;
+    if (!specUrl || !container.id) {{
+      return;
+    }}
+    container.classList.remove("is-loading", "is-error");
+    container.innerHTML = "";
+    try {{
+      const instance = scalarApi.createApiReference(`#${{container.id}}`, {{
+        url: specUrl,
+        theme: resolveScalarTheme(),
+        layout: "modern",
+        showSidebar: true,
+        showDeveloperTools: "never",
+        withDefaultFonts: false,
+      }});
+      scalarMountedReferences.push(instance);
+    }} catch (_error) {{
+      renderScalarError(container, specUrl);
+    }}
+  }});
+}}
+
+document$.subscribe(() => {{
+  mountScalarReferences();
 }});
 """,
         encoding="utf-8",
@@ -1418,6 +1934,7 @@ def write_mkdocs_config(output_dir: Path, nav_items: list[dict]) -> None:
         "  - assets/stylesheets/home.css",
         "extra_javascript:",
         "  - assets/javascripts/navigation.js",
+        "  - assets/javascripts/contracts.js",
         "  - assets/javascripts/access-control.js",
         "plugins: []",
         "nav:",
@@ -1437,12 +1954,39 @@ def write_mkdocs_config(output_dir: Path, nav_items: list[dict]) -> None:
     (output_dir / "mkdocs.generated.yml").write_text("\n".join(lines), encoding="utf-8")
 
 
-def symlink_repo_docs(site_docs_dir: Path, repo: SourceRepository, docs_root: Path) -> None:
-    target = site_docs_dir / repo.name
-    if target.exists() or target.is_symlink():
-        target.unlink()
-    rel_target = os.path.relpath(docs_root, site_docs_dir)
-    target.symlink_to(rel_target)
+def materialize_repo_docs(site_docs_dir: Path, repo: SourceRepository, docs_root: Path) -> Path:
+    target_dir = site_docs_dir / repo.name
+    if target_dir.is_symlink():
+        target_dir.unlink()
+    elif target_dir.exists():
+        shutil.rmtree(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    for directory in sorted(path for path in docs_root.rglob("*") if path.is_dir()):
+        relative_path = directory.relative_to(docs_root)
+        if is_hidden_path(relative_path):
+            continue
+        (target_dir / relative_path).mkdir(parents=True, exist_ok=True)
+
+    for file_path in sorted(path for path in docs_root.rglob("*") if path.is_file()):
+        relative_path = file_path.relative_to(docs_root)
+        if is_hidden_path(relative_path):
+            continue
+        destination = target_dir / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.symlink_to(file_path.resolve())
+
+    return target_dir
+
+
+def write_generated_contract_pages(repo_dir: Path, docs_root: Path, pages: list[PageLink]) -> None:
+    for page in pages:
+        if page.render_kind == "markdown":
+            continue
+        source_file = docs_root / page.source_path
+        output_file = repo_dir / page.path
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        output_file.write_text(render_contract_page(page, source_file), encoding="utf-8")
 
 
 def build_site(repositories: list[SourceRepository], output_dir: Path, project_root: Path | None = None) -> Path:
@@ -1463,15 +2007,17 @@ def build_site(repositories: list[SourceRepository], output_dir: Path, project_r
         docs_root = repo.resolve_docs_root(project_root)
         if not docs_root.exists():
             raise ValueError(f"{repo.name} docs root does not exist: {docs_root}")
-        symlink_repo_docs(site_docs_dir, repo, docs_root)
+        repo_dir = materialize_repo_docs(site_docs_dir, repo, docs_root)
         repo_nav, repo_entries, root_metadata = build_repo_nav_and_entries(repo, docs_root)
         top_level_nav.append({repo.title: repo_nav})
         entries.extend(repo_entries)
         repo_pages[repo.name] = flatten_page_links(root_metadata.nav)
+        write_generated_contract_pages(repo_dir, docs_root, repo_pages[repo.name])
         repo_tab_links[repo.title] = build_repo_tab_links(repo, root_metadata.nav)
 
     write_root_index(site_docs_dir, repositories, repo_pages)
     write_navigation_js(site_docs_dir, repo_tab_links)
+    write_contracts_js(site_docs_dir)
     write_access_control_js(site_docs_dir, entries)
     write_auth_popup_complete_html(site_docs_dir)
     write_permissions(output_dir, entries)
