@@ -7,12 +7,20 @@
   "stack": "MkDocs Material + Python/uv + git submodule + sparse-checkout + Casdoor + oauth2-proxy + Nginx + Gemini CLI/Codex",
   "created_at": "2026-03-25T11:29:16.894077+00:00",
   "active_mode": "cli_direct",
-  "supported_modes": ["cli_direct", "api_platform"],
+  "supported_modes": [
+    "cli_direct",
+    "api_platform"
+  ],
   "v1_scope_note": "当前版本只落地 Codex 或 Gemini CLI 直接使用方式，API Agent 平台作为后续演进目标保留。",
   "stage": "IMPLEMENTATION",
   "docs_profile": {
     "project_kind": "docs_site",
-    "audiences": ["maintainer", "operator", "user", "integrator"],
+    "audiences": [
+      "maintainer",
+      "operator",
+      "user",
+      "integrator"
+    ],
     "surfaces": {
       "end_user_usage": true,
       "public_api": false,
@@ -33,8 +41,8 @@
       "03-developer-guide": "当前未暴露稳定 SDK、公共 API 或插件扩展机制；源仓接入标准属于运维和接入约束，暂由用户指南与内部设计文档承载。",
       "04-project-development": "需求、设计、测试、发布、运维和追踪过程仍需集中维护在内部项目文档中。"
     },
-    "source": "manual-evaluation",
-    "detected_at": "2026-03-28T12:15:00+08:00"
+    "detected_at": "2026-03-28T12:15:00+08:00",
+    "source": "manual-evaluation"
   },
   "ai_runtime_docs": [
     "/Users/uroborus/.agent/skills/software-factory-cli/references/ai-runtime-protocol.md",
@@ -121,7 +129,12 @@
     {
       "id": "coordinator",
       "title": "项目协调者",
-      "aliases": ["项目经理", "会话协调者", "pm", "coordinator"],
+      "aliases": [
+        "项目经理",
+        "会话协调者",
+        "pm",
+        "coordinator"
+      ],
       "description": "负责阶段推进、跨角色协作、审批门禁和交接节奏控制。",
       "stages": [
         "BRAINSTORM",
@@ -135,7 +148,10 @@
         "RELEASE",
         "MAINTENANCE"
       ],
-      "preferred_tools": ["codex", "gemini"],
+      "preferred_tools": [
+        "codex",
+        "gemini"
+      ],
       "docs": [
         "docs/03-solution/technical-selection.md",
         ".factory/process/multi-agent-board.md",
@@ -143,7 +159,11 @@
         ".factory/process/execution-log.md",
         ".factory/process/chat-bootstrap.md"
       ],
-      "skill_names": ["brainstorming", "document-templates", "doc-coauthoring"],
+      "skill_names": [
+        "brainstorming",
+        "document-templates",
+        "doc-coauthoring"
+      ],
       "skills": [
         {
           "name": "brainstorming",
@@ -165,10 +185,22 @@
     {
       "id": "requirements-analyst",
       "title": "需求分析师",
-      "aliases": ["需求负责人", "ba", "analyst", "requirements"],
+      "aliases": [
+        "需求负责人",
+        "ba",
+        "analyst",
+        "requirements"
+      ],
       "description": "负责澄清目标、拆解需求、补齐 REQ/NFR、维护需求一致性。",
-      "stages": ["BRAINSTORM", "REQUIREMENTS", "ANALYSIS"],
-      "preferred_tools": ["gemini", "codex"],
+      "stages": [
+        "BRAINSTORM",
+        "REQUIREMENTS",
+        "ANALYSIS"
+      ],
+      "preferred_tools": [
+        "gemini",
+        "codex"
+      ],
       "docs": [
         "docs/00-governance/project-charter.md",
         "docs/01-discovery/input.md",
@@ -210,10 +242,21 @@
     {
       "id": "solution-architect",
       "title": "解决方案架构师",
-      "aliases": ["架构负责人", "architect", "solution"],
+      "aliases": [
+        "架构负责人",
+        "architect",
+        "solution"
+      ],
       "description": "负责系统拆分、接口契约、后端边界和技术风险控制。",
-      "stages": ["ANALYSIS", "DESIGN", "PLAN"],
-      "preferred_tools": ["gemini", "codex"],
+      "stages": [
+        "ANALYSIS",
+        "DESIGN",
+        "PLAN"
+      ],
+      "preferred_tools": [
+        "gemini",
+        "codex"
+      ],
       "docs": [
         "docs/03-solution/technical-selection.md",
         "docs/03-solution/system-architecture.md",
@@ -255,10 +298,21 @@
     {
       "id": "ux-designer",
       "title": "UX/UI 设计师",
-      "aliases": ["设计负责人", "designer", "ux", "ui"],
+      "aliases": [
+        "设计负责人",
+        "designer",
+        "ux",
+        "ui"
+      ],
       "description": "负责用户流程、界面结构、交互状态与体验一致性。",
-      "stages": ["DESIGN", "PLAN"],
-      "preferred_tools": ["gemini", "codex"],
+      "stages": [
+        "DESIGN",
+        "PLAN"
+      ],
+      "preferred_tools": [
+        "gemini",
+        "codex"
+      ],
       "docs": [
         "docs/03-solution/technical-selection.md",
         "docs/03-solution/ux-ui-design.md",
@@ -267,7 +321,11 @@
         "docs/03-solution/module-boundaries.md",
         "docs/04-delivery/wbs.md"
       ],
-      "skill_names": ["ui-ux-pro-max", "frontend-patterns", "doc-coauthoring"],
+      "skill_names": [
+        "ui-ux-pro-max",
+        "frontend-patterns",
+        "doc-coauthoring"
+      ],
       "skills": [
         {
           "name": "ui-ux-pro-max",
@@ -289,10 +347,22 @@
     {
       "id": "backend-engineer",
       "title": "后端工程师",
-      "aliases": ["后端负责人", "backend", "server", "codex-backend"],
+      "aliases": [
+        "后端负责人",
+        "backend",
+        "server",
+        "codex-backend"
+      ],
       "description": "负责服务实现、接口落地、数据一致性和工程化执行。",
-      "stages": ["PLAN", "IMPLEMENTATION", "TESTING"],
-      "preferred_tools": ["codex", "gemini"],
+      "stages": [
+        "PLAN",
+        "IMPLEMENTATION",
+        "TESTING"
+      ],
+      "preferred_tools": [
+        "codex",
+        "gemini"
+      ],
       "docs": [
         "docs/03-solution/technical-selection.md",
         "docs/03-solution/module-boundaries.md",
@@ -302,7 +372,11 @@
         ".factory/process/execution-log.md",
         "docs/05-quality/test-plan.md"
       ],
-      "skill_names": ["backend-patterns", "api-design", "tdd-workflow"],
+      "skill_names": [
+        "backend-patterns",
+        "api-design",
+        "tdd-workflow"
+      ],
       "skills": [
         {
           "name": "backend-patterns",
@@ -324,10 +398,22 @@
     {
       "id": "frontend-engineer",
       "title": "前端工程师",
-      "aliases": ["前端负责人", "frontend", "web", "codex-frontend"],
+      "aliases": [
+        "前端负责人",
+        "frontend",
+        "web",
+        "codex-frontend"
+      ],
       "description": "负责界面实现、交互联调、前端状态管理和可访问性。",
-      "stages": ["PLAN", "IMPLEMENTATION", "TESTING"],
-      "preferred_tools": ["codex", "gemini"],
+      "stages": [
+        "PLAN",
+        "IMPLEMENTATION",
+        "TESTING"
+      ],
+      "preferred_tools": [
+        "codex",
+        "gemini"
+      ],
       "docs": [
         "docs/03-solution/technical-selection.md",
         "docs/03-solution/ux-ui-design.md",
@@ -336,7 +422,11 @@
         ".factory/process/execution-log.md",
         "docs/05-quality/test-plan.md"
       ],
-      "skill_names": ["frontend-patterns", "ui-ux-pro-max", "tdd-workflow"],
+      "skill_names": [
+        "frontend-patterns",
+        "ui-ux-pro-max",
+        "tdd-workflow"
+      ],
       "skills": [
         {
           "name": "frontend-patterns",
@@ -358,10 +448,22 @@
     {
       "id": "qa-engineer",
       "title": "测试工程师",
-      "aliases": ["质量负责人", "qa", "tester", "quality"],
+      "aliases": [
+        "质量负责人",
+        "qa",
+        "tester",
+        "quality"
+      ],
       "description": "负责测试计划、回归验证、Gate 前检查和质量风险暴露。",
-      "stages": ["IMPLEMENTATION", "TESTING", "ACCEPTANCE"],
-      "preferred_tools": ["codex", "gemini"],
+      "stages": [
+        "IMPLEMENTATION",
+        "TESTING",
+        "ACCEPTANCE"
+      ],
+      "preferred_tools": [
+        "codex",
+        "gemini"
+      ],
       "docs": [
         "docs/05-quality/test-plan.md",
         "docs/05-quality/test-cases.md",
@@ -370,7 +472,11 @@
         ".factory/process/quality-check-report.md",
         "docs/traceability/requirements-matrix.md"
       ],
-      "skill_names": ["tdd-workflow", "webapp-testing", "document-templates"],
+      "skill_names": [
+        "tdd-workflow",
+        "webapp-testing",
+        "document-templates"
+      ],
       "skills": [
         {
           "name": "tdd-workflow",
@@ -392,10 +498,22 @@
     {
       "id": "release-manager",
       "title": "发布经理",
-      "aliases": ["发布负责人", "release", "ops", "handover"],
+      "aliases": [
+        "发布负责人",
+        "release",
+        "ops",
+        "handover"
+      ],
       "description": "负责交付说明、部署运行、发布准备和交接闭环。",
-      "stages": ["ACCEPTANCE", "RELEASE", "MAINTENANCE"],
-      "preferred_tools": ["gemini", "codex"],
+      "stages": [
+        "ACCEPTANCE",
+        "RELEASE",
+        "MAINTENANCE"
+      ],
+      "preferred_tools": [
+        "gemini",
+        "codex"
+      ],
       "docs": [
         "docs/04-project-development/07-release-delivery/release-notes.md",
         "docs/04-project-development/07-release-delivery/delivery-package.md",
@@ -403,7 +521,10 @@
         "docs/02-user-guide/user-guide.md",
         "docs/02-user-guide/admin-guide.md"
       ],
-      "skill_names": ["document-templates", "doc-coauthoring"],
+      "skill_names": [
+        "document-templates",
+        "doc-coauthoring"
+      ],
       "skills": [
         {
           "name": "document-templates",
@@ -420,7 +541,12 @@
     {
       "id": "memory-manager",
       "title": "文档与记忆管理员",
-      "aliases": ["memory", "ai-memory", "文档管理员", "记忆管理员"],
+      "aliases": [
+        "memory",
+        "ai-memory",
+        "文档管理员",
+        "记忆管理员"
+      ],
       "description": "负责人类文档与 AI 记忆同步、摘要收敛和项目上下文恢复。",
       "stages": [
         "BRAINSTORM",
@@ -434,7 +560,10 @@
         "RELEASE",
         "MAINTENANCE"
       ],
-      "preferred_tools": ["gemini", "codex"],
+      "preferred_tools": [
+        "gemini",
+        "codex"
+      ],
       "docs": [
         ".factory/memory/project-index.md",
         ".factory/memory/current-state.md",
@@ -445,7 +574,10 @@
         ".factory/process/role-handoffs.md",
         "docs/traceability/requirements-matrix.md"
       ],
-      "skill_names": ["document-templates", "doc-coauthoring"],
+      "skill_names": [
+        "document-templates",
+        "doc-coauthoring"
+      ],
       "skills": [
         {
           "name": "document-templates",
@@ -479,13 +611,37 @@
   "design_assets": [],
   "pr_workflow": {
     "enabled": true,
-    "required_for_prefixes": ["TASK-", "CR-", "BUG-"],
-    "gate_required_for": ["implementation", "testing", "acceptance", "release"],
-    "remote_tools": ["gh", "glab", "record-only"]
+    "required_for_prefixes": [
+      "TASK-",
+      "CR-",
+      "BUG-"
+    ],
+    "gate_required_for": [
+      "implementation",
+      "testing",
+      "acceptance",
+      "release"
+    ],
+    "remote_tools": [
+      "gh",
+      "glab",
+      "record-only"
+    ]
   },
   "last_project_rules_refresh_at": "2026-03-25 22:29:48",
   "last_project_rules_refresh_owner": "Codex",
   "last_agent_session_at": "2026-03-25 22:31:53",
   "last_agent_session_owner": "会话协调者",
-  "last_agent_session_focus": ""
+  "last_agent_session_focus": "",
+  "last_state_doctor_at": "2026-04-01 11:06:34",
+  "last_state_doctor_result": "通过",
+  "state_doctor_runs": [
+    {
+      "scope": "docs",
+      "result": "通过",
+      "owner": "uroborus",
+      "note": "",
+      "checked_at": "2026-04-01 11:06:34"
+    }
+  ]
 }
