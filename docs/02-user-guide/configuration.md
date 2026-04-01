@@ -233,5 +233,5 @@ Actions Secrets：
 - [部署与 CI/CD 设计](../04-project-development/04-design/deployment-architecture.md)
 - [部署手册](../04-project-development/08-operations-maintenance/deployment-guide.md)
 - [服务器部署 SOP](../04-project-development/08-operations-maintenance/server-deployment-sop.md)
-- [使用说明](usage.md)
+- [阅读者指南](reader-guide.md)
 - [管理员指南](admin-guide.md)

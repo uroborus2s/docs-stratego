@@ -8,7 +8,7 @@
 **面向对象：** 所有需要查看文档的团队成员。
 - **核心内容：** 如何登录、公开/私有页面的访问逻辑、登录小窗的使用说明。
 
-### 🏗️ [子仓接入指南 (Contributor Guide)](subrepo-integration.md)
+### 🏗️ [子仓接入指南 (Contributor Guide)](usage.md)
 **面向对象：** 子项目开发者、文档贡献者。
 - **核心内容：** 如何按标准编写文档（Markdown/OpenAPI/MCP）、如何在聚合站登记新项目。
 

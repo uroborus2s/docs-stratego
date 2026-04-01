@@ -58,7 +58,7 @@
 - `ctrip_crawler` 本地工作副本已补齐根 `docs/index.md` 对 `requirements-analysis.md`、`requirements-verification.md`、`backend-design.md`、`database-design.md`、`ux-ui-design.md`、`implementation-plan.md`、`task-breakdown.md`、`wbs.md`、`requirements-matrix.md` 的 `mkdocs.nav` 声明；`source_mode=local` 构建已恢复
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
-- `docs/02-user-guide/usage.md` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
+- `docs/02-user-guide/` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 - 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
 - 主页面现在会在重新获得焦点或接收到新的页面点击时主动关闭仍未完成的登录小窗，避免小窗仅退到后台

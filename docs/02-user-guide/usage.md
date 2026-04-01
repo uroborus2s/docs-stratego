@@ -6,7 +6,7 @@
 
 接入过程分为三个阶段：
 
-1. **规范化准备**：按 [源文档标准](#2-源文档标准规范) 整理子仓 `docs/` 目录。
+1. **规范化准备**：按下文“源文档标准规范”整理子仓 `docs/` 目录。
 2. **根仓登记**：联系维护者在根仓配置子仓指针。
 3. **启用联动**：在子仓配置 GitHub Actions，实现变更自动同步。
 
@@ -95,7 +95,7 @@ jobs:
         with:
           token: ${{ secrets.DOCS_STRATEGO_DISPATCH_TOKEN }}
           repository: uroborus2s/docs-stratego
-          event-type: sync-source-pointers
+          event-type: source-pointer-sync-requested
           client-payload: '{"repo": "${{ github.repository }}", "ref": "${{ github.ref_name }}"}'
 ```
 
