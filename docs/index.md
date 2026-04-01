@@ -22,20 +22,23 @@ mkdocs:
         - title: 概览
           path: 02-user-guide/index.md
           access: public
-        - title: 用户指南
-          path: 02-user-guide/user-guide.md
+        - title: 子仓库接入指南
+          path: 02-user-guide/subrepo-integration.md
           access: public
         - title: 安装说明
           path: 02-user-guide/installation.md
           access: public
-        - title: 配置说明
-          path: 02-user-guide/configuration.md
-          access: public
         - title: 使用说明
           path: 02-user-guide/usage.md
           access: public
+        - title: 配置说明
+          path: 02-user-guide/configuration.md
+          access: public
         - title: 管理员指南
           path: 02-user-guide/admin-guide.md
+          access: public
+        - title: 用户指南旧版
+          path: 02-user-guide/user-guide.md
           access: public
     - title: 项目开发文档（内）
       children:

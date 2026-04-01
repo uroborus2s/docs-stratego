@@ -12,9 +12,6 @@ on:
     branches:
       - main
       - master
-  repository_dispatch:
-    types:
-      - source-docs-updated
   workflow_dispatch:
 
 jobs:
@@ -41,7 +38,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run unit tests
-        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack
+        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers
 
       - name: Validate source repo GitHub App config
         env:

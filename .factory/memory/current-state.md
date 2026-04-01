@@ -20,6 +20,9 @@
 - 任务：迁移 `docs/` 到四大模块结构并拉齐 docs-stratego 索引
 - 变更：完成旧生命周期目录到四大模块骨架的迁移，并按 `docs_profile` 启用 `01-getting-started`、`02-user-guide`、`04-project-development`
 - 缺陷：修复“公开首页被误认为整站锁定、私有文档缺少站内按需登录交互”的部署与体验问题
+- 变更：已批准 `CR-001`，将新增“子仓 `docs/**` 变更自动通知根仓共享 bot PR”的需求、任务与文档口径
+- 变更：已修复 `CR-001` 根仓实现中的事件名、凭证与脚本解析问题，根仓侧自动同步能力已具备
+- 验证：已完成 `Sync Source Pointers` 相关本地回归，`23` 个单元测试通过；真实 GitHub 端到端演练仍待执行
 
 ## 最新集成
 
@@ -71,6 +74,7 @@
 - 用真实外部仓库验证 `git submodule update --init` + 子仓内 `fetch + checkout` + `sparse-checkout` 只展开顶层 `docs/`
 - 当前本地模式构建已通过；远程模式仍被 `crawler4j` 远端分支中的未声明页面阻塞
 - 在部署环境中完成 Casdoor GitHub Provider 配置
+- 选择一个已接入子仓，在真实 GitHub 环境执行一次 `repository_dispatch -> Sync Source Pointers -> 共享 PR -> Squash and merge -> Deploy Docs` 演练
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们
 - `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
 - `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`

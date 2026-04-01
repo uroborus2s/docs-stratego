@@ -38,6 +38,12 @@ uv run python scripts/build_site.py --config config/source-repos.json --project-
 - `source_mode=remote` 用于本地生产预演、正式生产环境和 GitHub Actions
 - 只要仓库留在 `source-repos.json` 中，CI/CD 就会在 remote 模式里真实拉取它
 
+如果要启用“子仓自动通知 -> 根仓共享 bot PR”方案，还要额外完成三件事：
+
+1. 在子仓新增 `.github/workflows/notify-docs-stratego.yml`。
+2. 在子仓配置 dispatch 所需 Secret：`DOCS_STRATEGO_DISPATCH_TOKEN`。
+3. 确保根仓已配置 `DOCS_SOURCE_APP_ID`、`DOCS_SOURCE_APP_PRIVATE_KEY` 和 `DOCS_STRATEGO_SYNC_PAT`，分别用于读取子仓和维护共享 bot PR。
+
 ## 3. Casdoor 账号与 GitHub 登录
 
 ### 本地账号
@@ -77,6 +83,7 @@ Workflow 依赖这些 Secrets：
 | `DOCS_PRIVATE_LOCATIONS_PATH` | 宿主机私有规则文件路径，例如 `/etc/nginx/snippets/docs-stratego/private_locations.conf`；不填时使用 workflow 默认值 |
 | `DOCS_RELOAD_HOST_NGINX` | 是否在部署后 reload 宿主机 Nginx，默认 `1` |
 | `DOCS_SOURCE_APP_PRIVATE_KEY` | 源码读取 GitHub App 的私钥 |
+| `DOCS_STRATEGO_SYNC_PAT` | 根仓用于更新 bot 分支、创建或更新共享 PR 的写入凭证 |
 
 Workflow 还支持这些 Actions Variables：
 
@@ -94,7 +101,23 @@ Workflow 还支持这些 Actions Variables：
 - 私有源仓必须通过 GitHub App installation token 拉取
 - 当前 workflow 已关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 污染后续跨仓拉取
 
-### 4.1 GitHub App 读取私有源仓
+### 4.1 子仓通知根仓所需配置
+
+如果要让子仓在文档变更后自动通知根仓，接入仓还需要这组配置：
+
+| 位置 | 名称 | 说明 |
+| --- | --- | --- |
+| 子仓文件 | `.github/workflows/notify-docs-stratego.yml` | 只在目标分支的 `docs/**` 变更时触发，并向根仓发送 `repository_dispatch: source-pointer-sync-requested` |
+| 子仓 Secret | `DOCS_STRATEGO_DISPATCH_TOKEN` | 允许子仓调用根仓 `repository_dispatch` 的凭证 |
+| 根仓 workflow | `.github/workflows/sync-source-pointers.yml` | 收到事件后同步所有落后子仓指针，并维护共享 bot PR |
+| 根仓 workflow | `.github/workflows/validate-source-pointer-pr.yml` | 为共享 bot PR 提供 merge gate |
+
+管理员需要明确两条边界：
+
+- 子仓只负责发通知，不负责直接发布根仓站点
+- 根仓 `Deploy Docs` 仍是唯一正式发布入口
+
+### 4.2 GitHub App 读取私有源仓
 
 这套方案适合“同一个 GitHub 账号下有多个公私混合源仓”的场景。这里的 GitHub App 不是 Casdoor 登录用的 GitHub Provider，也不是 OAuth App，而是一个专门给 CI/CD 用的机器身份。
 

@@ -27,3 +27,5 @@
 - 2026-03-28: 刷新 docs-stratego 目录索引，负责人：Codex。
 - 2026-04-01: 升级 docs 到最新源文档标准，负责人：文档管理员。
 - 2026-04-01: 执行状态诊断，范围：docs，结果：通过，负责人：uroborus。
+- 2026-04-01: 修复 `CR-001` 根仓同步链路中的事件名、凭证接入、脚本 remote 配置解析与文档模板不一致问题，负责人：Codex。
+- 2026-04-01: 执行 `tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers`，结果：23 个测试通过，负责人：Codex。

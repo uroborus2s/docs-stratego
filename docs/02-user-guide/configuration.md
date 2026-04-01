@@ -126,6 +126,7 @@ Actions Secrets：
 | Secret | 说明 | 示例 |
 | --- | --- | --- |
 | `DOCS_SOURCE_APP_PRIVATE_KEY` | 推荐；源码读取 GitHub App 的私钥 | `-----BEGIN RSA PRIVATE KEY-----` |
+| `DOCS_STRATEGO_SYNC_PAT` | 推荐；根仓更新共享 bot 分支和 PR 的写入凭证 | `github_pat_xxx` |
 
 默认同步目标：
 
@@ -143,6 +144,25 @@ Actions Secrets：
 - artifact 的主要用途是把 `validate` job 的构建结果传给 `deploy` job
 - workflow 会强制使用 GitHub App installation token 读取私有源仓
 - workflow 已关闭 `actions/checkout` 的持久化凭证，避免根仓 `GITHUB_TOKEN` 干扰后续跨仓拉取
+
+### 2.5 子仓自动通知根仓的配置
+
+如果启用“子仓 `docs/**` 变更 -> 根仓共享 bot PR”方案，还需要固定这些配置项：
+
+| 位置 | 名称 | 说明 |
+| --- | --- | --- |
+| 子仓文件 | `.github/workflows/notify-docs-stratego.yml` | 子仓文档变更通知根仓的 workflow 文件 |
+| 子仓 Secret | `DOCS_STRATEGO_DISPATCH_TOKEN` | 子仓向根仓发送 `repository_dispatch` 的凭证 |
+| 根仓事件名 | `source-pointer-sync-requested` | 子仓通知根仓时使用的事件名 |
+| 根仓 bot 分支 | `bot/sync-source-pointers` | 汇总所有已落后子仓指针的自动化分支 |
+| 根仓共享 PR 标题 | `chore: sync source repository pointers` | reviewer 识别共享 PR 的固定标题 |
+
+设计边界：
+
+- 子仓通知 workflow 只对目标分支的 `docs/**` 生效。
+- 根仓共享 bot PR 必须先经人工审核，不能直接代替发布 workflow。
+- 根仓通过 `Sync Source Pointers` 工作流自动维护 PR 内容，多个子仓连续通知会收敛到同一个 PR。
+
 
 ## 3. 模式边界
 
@@ -213,3 +233,5 @@ Actions Secrets：
 - [部署与 CI/CD 设计](../04-project-development/04-design/deployment-architecture.md)
 - [部署手册](../04-project-development/08-operations-maintenance/deployment-guide.md)
 - [服务器部署 SOP](../04-project-development/08-operations-maintenance/server-deployment-sop.md)
+- [使用说明](usage.md)
+- [管理员指南](admin-guide.md)

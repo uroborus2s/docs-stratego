@@ -80,6 +80,43 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn('SOURCE_MODE="${DOCS_SOURCE_MODE:-local}"', start_script_text)
         self.assertIn("--source-mode", start_script_text)
         self.assertNotIn("[[", start_script_text)
+        self.assertNotIn("repository_dispatch", workflow_text)
+
+    def test_source_pointer_sync_workflows_and_docs_are_consistent(self) -> None:
+        sync_workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "sync-source-pointers.yml").read_text(
+            encoding="utf-8"
+        )
+        validate_workflow_text = (
+            PROJECT_ROOT / ".github" / "workflows" / "validate-source-pointer-pr.yml"
+        ).read_text(encoding="utf-8")
+        spec_text = (
+            PROJECT_ROOT / "docs" / "04-project-development" / "04-design" / "subrepo-sync-specification.md"
+        ).read_text(encoding="utf-8")
+        usage_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "usage.md").read_text(encoding="utf-8")
+        admin_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "admin-guide.md").read_text(encoding="utf-8")
+        config_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "configuration.md").read_text(encoding="utf-8")
+
+        self.assertIn("source-pointer-sync-requested", sync_workflow_text)
+        self.assertNotIn("source-docs-updated", sync_workflow_text)
+        self.assertIn("cancel-in-progress: true", sync_workflow_text)
+        self.assertIn("DOCS_STRATEGO_SYNC_PAT", sync_workflow_text)
+        self.assertIn("persist-credentials: false", sync_workflow_text)
+        self.assertIn("DOCS_STRATEGO_SYNC_PAT", sync_workflow_text)
+        self.assertIn("Validate Source Pointer PR", validate_workflow_text)
+        self.assertIn("github.head_ref == 'bot/sync-source-pointers'", validate_workflow_text)
+        self.assertIn("sync_sources.py --config config/source-repos.json --project-root . --source-mode remote", validate_workflow_text)
+        self.assertIn("tests.test_sync_source_pointers", validate_workflow_text)
+        self.assertIn("tests.test_sync_source_pointers", (PROJECT_ROOT / ".github" / "workflows" / "deploy-docs.yml").read_text(encoding="utf-8"))
+        self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", spec_text)
+        self.assertNotIn("DOCS_STRATEGO_PAT", spec_text)
+        self.assertIn("https://api.github.com/repos/uroborus2s/docs-stratego/dispatches", spec_text)
+        self.assertIn("source-pointer-sync-requested", spec_text)
+        self.assertIn("chore: sync source repository pointers", usage_text)
+        self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", usage_text)
+        self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", admin_text)
+        self.assertIn("DOCS_STRATEGO_SYNC_PAT", admin_text)
+        self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", config_text)
+        self.assertIn("chore: sync source repository pointers", config_text)
 
 
 if __name__ == "__main__":
