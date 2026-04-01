@@ -1,21 +1,28 @@
-# 用户指南
+# 用户指南 (User Guide)
 
-欢迎使用聚合文档站用户指南。根据您的角色，请选择相应的文档：
-
-### 1. [本项目安装与部署](installation.md)
-**面向：系统管理员 / 根仓维护者**
-介绍了服务器环境准备、Casdoor 认证栈安装、宿主机 Nginx 配置以及根仓 CI/CD 的初始化配置。
-
-### 2. [子仓库接入指南](subrepo-integration.md)
-**面向：子项目开发者 / Contributor**
-介绍了如何按标准编写文档（Markdown/OpenAPI/MCP）、如何在根仓登记项目以及如何配置自动同步。
-
-### 3. [日常使用说明](usage.md)
-**面向：文档维护者 / 内容管理员**
-介绍了本地预览构建、审核子仓同步 PR、发布验证以及常见故障排查操作。
+欢迎使用 `章略·墨衡 (docs-stratego)` 聚合文档站。为了帮助您以最快速度理解和使用本项目，请根据您的角色选择相应的指南：
 
 ---
 
-## 快速导航
-- [源文档标准](../04-project-development/04-design/source-docs-standard.md)：详细的内容编写和导航配置规范。
-- [项目概览](../01-getting-started/project-overview.md)：了解本聚合文档站的设计目标和架构。
+### 📖 [阅读者指南 (Reader Guide)](reader-guide.md)
+**面向对象：** 所有需要查看文档的团队成员。
+- **核心内容：** 如何登录、公开/私有页面的访问逻辑、登录小窗的使用说明。
+
+### 🏗️ [子仓接入指南 (Contributor Guide)](subrepo-integration.md)
+**面向对象：** 子项目开发者、文档贡献者。
+- **核心内容：** 如何按标准编写文档（Markdown/OpenAPI/MCP）、如何在聚合站登记新项目。
+
+### 🛠️ [维护者指南 (Operator Guide)](operator-guide.md)
+**面向对象：** 聚合站点的日常维护人员。
+- **核心内容：** 本地预览构建、审核子仓同步 PR、发布验证及日常故障排查。
+
+### ⚙️ [管理员指南 (Admin Guide)](admin-guide.md)
+**面向对象：** 运维人员、基础设施负责人。
+- **核心内容：** 接入新源仓的深度配置、GitHub Actions Secrets 管理、GitHub App (Reader) 授权。
+
+---
+
+## 核心概念简述
+如果您想了解项目背后的技术架构和设计初衷，请参阅：
+- [项目概览](../01-getting-started/project-overview.md)
+- [源文档标准](../04-project-development/04-design/source-docs-standard.md)
