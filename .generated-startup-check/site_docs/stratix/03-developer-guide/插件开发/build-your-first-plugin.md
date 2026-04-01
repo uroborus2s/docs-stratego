@@ -1,0 +1,1 @@
+/Users/uroborus/NodeProject/wps/obsync-root/docs/03-developer-guide/插件开发/build-your-first-plugin.md

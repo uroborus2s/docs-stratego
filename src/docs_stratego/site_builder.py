@@ -809,17 +809,23 @@ def parse_root_index(docs_root: Path) -> RootIndexMetadata:
     return RootIndexMetadata(title=title, home_access=home_access, nav=nav_items)
 
 
-def iter_docs_directories(docs_root: Path) -> list[Path]:
-    directories = [docs_root]
-    directories.extend(path for path in docs_root.rglob("*") if path.is_dir())
+def collect_declared_directories(declared_pages: list[PageLink]) -> list[Path]:
+    directories: set[Path] = {Path()}
+    for page in declared_pages:
+        current = Path(page.source_path).parent
+        while True:
+            directories.add(current)
+            if not current.parts:
+                break
+            current = current.parent
     return sorted(directories)
 
 
-def validate_directory_indexes(docs_root: Path) -> None:
-    for directory in iter_docs_directories(docs_root):
-        relative_dir = directory.relative_to(docs_root)
+def validate_directory_indexes(docs_root: Path, declared_pages: list[PageLink]) -> None:
+    for relative_dir in collect_declared_directories(declared_pages):
         if relative_dir.parts and (is_hidden_path(relative_dir) or is_resource_path(relative_dir)):
             continue
+        directory = docs_root / relative_dir
         if not (directory / "index.md").exists():
             raise ValueError(f"{directory} missing index.md")
 
@@ -915,10 +921,6 @@ def validate_declared_pages(docs_root: Path, declared_pages: list[PageLink]) -> 
 
 
 def validate_markdown_coverage(docs_root: Path, declared_pages: list[PageLink]) -> None:
-    declared_markdown = {page.source_path for page in declared_pages if page.render_kind == "markdown"}
-    declared_markdown.add("index.md")
-    undeclared: list[str] = []
-
     for file_path in sorted(path for path in docs_root.rglob("*") if path.is_file()):
         relative_path = file_path.relative_to(docs_root)
         if is_hidden_path(relative_path):
@@ -927,14 +929,10 @@ def validate_markdown_coverage(docs_root: Path, declared_pages: list[PageLink]) 
             if file_path.suffix.lower() == ".md":
                 raise ValueError(f"{file_path} invalid: assets directory cannot contain Markdown")
             continue
-        if file_path.suffix.lower() != ".md":
+    for page in declared_pages:
+        if page.render_kind != "markdown":
             continue
-        validate_markdown_title(file_path)
-        if relative_path.as_posix() not in declared_markdown:
-            undeclared.append(relative_path.as_posix())
-
-    if undeclared:
-        raise ValueError(f"Markdown files not declared in mkdocs.nav: {', '.join(undeclared)}")
+        validate_markdown_title(docs_root / page.source_path)
 
 
 def build_directory_access_map(home_access: str, declared_pages: list[PageLink]) -> dict[Path, str]:
@@ -985,11 +983,11 @@ def collect_resource_entries(
 def build_repo_nav_and_entries(
     repo: SourceRepository, docs_root: Path
 ) -> tuple[list[dict], list[dict], RootIndexMetadata]:
-    validate_directory_indexes(docs_root)
     root_metadata = parse_root_index(docs_root)
 
     declared_pages: list[PageLink] = []
     repo_nav = collect_declared_pages(repo.name, root_metadata.nav, declared_pages, set(), set())
+    validate_directory_indexes(docs_root, declared_pages)
     validate_declared_pages(docs_root, declared_pages)
     validate_markdown_coverage(docs_root, declared_pages)
 

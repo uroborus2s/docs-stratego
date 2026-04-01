@@ -1,0 +1,1 @@
+/Users/uroborus/AiProject/docs-stratego/docs/04-project-development/02-discovery/brainstorm-record.md

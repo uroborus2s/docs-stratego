@@ -1,0 +1,1 @@
+/Users/uroborus/AiProject/shanforge/docs/04-project-development/02-discovery/input.md

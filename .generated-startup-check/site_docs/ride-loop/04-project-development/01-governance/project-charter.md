@@ -1,0 +1,1 @@
+/Users/uroborus/NodeProject/ride-loop/docs/04-project-development/01-governance/project-charter.md

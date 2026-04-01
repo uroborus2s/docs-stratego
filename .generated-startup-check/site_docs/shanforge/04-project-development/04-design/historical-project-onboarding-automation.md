@@ -1,0 +1,1 @@
+/Users/uroborus/AiProject/shanforge/docs/04-project-development/04-design/historical-project-onboarding-automation.md

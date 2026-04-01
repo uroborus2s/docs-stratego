@@ -1,0 +1,1 @@
+/Users/uroborus/NodeProject/ride-loop/docs/04-project-development/04-design/system-detailed-design.md

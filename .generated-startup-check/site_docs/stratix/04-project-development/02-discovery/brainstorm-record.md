@@ -1,0 +1,1 @@
+/Users/uroborus/NodeProject/wps/obsync-root/docs/04-project-development/02-discovery/brainstorm-record.md

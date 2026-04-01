@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录完成</title>
+  <script>
+    (() => {
+      const AUTH_POPUP_MESSAGE_TYPE = "docs-auth-popup-complete";
+
+      function resolveSameOriginTarget(rawTarget) {
+        try {
+          const url = new URL(rawTarget || "/", window.location.origin);
+          if (url.origin !== window.location.origin) {
+            return new URL("/", window.location.origin).toString();
+          }
+          return url.toString();
+        } catch (_error) {
+          return new URL("/", window.location.origin).toString();
+        }
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const payload = {
+        type: AUTH_POPUP_MESSAGE_TYPE,
+        flowId: params.get("flow") || "",
+        targetUrl: resolveSameOriginTarget(params.get("target")),
+      };
+
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(payload, window.location.origin);
+          window.close();
+          setTimeout(() => {
+            window.location.replace(payload.targetUrl);
+          }, 250);
+          return;
+        }
+      } catch (_error) {
+        // ignore opener access errors
+      }
+
+      window.location.replace(payload.targetUrl);
+    })();
+  </script>
+</head>
+<body>
+  登录完成，正在返回文档...
+</body>
+</html>

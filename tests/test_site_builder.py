@@ -194,11 +194,12 @@ class SiteBuilderTests(unittest.TestCase):
         self.assertNotIn("window.open(signInUrl", access_js_text)
         self.assertNotIn("location = / {", nginx_text)
 
-    def test_builder_rejects_undeclared_markdown_pages(self) -> None:
+    def test_builder_allows_undeclared_markdown_pages_outside_nav(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
             docs_root = tmp_path / "docs"
             (docs_root / "03-solution").mkdir(parents=True)
+            (docs_root / "03-solution" / "drafts").mkdir(parents=True)
             (docs_root / "index.md").write_text(
                 "---\n"
                 "title: 平台文档\n"
@@ -215,7 +216,7 @@ class SiteBuilderTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (docs_root / "03-solution" / "index.md").write_text("# 方案设计概览\n", encoding="utf-8")
-            (docs_root / "03-solution" / "orphan.md").write_text("# Orphan\n", encoding="utf-8")
+            (docs_root / "03-solution" / "drafts" / "orphan.md").write_text("# Orphan\n", encoding="utf-8")
 
             repo = self.module.SourceRepository(
                 name="platform",
@@ -224,7 +225,39 @@ class SiteBuilderTests(unittest.TestCase):
                 local_path=str(docs_root),
             )
 
-            with self.assertRaisesRegex(ValueError, "Markdown files not declared in mkdocs.nav"):
+            self.module.build_site([repo], tmp_path / "build")
+
+    def test_builder_rejects_declared_directory_without_index(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            docs_root = tmp_path / "docs"
+            (docs_root / "03-solution" / "drafts").mkdir(parents=True)
+            (docs_root / "index.md").write_text(
+                "---\n"
+                "title: 平台文档\n"
+                "mkdocs:\n"
+                "  home_access: public\n"
+                "  nav:\n"
+                "    - title: 方案设计\n"
+                "      children:\n"
+                "        - title: 草稿页\n"
+                "          path: 03-solution/drafts/orphan.md\n"
+                "          access: private\n"
+                "---\n"
+                "# 平台文档\n",
+                encoding="utf-8",
+            )
+            (docs_root / "03-solution" / "orphan.md").write_text("# Unused\n", encoding="utf-8")
+            (docs_root / "03-solution" / "drafts" / "orphan.md").write_text("# Orphan\n", encoding="utf-8")
+
+            repo = self.module.SourceRepository(
+                name="platform",
+                title="平台文档",
+                source_type="local",
+                local_path=str(docs_root),
+            )
+
+            with self.assertRaisesRegex(ValueError, "missing index.md"):
                 self.module.build_site([repo], tmp_path / "build")
 
     def test_builder_rejects_markdown_inside_assets_directory(self) -> None:

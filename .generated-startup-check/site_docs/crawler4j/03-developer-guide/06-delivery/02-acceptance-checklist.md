@@ -1,0 +1,1 @@
+/Users/uroborus/PythonProject/crawler4j/docs/03-developer-guide/06-delivery/02-acceptance-checklist.md

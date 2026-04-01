@@ -1,0 +1,1 @@
+/Users/uroborus/PythonProject/ctrip_crawler/docs/04-project-development/06-testing-verification/smoke-report.md
