@@ -50,6 +50,7 @@
 | **部署权限** | `DOCS_DEPLOY_SSH_KEY` | 用于 SSH 传输 site 文件到生产服务器。 |
 | **源码读取** | `DOCS_SOURCE_APP_PRIVATE_KEY` | GitHub App (Source Reader) 的私钥。 |
 | **联动凭证** | `DOCS_STRATEGO_SYNC_PAT` | 用于自动同步子仓指针的 Personal Access Token。 |
+| **子仓通知** | `DOCS_STRATEGO_DISPATCH_TOKEN` | 配置在各子仓中，用于向根仓发送 `repository_dispatch`。 |
 | **认证配置** | `CASDOOR_POSTGRES_PWD` | 容器环境内部敏感密码。 |
 
 ---

@@ -49,3 +49,4 @@
 - 新增 `CR-001` 的需求、任务和测试计划，确定“子仓通知 -> 根仓共享 bot PR -> 人工合并 -> 正式发布”的实施范围
 - 更新使用指南、管理员指南和配置说明，明确接入子仓自动联动时必须新增 `.github/workflows/notify-docs-stratego.yml`，以及根仓与子仓各自需要的 Secret
 - 修复 `CR-001` 根仓同步链路中的三类实现缺陷：同步 workflow 监听旧事件名、`sync_source_pointers.py` 未按 `modes.remote` 解析配置、子仓接入规范误用了旧 Secret 与旧仓库路径
+- 修复用户指南的旧文件名残留：将子仓接入页恢复为 `usage.md`，同步改正子仓模板里的事件名，并消除 `configuration.md -> usage.md` 的编译告警
