@@ -28,8 +28,8 @@
 
 ```bash
 uv sync
-uv run python scripts/sync_sources.py --config config/source-repos.json
-uv run python scripts/build_site.py --config config/source-repos.json --output-dir .generated
+uv run docs-stratego sync --project-root .
+uv run docs-stratego build --project-root . --output-dir .generated
 uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ```
 
@@ -73,7 +73,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 
 ## 文档标准
 
-正式标准见 [source-docs-standard.md](./docs/04-project-development/04-design/source-docs-standard.md)。
+正式公开标准见 [source-docs-standard.md](./docs/02-user-guide/contributor-guide/source-docs-standard.md)。
 
 最关键的约束是：
 
@@ -84,6 +84,8 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 - 页面节点除了 `*.md`，还可以声明 `*.openapi.*` 与 `*.mcp-tools.*` 契约文件
 - 已声明的 OpenAPI 文件会自动生成 Scalar API Reference 页面；已声明的 MCP tools 快照会自动生成工具参考页，并保留原始 `.yaml/.json` 下载地址
 - 未声明的 Markdown 页面直接视为构建错误
+
+源仓接入、自动联动、移除和 CLI 命令说明见 [子仓接入指南](./docs/02-user-guide/usage.md)。
 
 ## 认证与部署
 

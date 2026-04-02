@@ -15,6 +15,8 @@
 
 - `src/docs_stratego/source_sync.py`
 - `src/docs_stratego/site_builder.py`
+- `src/docs_stratego/source_admin.py`
+- `src/docs_stratego/cli.py`
 - `deploy/docker-compose.yml`
 
 ## 关键工程规则
@@ -36,7 +38,7 @@
 ## 推荐初始化动作
 
 - 先执行 `uv sync`
-- 再执行 `uv run python scripts/build_site.py --config config/source-repos.json --output-dir .generated`
+- 再执行 `uv run docs-stratego build --project-root . --output-dir .generated`
 
 ## 参考资料
 

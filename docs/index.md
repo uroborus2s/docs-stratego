@@ -29,8 +29,28 @@ mkdocs:
           path: 02-user-guide/operator-guide.md
           access: public
         - title: 子仓库接入指南
-          path: 02-user-guide/usage.md
-          access: public
+          children:
+            - title: 概览
+              path: 02-user-guide/usage.md
+              access: public
+            - title: 接入知识地图
+              path: 02-user-guide/contributor-guide/index.md
+              access: public
+            - title: 源文档标准
+              path: 02-user-guide/contributor-guide/source-docs-standard.md
+              access: public
+            - title: 接入聚合站点
+              path: 02-user-guide/contributor-guide/onboarding.md
+              access: public
+            - title: 自动联动
+              path: 02-user-guide/contributor-guide/automation.md
+              access: public
+            - title: 移除流程
+              path: 02-user-guide/contributor-guide/offboarding.md
+              access: public
+            - title: CLI 命令
+              path: 02-user-guide/contributor-guide/cli.md
+              access: public
         - title: 安装说明
           path: 02-user-guide/installation.md
           access: public
@@ -129,8 +149,11 @@ mkdocs:
             - title: crawler4j 接入包
               path: 04-project-development/04-design/crawler4j-integration-package.md
               access: private
-            - title: 源文档标准
+            - title: 源文档标准公开化设计
               path: 04-project-development/04-design/source-docs-standard.md
+              access: private
+            - title: 子仓自动同步公开化设计
+              path: 04-project-development/04-design/subrepo-sync-specification.md
               access: private
         - title: 开发过程文档
           children:
@@ -232,6 +255,6 @@ mkdocs:
 
 1. [项目概览](01-getting-started/project-overview.md)
 2. [管理员指南](02-user-guide/admin-guide.md)
-3. [源文档标准](04-project-development/04-design/source-docs-standard.md)
-4. [部署与 CI/CD 设计](04-project-development/04-design/deployment-architecture.md)
-5. [部署手册](04-project-development/08-operations-maintenance/deployment-guide.md)
+3. [子仓接入指南](02-user-guide/usage.md)
+4. [源文档标准](02-user-guide/contributor-guide/source-docs-standard.md)
+5. [部署与 CI/CD 设计](04-project-development/04-design/deployment-architecture.md)

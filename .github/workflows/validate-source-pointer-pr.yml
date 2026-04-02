@@ -38,7 +38,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run unit tests
-        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers
+        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers tests.test_source_admin tests.test_cli
 
       - name: Create source repo GitHub App token
         id: source-app-token

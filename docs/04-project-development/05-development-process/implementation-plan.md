@@ -3,6 +3,8 @@
 ## 范围
 
 - 本轮实施仅覆盖 `CR-001`：子仓自动通知、根仓共享 bot PR、人工审核合并、再触发正式发布。
+- 同步覆盖 `CR-002`：公开化并重构 Contributor Guide。
+- 同步覆盖 `CR-003`：提供源仓接入/移除辅助 CLI。
 - 不改变根仓“只聚合 `docs/`、站点仍由 `Deploy Docs` 发布”的核心边界。
 
 ## 阶段 1：根仓 workflow 解耦
@@ -44,9 +46,12 @@
 1. 选一个已接入子仓做 `docs/**` push 演练
 2. 检查根仓共享 bot PR diff、checks 和人工合并动作
 3. 合并后验证 `Deploy Docs` 发布链路
+4. 验证 `Contributor Guide` 导航与 CLI 文档入口
+5. 验证 `source validate/add/remove/scaffold-notify` 的单元测试与 CI 集成
 
 退出标准：
 
 - 共享 bot PR checks 全绿
 - 人工 `Squash and merge` 后，`main` 触发正式发布
 - 发布后站点内容与被合并的子仓指针一致
+- 接入方能只通过 `02-user-guide/` 完成标准阅读、接入、联动和移除

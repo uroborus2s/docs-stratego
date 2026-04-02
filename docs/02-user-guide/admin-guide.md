@@ -26,16 +26,16 @@
 
 接入新项目是管理员最核心的任务。
 
-1. **源仓改造**：要求源项目按 [源文档标准](../04-project-development/04-design/source-docs-standard.md) 完成其 `docs/` 目录和 `index.md` 改造。
-2. **配置定义**：在 `config/source-repos.json` 中新增定义。
+1. **源仓改造**：要求源项目按 [源文档标准](contributor-guide/source-docs-standard.md) 完成其 `docs/` 目录和 `index.md` 改造。
+2. **配置定义**：优先使用 [CLI 命令](contributor-guide/cli.md) 中的 `source add` 完成 `config/source-repos.json` 登记。
    - `local` 模式：指向本地路径。
    - `remote` 模式：配置 Git URL 和 `submodule_sparse` 模式。
 3. **权限源安装 (针对私有仓库)**：
    - 必须将私有项目安装给 `docs-stratego-source-reader` GitHub App。
 4. **验证构建**：
    ```bash
-   uv run python scripts/sync_sources.py --source-mode remote
-   uv run python scripts/build_site.py --source-mode remote
+   uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
+   uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
    ```
 5. **发布变更**：合并 PR 后触发生产环境部署。
 
@@ -58,4 +58,5 @@
 ## 5. 首次引导与后续维护
 - **首次部署**：请参阅 [安装说明 (Installation)](installation.md)。
 - **深度配置**：关于 Redis 共享或多域名配置，请参阅 [配置说明 (Configuration)](configuration.md)。
+- **接入与移除标准动作**：请参阅 [子仓接入指南 (Contributor Guide)](usage.md)。
 - **日常排障**：如遇构建失败，按 [维护者指南 (Operator Guide)](operator-guide.md) 的故障处理矩阵排查。

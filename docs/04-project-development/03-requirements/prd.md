@@ -7,6 +7,8 @@
 ## 本次增量范围
 
 - `CR-001`：为已接入源仓新增“子仓 `docs/**` 变更 -> 根仓同步子仓指针 -> 共享 bot PR -> 人工审核合并 -> 正式发布”的自动协作链路。
+- `CR-002`：重构接入文档，把公开标准、接入步骤、联动、移除和 CLI 命令收口到 `Contributor Guide`。
+- `CR-003`：提供源仓接入/移除辅助 CLI，覆盖校验、登记、通知 workflow 生成与清理。
 
 ## 功能需求
 
@@ -25,6 +27,10 @@
 | REQ-011 | 根仓必须把所有已落后子仓指针汇总到同一个共享 bot PR。 | 同步任务检测到多个 `sources/*` gitlink 变化时，统一更新 `bot/sync-source-pointers` 并复用一个未合并 PR。 |
 | REQ-012 | 共享 bot PR 在合并前必须经过自动校验和人工审核。 | PR 检查至少包含单元测试、`sync_sources.py --source-mode remote`、`build_site.py` 和 `mkdocs build`；合并动作由维护者手动执行。 |
 | REQ-013 | 接入新子仓时，文档必须明确要求子仓新增自动通知文件和必要凭证。 | 使用指南、管理员指南和配置说明明确列出子仓至少新增 `.github/workflows/notify-docs-stratego.yml`，并配置 dispatch 所需 Secret。 |
+| REQ-014 | `Contributor Guide` 必须成为接入方的公开事实源。 | 源文档标准、接入步骤、自动联动、移除流程和 CLI 命令都能在 `02-user-guide/` 内找到。 |
+| REQ-015 | 系统必须提供完整的源仓移除流程。 | 文档明确区分“暂停自动联动”和“完整移除”，并给出验证步骤。 |
+| REQ-016 | 根仓必须提供接入/移除 CLI。 | 存在 `source add`、`source remove` 命令，支持配置登记与可选 submodule 操作。 |
+| REQ-017 | 系统必须提供源仓校验与通知脚手架 CLI。 | 存在 `source validate`、`source scaffold-notify` 命令，能校验源仓结构并生成/删除通知 workflow。 |
 
 ## 非功能需求
 
@@ -38,3 +44,5 @@
 | NFR-006 | 子仓自动同步链路不得绕过人工审核直接发布站点。 |
 | NFR-007 | 共享 bot PR 同步必须支持幂等重跑和并发收敛，重复触发只保留最新结果。 |
 | NFR-008 | 子仓通知 workflow 只对配置分支上的 `docs/**` 变更触发，避免无关改动产生发布噪音。 |
+| NFR-009 | 新增 CLI 必须支持可预演的安全执行方式。 |
+| NFR-010 | 移除类 CLI 必须显式确认，不得默认删除关键登记。 |

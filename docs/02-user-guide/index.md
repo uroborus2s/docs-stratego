@@ -10,7 +10,7 @@
 
 ### 🏗️ [子仓接入指南 (Contributor Guide)](usage.md)
 **面向对象：** 子项目开发者、文档贡献者。
-- **核心内容：** 如何按标准编写文档（Markdown/OpenAPI/MCP）、如何在聚合站登记新项目。
+- **核心内容：** 公开源文档标准、接入步骤、自动联动、移除流程和 CLI 命令。
 
 ### 🛠️ [维护者指南 (Operator Guide)](operator-guide.md)
 **面向对象：** 聚合站点的日常维护人员。
@@ -25,4 +25,5 @@
 ## 核心概念简述
 如果您想了解项目背后的技术架构和设计初衷，请参阅：
 - [项目概览](../01-getting-started/project-overview.md)
-- [源文档标准](../04-project-development/04-design/source-docs-standard.md)
+- [子仓接入指南](usage.md)
+- [源文档标准](contributor-guide/source-docs-standard.md)

@@ -81,6 +81,12 @@
 }
 ```
 
+推荐入口：
+
+- 新增仓库：优先执行 [CLI 命令](contributor-guide/cli.md) 中的 `uv run docs-stratego source add`
+- 移除仓库：优先执行 [CLI 命令](contributor-guide/cli.md) 中的 `uv run docs-stratego source remove --yes`
+- 手工编辑 `config/source-repos.json` 只建议在批量修订或排障场景使用
+
 ### 2.2 `deploy/casdoor/app.conf`
 
 关键项：
@@ -162,6 +168,7 @@ Actions Secrets：
 - 子仓通知 workflow 只对目标分支的 `docs/**` 生效。
 - 根仓共享 bot PR 必须先经人工审核，不能直接代替发布 workflow。
 - 根仓通过 `Sync Source Pointers` 工作流自动维护 PR 内容，多个子仓连续通知会收敛到同一个 PR。
+- 推荐通过 [CLI 命令](contributor-guide/cli.md) 中的 `source scaffold-notify` 生成或移除源仓通知 workflow，避免手写模板漂移。
 
 
 ## 3. 模式边界

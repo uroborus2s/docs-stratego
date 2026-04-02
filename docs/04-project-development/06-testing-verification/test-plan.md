@@ -7,6 +7,8 @@
 - 导航、权限清单和 Nginx 规则是否一致
 - 共享 bot PR 同步时，只有 `sources/*` gitlink 变化才会产生提交
 - 多次 `repository_dispatch` 触发时，并发收口逻辑是否只保留最新同步结果
+- `source add/remove` 是否正确维护 `config/source-repos.json`
+- `source validate` 与 `source scaffold-notify` 是否生成稳定结果
 
 ## 集成测试
 
@@ -15,6 +17,7 @@
 - 根仓 `sync-source-pointers` workflow 能否在 `source-pointer-sync-requested` 事件后形成或复用共享 bot PR
 - `validate-source-pointer-pr` workflow 能否完成 `sync_sources.py --source-mode remote`、`build_site.py` 和 `mkdocs build`
 - 子仓 `.github/workflows/notify-docs-stratego.yml` 是否只在目标分支的 `docs/**` 变更时触发
+- `Contributor Guide` 的公开导航是否能完整链接到标准、接入、联动、移除和 CLI 页面
 
 ## 运维验证
 

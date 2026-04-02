@@ -50,3 +50,7 @@
 - 更新使用指南、管理员指南和配置说明，明确接入子仓自动联动时必须新增 `.github/workflows/notify-docs-stratego.yml`，以及根仓与子仓各自需要的 Secret
 - 修复 `CR-001` 根仓同步链路中的三类实现缺陷：同步 workflow 监听旧事件名、`sync_source_pointers.py` 未按 `modes.remote` 解析配置、子仓接入规范误用了旧 Secret 与旧仓库路径
 - 修复用户指南的旧文件名残留：将子仓接入页恢复为 `usage.md`，同步改正子仓模板里的事件名，并消除 `configuration.md -> usage.md` 的编译告警
+- 重构 `Contributor Guide`：把公开标准、接入、自动联动、移除流程和 CLI 命令拆成清晰的公开页面，并按角色阅读路径重组 `usage.md`
+- 新增 `docs-stratego` CLI 入口，收口 `source validate`、`source add`、`source scaffold-notify`、`source remove`、`sync`、`build`
+- 将源文档标准和子仓自动同步规范从内部设计层收口为“公开事实源 + 内部设计说明”双层结构，减少重复维护
+- 扩展单元测试与 CI，新增 CLI 和接入文档一致性校验
