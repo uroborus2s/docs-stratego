@@ -1,5 +1,24 @@
 # 配置说明
 
+这页是“我要改配置，但不知道该改哪一层”的定位手册。  
+如果你已经知道自己要改哪个文件，可以直接跳到对应章节；如果你还不确定，先看下面两张表。
+
+## 0. 先按改动目标找位置
+
+| 你要改什么 | 应优先看哪一层配置 |
+| --- | --- |
+| 某个源仓从哪里同步、用本地还是远程 | `config/source-repos.json` |
+| 登录域名、回调地址、Redis、cookie | `deploy/oauth2-proxy/oauth2-proxy.cfg` |
+| Casdoor 数据库与运行方式 | `deploy/casdoor/app.conf` |
+| 静态站点目录、私有规则文件部署位置 | GitHub Actions Variables / Secrets 与宿主机 Nginx |
+| 源仓自动通知根仓 | 子仓 `.github/workflows/notify-docs-stratego.yml` 与 `DOCS_STRATEGO_DISPATCH_TOKEN` |
+
+## 0.1 常见误区
+
+- 想改页面权限，却去改根仓运行配置：不对，页面权限事实源在源仓 `docs/index.md`
+- 想改 remote 拉仓行为，却只改本地 `dev` 命令：不对，remote 来源以 `config/source-repos.json` 为准
+- 想让子仓自动通知根仓，却只配了根仓 Secret：不对，通知 Secret 配在子仓
+
 ## 1. 配置分层
 
 当前部署有四层配置：

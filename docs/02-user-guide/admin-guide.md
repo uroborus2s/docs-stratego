@@ -66,6 +66,7 @@
 
 - 将该私有仓安装给 `docs-stratego-source-reader` GitHub App
 - 用 remote 模式做一次真实构建验证
+- 如需手工补跑共享指针同步，可执行 `uv run docs-stratego source sync-pointers --project-root /path/to/docs-stratego`
 
 ### 4.3 发布 CLI 给外部源仓使用
 

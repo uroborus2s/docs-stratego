@@ -66,3 +66,5 @@
 - 优化用户指南目录：新增“本地开发与预览”“发布前外部配置”，并补齐 GitHub Actions 工作流报告、GitHub/PyPI 配置步骤和示意截图
 - 为 `docs-stratego dev` 新增本地 watch 模式：监听根仓 `docs/`、本地源仓 `docs/` 和 `config/source-repos.json`，在 `source_mode=local` 下自动重建；`remote` 仍保持一次性预演
 - 已完成 watch 模式回归验证：`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `40` 个测试通过，`docs-stratego build` 与 `mkdocs build` 通过
+- 重构 `02-user-guide/`：按任务和角色重组阅读入口，重写阅读者、本地开发、接入、联动、维护者、管理员等高频页面，并为关键操作页补充 SVG 示意截图
+- 新增 `docs/04-project-development/08-operations-maintenance/user-guide-readability-review.md`，从阅读者视角审查用户指南，当前结论为“未发现阻断性的知识盲点”

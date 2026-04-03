@@ -22,56 +22,64 @@ mkdocs:
         - title: 概览
           path: 02-user-guide/index.md
           access: public
-        - title: 阅读者指南
-          path: 02-user-guide/reader-guide.md
-          access: public
-        - title: 本地开发与预览
-          path: 02-user-guide/local-development.md
-          access: public
-        - title: 维护者指南
-          path: 02-user-guide/operator-guide.md
-          access: public
-        - title: 子仓库接入指南
+        - title: 阅读与访问
           children:
-            - title: 概览
-              path: 02-user-guide/usage.md
+            - title: 阅读者指南
+              path: 02-user-guide/reader-guide.md
               access: public
-            - title: 接入知识地图
-              path: 02-user-guide/contributor-guide/index.md
+        - title: 开发与接入
+          children:
+            - title: 本地开发与预览
+              path: 02-user-guide/local-development.md
               access: public
-            - title: 源文档标准
-              path: 02-user-guide/contributor-guide/source-docs-standard.md
+            - title: 子仓库接入指南
+              children:
+                - title: 概览
+                  path: 02-user-guide/usage.md
+                  access: public
+                - title: 接入知识地图
+                  path: 02-user-guide/contributor-guide/index.md
+                  access: public
+                - title: 源文档标准
+                  path: 02-user-guide/contributor-guide/source-docs-standard.md
+                  access: public
+                - title: 接入聚合站点
+                  path: 02-user-guide/contributor-guide/onboarding.md
+                  access: public
+                - title: 自动联动
+                  path: 02-user-guide/contributor-guide/automation.md
+                  access: public
+                - title: 移除流程
+                  path: 02-user-guide/contributor-guide/offboarding.md
+                  access: public
+                - title: CLI 命令
+                  path: 02-user-guide/contributor-guide/cli.md
+                  access: public
+                - title: CLI 分发与发布
+                  path: 02-user-guide/contributor-guide/distribution.md
+                  access: public
+                - title: 发布前外部配置
+                  path: 02-user-guide/contributor-guide/publish-setup.md
+                  access: public
+                - title: CLI 发布手册
+                  path: 02-user-guide/contributor-guide/release.md
+                  access: public
+        - title: 运维与发布
+          children:
+            - title: 维护者指南
+              path: 02-user-guide/operator-guide.md
               access: public
-            - title: 接入聚合站点
-              path: 02-user-guide/contributor-guide/onboarding.md
+        - title: 平台管理
+          children:
+            - title: 安装说明
+              path: 02-user-guide/installation.md
               access: public
-            - title: 自动联动
-              path: 02-user-guide/contributor-guide/automation.md
+            - title: 配置说明
+              path: 02-user-guide/configuration.md
               access: public
-            - title: 移除流程
-              path: 02-user-guide/contributor-guide/offboarding.md
+            - title: 管理员指南
+              path: 02-user-guide/admin-guide.md
               access: public
-            - title: CLI 命令
-              path: 02-user-guide/contributor-guide/cli.md
-              access: public
-            - title: CLI 分发与发布
-              path: 02-user-guide/contributor-guide/distribution.md
-              access: public
-            - title: 发布前外部配置
-              path: 02-user-guide/contributor-guide/publish-setup.md
-              access: public
-            - title: CLI 发布手册
-              path: 02-user-guide/contributor-guide/release.md
-              access: public
-        - title: 安装说明
-          path: 02-user-guide/installation.md
-          access: public
-        - title: 配置说明
-          path: 02-user-guide/configuration.md
-          access: public
-        - title: 管理员指南
-          path: 02-user-guide/admin-guide.md
-          access: public
     - title: 项目开发文档（内）
       children:
         - title: 概览
@@ -225,6 +233,9 @@ mkdocs:
               access: private
             - title: GitHub Actions 工作流报告
               path: 04-project-development/08-operations-maintenance/github-actions-workflow-report.md
+              access: private
+            - title: 用户指南可读性评审
+              path: 04-project-development/08-operations-maintenance/user-guide-readability-review.md
               access: private
             - title: 服务器部署 SOP
               path: 04-project-development/08-operations-maintenance/server-deployment-sop.md

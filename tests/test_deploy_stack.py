@@ -119,8 +119,16 @@ class DeployStackTests(unittest.TestCase):
         contributor_index_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "index.md"
         ).read_text(encoding="utf-8")
+        user_guide_index_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "index.md").read_text(encoding="utf-8")
+        reader_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "reader-guide.md").read_text(encoding="utf-8")
         local_development_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "local-development.md"
+        ).read_text(encoding="utf-8")
+        onboarding_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "onboarding.md"
+        ).read_text(encoding="utf-8")
+        automation_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "automation.md"
         ).read_text(encoding="utf-8")
         contributor_standard_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "source-docs-standard.md"
@@ -139,12 +147,21 @@ class DeployStackTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         admin_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "admin-guide.md").read_text(encoding="utf-8")
         config_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "configuration.md").read_text(encoding="utf-8")
+        installation_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "installation.md").read_text(encoding="utf-8")
+        root_index_text = (PROJECT_ROOT / "docs" / "index.md").read_text(encoding="utf-8")
         workflow_report_text = (
             PROJECT_ROOT
             / "docs"
             / "04-project-development"
             / "08-operations-maintenance"
             / "github-actions-workflow-report.md"
+        ).read_text(encoding="utf-8")
+        review_report_text = (
+            PROJECT_ROOT
+            / "docs"
+            / "04-project-development"
+            / "08-operations-maintenance"
+            / "user-guide-readability-review.md"
         ).read_text(encoding="utf-8")
 
         self.assertIn("source-pointer-sync-requested", sync_workflow_text)
@@ -168,14 +185,21 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("发布前外部配置", usage_text)
         self.assertIn("CLI 发布手册", usage_text)
         self.assertIn("uv run docs-stratego dev", usage_text)
+        self.assertIn("按任务找入口", user_guide_index_text)
+        self.assertIn("平台管理", user_guide_index_text)
         self.assertIn("接入知识地图", contributor_index_text)
         self.assertIn("发布前外部配置", contributor_index_text)
-        self.assertIn("source_mode=local` 下支持源文档热重建", local_development_text)
+        self.assertIn("site-reader-login-popup.svg", reader_text)
+        self.assertIn("### 4.1 `source_mode=local`", local_development_text)
+        self.assertIn("local-dev-watch-mode.svg", local_development_text)
         self.assertIn("source_mode=remote", local_development_text)
+        self.assertIn("source-onboarding-flow.svg", onboarding_text)
+        self.assertIn("source-notify-workflow.svg", automation_text)
         self.assertIn("唯一导航与权限事实源", contributor_standard_text)
         self.assertIn("uv run docs-stratego dev", (PROJECT_ROOT / "README.md").read_text(encoding="utf-8"))
         self.assertIn("uv run docs-stratego dev", contributor_cli_text)
         self.assertIn("自动重建", contributor_cli_text)
+        self.assertIn("先按任务找命令", contributor_cli_text)
         self.assertIn("uv run docs-stratego source add", contributor_cli_text)
         self.assertIn("uv run docs-stratego source remove", contributor_cli_text)
         self.assertIn("uvx --from 'docs-stratego==<version>'", contributor_cli_text)
@@ -195,10 +219,24 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("DOCS_STRATEGO_SYNC_PAT", admin_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", config_text)
         self.assertIn("source scaffold-notify", config_text)
+        self.assertIn("server-deployment-layout.svg", installation_text)
+        self.assertIn("阅读与访问", root_index_text)
+        self.assertIn("平台管理", root_index_text)
         self.assertIn("Deploy Docs", workflow_report_text)
         self.assertIn("Sync Source Pointers", workflow_report_text)
         self.assertIn("Validate Source Pointer PR", workflow_report_text)
         self.assertIn("Publish CLI", workflow_report_text)
+        self.assertIn("当前未发现阻断性的知识盲点", review_report_text)
+
+        for asset_name in [
+            "site-reader-login-popup.svg",
+            "local-dev-watch-mode.svg",
+            "source-onboarding-flow.svg",
+            "source-notify-workflow.svg",
+            "operator-sync-pr-review.svg",
+            "server-deployment-layout.svg",
+        ]:
+            self.assertTrue((PROJECT_ROOT / "docs" / "assets" / "user-guide" / asset_name).exists())
 
 
 if __name__ == "__main__":

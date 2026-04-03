@@ -2,6 +2,18 @@
 
 本页收口所有“本地开发预览、接入、校验、联动、移除、共享 PR 同步、构建”相关命令。
 
+## 0. 先按任务找命令
+
+| 你要做什么 | 最先看的命令 |
+| --- | --- |
+| 本地启动开发站点 | `docs-stratego dev` |
+| 校验一个源仓是否合规 | `docs-stratego source validate` |
+| 把源仓登记到根仓 | `docs-stratego source add` |
+| 给源仓生成通知 workflow | `docs-stratego source scaffold-notify` |
+| 从根仓移除一个源仓 | `docs-stratego source remove` |
+| 手工补跑共享指针同步 | `docs-stratego source sync-pointers` |
+| 分步执行同步和构建 | `docs-stratego sync` / `docs-stratego build` |
+
 ## 1. 先区分两种运行模式
 
 ### 1.1 根仓内开发模式

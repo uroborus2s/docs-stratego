@@ -27,6 +27,7 @@
 - 变更：已将源码从 `src/docs_stratego/` 平铺迁移到 `src/`，取消额外包层，打包入口改为顶层模块
 - 变更：已补齐“本地开发与预览”“发布前外部配置”和 GitHub Actions 工作流报告，用户指南阅读路径已重新按任务和角色收口
 - 变更：`docs-stratego dev` 已支持 `source_mode=local` 的 watch 模式，可在本地源文档变更后自动重新执行 `sync -> build`
+- 变更：已重构 `02-user-guide/` 的信息架构与高频操作页，补齐阅读者、本地开发、接入、联动、审核、安装等示意截图，并新增用户指南可读性评审
 - 缺陷：已修复用户指南旧文件名残留导致的 `configuration.md -> usage.md` 文档编译告警
 - 验证：已完成当前 CLI-first + watch 模式本地回归，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `40` 个测试通过，`docs-stratego build` 与 `mkdocs build` 通过；真实 GitHub 端到端演练仍待执行
 
@@ -73,6 +74,8 @@
 - `docs/02-user-guide/` 已补齐本地 `local/remote` 两种构建入口、`docs-stratego dev --build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - `docs/02-user-guide/local-development.md` 已明确 `docs-stratego dev` 在 `source_mode=local` 下支持 watch 自动重建，在 `source_mode=remote` 下仍需手工重跑
 - `docs/02-user-guide/contributor-guide/publish-setup.md` 已补齐 GitHub 环境、TestPyPI、PyPI Trusted Publisher 的首次配置步骤和示意截图
+- `docs/02-user-guide/` 现已按“阅读与访问 / 开发与接入 / 运维与发布 / 平台管理”重组导航，关键操作页已补齐成功标志、常见误区和 SVG 操作示意截图
+- `docs/04-project-development/08-operations-maintenance/user-guide-readability-review.md` 已记录从阅读者视角出发的可读性评审结论：当前未发现阻断性的知识盲点
 - `docs/04-project-development/08-operations-maintenance/github-actions-workflow-report.md` 已记录 4 个 GitHub Actions workflow 的触发条件、凭证依赖、产物流转和风险边界
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 - 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档

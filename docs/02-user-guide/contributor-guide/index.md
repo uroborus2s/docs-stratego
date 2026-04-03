@@ -2,6 +2,12 @@
 
 这个目录是公开的接入知识层，目标不是解释内部架构，而是让接入方按最短路径完成事情。
 
+如果你只记一件事，请记住：
+
+- 第一次接入：先读标准，再做登记，再做 remote 构建验证
+- 需要自动联动：在接入稳定后再开
+- 需要发布 CLI：把外部配置和正式发版分开看
+
 ## 1. 每一页分别解决什么问题
 
 | 页面 | 你在什么时候读它 | 读完应得到什么 |
@@ -21,8 +27,8 @@
 
 1. `source-docs-standard.md`
 2. `onboarding.md`
-3. `automation.md`
-4. `cli.md`
+3. `cli.md`
+4. `automation.md`
 5. `distribution.md`
 6. `publish-setup.md`
 7. `release.md`
