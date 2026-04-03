@@ -30,6 +30,8 @@
 
 - 当前公开源文档标准由 `docs/02-user-guide/contributor-guide/source-docs-standard.md` 定义
 - 当前接入公开事实源已迁移到 `docs/02-user-guide/contributor-guide/`，按“标准 -> 接入 -> 联动 -> 移除 -> CLI”组织
+- 公开接入指南已进一步收紧 CLI 边界：根仓内继续使用 `uv run docs-stratego`，外部源仓改为“已发布包 + `uvx/uv tool install`”口径，并新增 `CLI 分发与发布` 页面
+- 仓库已新增 `publish-cli.yml`：普通 `push` 不发包，只有 `cli-v*.*.*` tag 或手动演练才触发 `TestPyPI -> smoke test -> PyPI` 发布链路
 - 当前源文档标准已扩展为“Markdown 页面 + OpenAPI 契约 + MCP tools 快照”三类可声明内容；根 `docs/index.md` 的页面节点现在允许指向 `*.openapi.*` 与 `*.mcp-tools.*`
 - 页面权限当前只认根 `docs/index.md` 页面节点的 `access`；`external/`、`internal/` 只作为目录组织语义，不参与权限判断
 - 当前 `docs/index.md` 已按 `docs_profile` 刷新根导航，各级目录 `index.md` 已刷新为正文概览页

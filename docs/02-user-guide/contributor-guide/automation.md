@@ -12,6 +12,11 @@
 - 团队希望文档更新后自动推送到根仓审核入口
 - 你已经能稳定通过远程构建验证
 
+前提：
+
+- 下面的源仓侧命令默认假设 CLI 已经作为包发布，可由源仓直接调用。
+- 如果还没发布，请先看 [CLI 分发与发布](distribution.md)。
+
 ## 2. 需要准备的 Secret
 
 在源仓 GitHub 仓库的 `Settings -> Secrets and variables -> Actions` 中新增：
@@ -25,7 +30,7 @@
 在源仓本地执行：
 
 ```bash
-uv run docs-stratego source scaffold-notify \
+uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
   --repo-path /path/to/source-repo \
   --branch main
 ```
@@ -64,7 +69,7 @@ uv run docs-stratego source scaffold-notify \
 如果你只想停掉自动通知，但暂时不想从根仓下线该源仓，执行：
 
 ```bash
-uv run docs-stratego source scaffold-notify \
+uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
   --repo-path /path/to/source-repo \
   --remove
 ```

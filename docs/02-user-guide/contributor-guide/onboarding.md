@@ -9,12 +9,17 @@
 1. 你的源仓已经满足 [源文档标准](source-docs-standard.md)。
 2. 你手里有源仓本地路径、远程 Git 地址、目标分支和展示标题。
 
+补充边界：
+
+- 源仓侧命令默认假设你已经能拿到已发布的 `docs-stratego` CLI。
+- 如果 CLI 还没发布，源仓侧不要照抄 `uv run docs-stratego ...`；请先看 [CLI 分发与发布](distribution.md)。
+
 ## 2. 先在源仓做结构校验
 
 在源仓本地执行：
 
 ```bash
-uv run docs-stratego source validate --repo-path /path/to/source-repo
+uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo
 ```
 
 这条命令会复用根仓当前的解析规则，检查：

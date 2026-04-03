@@ -10,7 +10,7 @@
 在源仓执行：
 
 ```bash
-uv run docs-stratego source scaffold-notify \
+uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
   --repo-path /path/to/source-repo \
   --remove
 ```
@@ -20,6 +20,8 @@ uv run docs-stratego source scaffold-notify \
 - 源仓暂时冻结
 - 文档还需要保留在聚合站点
 - 你想先人工控制更新节奏
+
+如果 CLI 还没有对外发布，请先看 [CLI 分发与发布](distribution.md)，不要默认在源仓里执行 `uv run docs-stratego ...`。
 
 ## 2. 完整移除一个源仓
 

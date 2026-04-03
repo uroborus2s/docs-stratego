@@ -1,0 +1,195 @@
+name: Publish CLI
+
+on:
+  push:
+    tags:
+      - "cli-v*.*.*"
+  workflow_dispatch:
+    inputs:
+      publish_target:
+        description: "Publish target"
+        type: choice
+        options:
+          - testpypi
+          - both
+        default: testpypi
+
+concurrency:
+  group: publish-cli-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.package-version.outputs.package_version }}
+      should_publish_testpypi: ${{ steps.publish-target.outputs.should_publish_testpypi }}
+      should_publish_pypi: ${{ steps.publish-target.outputs.should_publish_pypi }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Resolve publish target
+        id: publish-target
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "should_publish_testpypi=true" >> "$GITHUB_OUTPUT"
+            echo "should_publish_pypi=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_publish_testpypi=true" >> "$GITHUB_OUTPUT"
+            if [ "${{ inputs.publish_target }}" = "both" ]; then
+              echo "should_publish_pypi=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_publish_pypi=false" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Read package version
+        id: package-version
+        run: |
+          set -euo pipefail
+          package_version="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          payload = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+          print(payload["project"]["version"])
+          PY
+          )"
+          echo "package_version=${package_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify tag matches package version
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          expected_tag="cli-v${{ steps.package-version.outputs.package_version }}"
+          if [ "${GITHUB_REF_NAME}" != "${expected_tag}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match ${expected_tag}" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run unit tests
+        run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers tests.test_source_admin tests.test_cli
+
+      - name: Build distributions
+        run: uv build --no-sources
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-dist
+          path: dist/*
+          if-no-files-found: error
+
+  publish-testpypi:
+    needs: build
+    if: needs.build.outputs.should_publish_testpypi == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: testpypi
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-dist
+          path: dist
+
+      - name: Publish to TestPyPI
+        run: uv publish --index testpypi --no-attestations
+
+  smoke-test-testpypi:
+    needs: [build, publish-testpypi]
+    if: needs.build.outputs.should_publish_testpypi == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Smoke test published CLI from TestPyPI
+        run: |
+          set -euo pipefail
+          version="${{ needs.build.outputs.package_version }}"
+          uvx --refresh \
+            --index testpypi=https://test.pypi.org/simple/ \
+            --from "docs-stratego==${version}" \
+            docs-stratego --help
+          uvx --refresh \
+            --index testpypi=https://test.pypi.org/simple/ \
+            --from "docs-stratego==${version}" \
+            docs-stratego source validate --help
+
+  publish-pypi:
+    needs: [build, smoke-test-testpypi]
+    if: needs.build.outputs.should_publish_pypi == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: pypi
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-dist
+          path: dist
+
+      - name: Publish to PyPI
+        run: uv publish --no-attestations

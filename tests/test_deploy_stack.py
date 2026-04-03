@@ -83,6 +83,23 @@ class DeployStackTests(unittest.TestCase):
         self.assertNotIn("[[", start_script_text)
         self.assertNotIn("repository_dispatch", workflow_text)
         self.assertIn('docs-stratego = "docs_stratego.cli:main"', pyproject_text)
+        self.assertIn('name = "testpypi"', pyproject_text)
+        self.assertIn('publish-url = "https://test.pypi.org/legacy/"', pyproject_text)
+
+    def test_cli_publish_workflow_is_tag_gated_and_uses_trusted_publish(self) -> None:
+        workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "publish-cli.yml").read_text(encoding="utf-8")
+
+        self.assertIn('name: Publish CLI', workflow_text)
+        self.assertIn('cli-v*.*.*', workflow_text)
+        self.assertIn('workflow_dispatch:', workflow_text)
+        self.assertIn('uv build --no-sources', workflow_text)
+        self.assertIn('uv publish --index testpypi --no-attestations', workflow_text)
+        self.assertIn('uv publish --no-attestations', workflow_text)
+        self.assertIn('id-token: write', workflow_text)
+        self.assertIn('environment:\n      name: testpypi', workflow_text)
+        self.assertIn('environment:\n      name: pypi', workflow_text)
+        self.assertIn('uvx --refresh', workflow_text)
+        self.assertIn('docs-stratego source validate --help', workflow_text)
 
     def test_source_pointer_sync_workflows_and_docs_are_consistent(self) -> None:
         sync_workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "sync-source-pointers.yml").read_text(
@@ -104,6 +121,9 @@ class DeployStackTests(unittest.TestCase):
         contributor_cli_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "cli.md"
         ).read_text(encoding="utf-8")
+        distribution_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "distribution.md"
+        ).read_text(encoding="utf-8")
         admin_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "admin-guide.md").read_text(encoding="utf-8")
         config_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "configuration.md").read_text(encoding="utf-8")
 
@@ -124,10 +144,17 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("source-pointer-sync-requested", spec_text)
         self.assertIn("自动联动", usage_text)
         self.assertIn("CLI 命令", usage_text)
+        self.assertIn("CLI 分发与发布", usage_text)
         self.assertIn("接入知识地图", contributor_index_text)
         self.assertIn("唯一导航与权限事实源", contributor_standard_text)
         self.assertIn("uv run docs-stratego source add", contributor_cli_text)
         self.assertIn("uv run docs-stratego source remove", contributor_cli_text)
+        self.assertIn("uvx --from 'docs-stratego==<version>'", contributor_cli_text)
+        self.assertIn("Trusted Publishing", distribution_text)
+        self.assertIn("TestPyPI", distribution_text)
+        self.assertIn("uv tool install", distribution_text)
+        self.assertIn("cli-vX.Y.Z", distribution_text)
+        self.assertIn("普通 `push` 不触发发布", distribution_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", admin_text)
         self.assertIn("DOCS_STRATEGO_SYNC_PAT", admin_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", config_text)

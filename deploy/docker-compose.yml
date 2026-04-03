@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./pg_data:/var/lib/postgresql/data
+      - /data/pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: always
@@ -23,7 +23,6 @@ services:
     ports:
       - "127.0.0.1:8081:8000"
     environment:
-      environment:
       # 在这里拼接！让 Docker 帮你把变量替换成真实的值
       DB_DSN: "user=${DB_USER} password=${DB_PASSWORD} host=postgres port=5432 sslmode=disable dbname=${DB_NAME}"
     volumes:
@@ -38,6 +37,10 @@ services:
       - casdoor
     ports:
       - "127.0.0.1:4180:4180"
+    environment:
+      - OAUTH2_PROXY_CLIENT_ID
+      - OAUTH2_PROXY_CLIENT_SECRET
+      - OAUTH2_PROXY_COOKIE_SECRET
     volumes:
       - ./oauth2-proxy/oauth2-proxy.cfg:/etc/oauth2-proxy/oauth2-proxy.cfg:ro
     command:

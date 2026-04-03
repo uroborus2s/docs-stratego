@@ -51,6 +51,9 @@ mkdocs:
             - title: CLI 命令
               path: 02-user-guide/contributor-guide/cli.md
               access: public
+            - title: CLI 分发与发布
+              path: 02-user-guide/contributor-guide/distribution.md
+              access: public
         - title: 安装说明
           path: 02-user-guide/installation.md
           access: public

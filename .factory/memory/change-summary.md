@@ -54,3 +54,5 @@
 - 新增 `docs-stratego` CLI 入口，收口 `source validate`、`source add`、`source scaffold-notify`、`source remove`、`sync`、`build`
 - 将源文档标准和子仓自动同步规范从内部设计层收口为“公开事实源 + 内部设计说明”双层结构，减少重复维护
 - 扩展单元测试与 CI，新增 CLI 和接入文档一致性校验
+- 收紧源仓侧 CLI 文案边界，避免把根仓内 `uv run docs-stratego` 误写成跨仓默认可用命令；补充 `CLI 分发与发布` 方案，覆盖 `uvx`、`uv tool install`、TestPyPI、Trusted Publishing 与正式索引发布路径
+- 新增 `publish-cli.yml` 发布工作流，并把发版策略收口为“普通 CI 不发布，只有 `cli-v*.*.*` tag 或手动触发才发布 CLI 包”

@@ -1,17 +1,54 @@
 # CLI 命令
 
-本页收口所有“接入、校验、联动、移除”相关命令。它们都通过同一个入口执行：
+本页收口所有“接入、校验、联动、移除”相关命令。
+
+## 1. 先区分两种运行模式
+
+### 1.1 根仓内开发模式
+
+适用场景：
+
+- 你在 `docs-stratego` 根仓里开发、测试或跑 CI
+- 命令来自当前仓库自己的虚拟环境
+
+入口：
 
 ```bash
 uv run docs-stratego --help
 ```
 
-## 1. 源仓侧命令
+### 1.2 外部源仓使用模式
 
-### 1.1 校验源仓文档结构
+适用场景：
+
+- 你在某个接入源仓里直接执行校验或通知脚手架
+- 你不想要求接入方先克隆 `docs-stratego` 根仓
+
+推荐入口：
 
 ```bash
-uv run docs-stratego source validate --repo-path /path/to/source-repo
+uvx --from 'docs-stratego==<version>' docs-stratego --help
+```
+
+或安装成常驻工具：
+
+```bash
+uv tool install 'docs-stratego==<version>'
+docs-stratego --help
+```
+
+说明：
+
+- `uv run docs-stratego ...` 只适合当前仓库已经把 `docs-stratego` 作为本地项目装进环境的场景。
+- 外部源仓若直接照抄 `uv run docs-stratego ...`，通常不会成立。
+- 如果你需要外部源仓直接使用 CLI，请先看 [CLI 分发与发布](distribution.md)。
+
+## 2. 源仓侧命令
+
+### 2.1 校验源仓文档结构
+
+```bash
+uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo
 ```
 
 用途：
@@ -20,10 +57,10 @@ uv run docs-stratego source validate --repo-path /path/to/source-repo
 - 检查页面声明与目录 `index.md`
 - 检查 OpenAPI / MCP tools 契约最低要求
 
-### 1.2 生成自动通知 workflow
+### 2.2 生成自动通知 workflow
 
 ```bash
-uv run docs-stratego source scaffold-notify \
+uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
   --repo-path /path/to/source-repo \
   --branch main
 ```
@@ -34,17 +71,17 @@ uv run docs-stratego source scaffold-notify \
 - `--branch`：可重复传入，指定哪些分支监听 `docs/**`
 - `--dry-run`：只演练，不写文件
 
-### 1.3 删除自动通知 workflow
+### 2.3 删除自动通知 workflow
 
 ```bash
-uv run docs-stratego source scaffold-notify \
+uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
   --repo-path /path/to/source-repo \
   --remove
 ```
 
-## 2. 根仓侧命令
+## 3. 根仓侧命令
 
-### 2.1 接入一个新源仓
+### 3.1 接入一个新源仓
 
 ```bash
 uv run docs-stratego source add \
@@ -64,7 +101,7 @@ uv run docs-stratego source add \
 - `--docs-path`：远程稀疏展开目录，默认 `docs`
 - `--dry-run`：只演练，不落盘
 
-### 2.2 移除一个源仓
+### 3.2 移除一个源仓
 
 ```bash
 uv run docs-stratego source remove \
@@ -83,15 +120,15 @@ uv run docs-stratego source remove \
 - 必须显式带 `--yes`
 - `docs-stratego` 自身不会被允许移除
 
-## 3. 构建链路命令
+## 4. 构建链路命令
 
-### 3.1 同步源仓
+### 4.1 同步源仓
 
 ```bash
 uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
 ```
 
-### 3.2 生成构建输入
+### 4.2 生成构建输入
 
 ```bash
 uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
@@ -99,7 +136,7 @@ uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode r
 
 这两条命令是对现有同步和构建脚本的正式 CLI 封装。CI 仍可继续使用脚本包装层，但面向接入方的推荐入口已经切到 `docs-stratego`。
 
-## 4. 推荐使用顺序
+## 5. 推荐使用顺序
 
 ### 新接入
 
@@ -115,3 +152,15 @@ uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode r
 2. `source remove --yes`
 3. `sync`
 4. `build`
+
+## 6. 版本建议
+
+- 根仓 CI 和本地开发可以继续使用当前工作区里的 `uv run docs-stratego ...`
+- 外部源仓应当固定版本，不建议直接跑未锁定的 latest
+- 推荐样式：
+
+```bash
+uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path .
+```
+
+如果你准备让外部源仓长期使用这个 CLI，请继续阅读 [CLI 分发与发布](distribution.md)。
