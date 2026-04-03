@@ -60,3 +60,4 @@
 - 按 CLI-first 重构项目结构：抽出共享模型与配置层，新增 `source_pointer_sync.py`，删除旧 `scripts/build_site.py`、`scripts/sync_sources.py`、`scripts/sync_source_pointers.py`
 - 将 `start.sh`、`deploy_remote.sh`、GitHub Actions、README、Contributor Guide、安装与运维文档统一切到 `docs-stratego` CLI，并新增 `source sync-pointers` 正式入口
 - 本地回归已更新到 CLI-first 结构，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `34` 个测试通过
+- 将源码目录从 `src/docs_stratego/` 迁移到 `src/` 根下，更新 `pyproject.toml` 为 `py-modules` 打包方式，并同步修正所有导入路径、测试和文档引用
