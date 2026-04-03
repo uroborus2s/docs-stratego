@@ -60,7 +60,7 @@
 - 当前源仓配置已升级为单文件双模式：同一 `config/source-repos.json` 同时声明 `modes.local` 与 `modes.remote`
 - 旧的平铺源仓配置兼容逻辑已删除；仓库定义如果缺少 `modes` 会直接报错，不再接受旧格式
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录；本地生产预演与 GitHub Actions 正式发布都使用 `source_mode=remote`
-- `start.sh`、`deploy_remote.sh` 与 GitHub Actions 已统一接入 `docs-stratego` CLI 和 `--source-mode`
+- 开发环境已移除 `start.sh`，统一改为 `docs-stratego dev`；`deploy_remote.sh` 与 GitHub Actions 继续使用 `docs-stratego` CLI 和 `--source-mode`
 - `ride-loop` 已作为新文档源接入，本地模式指向 `/Users/uroborus/NodeProject/ride-loop/docs`，远程模式指向 `https://github.com/uroborus2s/ride-loop.git@main`
 - `ride-loop` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 不再因 pathspec 缺失而失败
 - `shanforge` 已作为新文档源接入，本地模式指向 `/Users/uroborus/AiProject/shanforge/docs`，远程模式指向 `https://github.com/uroborus2s/shanforge.git@main`
@@ -68,7 +68,7 @@
 - `ctrip_crawler` 本地工作副本已补齐根 `docs/index.md` 对 `requirements-analysis.md`、`requirements-verification.md`、`backend-design.md`、`database-design.md`、`ux-ui-design.md`、`implementation-plan.md`、`task-breakdown.md`、`wbs.md`、`requirements-matrix.md` 的 `mkdocs.nav` 声明；`source_mode=local` 构建已恢复
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
-- `docs/02-user-guide/` 已补齐本地 `local/remote` 两种构建入口、`--build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
+- `docs/02-user-guide/` 已补齐本地 `local/remote` 两种构建入口、`docs-stratego dev --build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 - 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
 - 主页面现在会在重新获得焦点或接收到新的页面点击时主动关闭仍未完成的登录小窗，避免小窗仅退到后台

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -23,6 +25,17 @@ from source_sync import sync_sources
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="docs-stratego", description="Docs Stratego project CLI.")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    dev_parser = subparsers.add_parser("dev", help="Build and serve the local development site.")
+    dev_parser.add_argument("--config", default="config/source-repos.json")
+    dev_parser.add_argument("--project-root", default=".")
+    dev_parser.add_argument("--output-dir", default=".generated")
+    dev_parser.add_argument("--source-mode", choices=["local", "remote"], default="local")
+    dev_parser.add_argument("--host", default="127.0.0.1")
+    dev_parser.add_argument("--port", type=int, default=8001)
+    dev_parser.add_argument("--site-dir", default="site")
+    dev_parser.add_argument("--build-only", action="store_true")
+    dev_parser.set_defaults(handler=handle_dev)
 
     sync_parser = subparsers.add_parser("sync", help="Sync source repositories.")
     sync_parser.add_argument("--config", default="config/source-repos.json")
@@ -102,13 +115,41 @@ def handle_sync(args: argparse.Namespace) -> None:
     )
 
 
+def build_generated_inputs(
+    project_root: Path,
+    config: str,
+    output_dir: str,
+    source_mode: str | None,
+) -> Path:
+    repositories = load_source_repositories(
+        resolve_config_path(project_root, config),
+        source_mode=source_mode,
+    )
+    build_site(repositories, project_root / output_dir, project_root)
+    return project_root / output_dir / "mkdocs.generated.yml"
+
+
+def run_mkdocs_command(args: list[str]) -> None:
+    subprocess.run([sys.executable, "-m", "mkdocs", *args], check=True)
+
+
+def handle_dev(args: argparse.Namespace) -> None:
+    project_root = Path(args.project_root).resolve()
+    config_path = resolve_config_path(project_root, args.config)
+    sync_sources(config_path, project_root, source_mode=args.source_mode)
+    generated_config = build_generated_inputs(project_root, args.config, args.output_dir, args.source_mode)
+
+    if args.build_only:
+        run_mkdocs_command(["build", "-f", str(generated_config), "-d", str((project_root / args.site_dir).resolve())])
+        return
+
+    print(f"Preview: http://{args.host}:{args.port}/ (source mode: {args.source_mode})")
+    run_mkdocs_command(["serve", "-f", str(generated_config), "-a", f"{args.host}:{args.port}"])
+
+
 def handle_build(args: argparse.Namespace) -> None:
     project_root = Path(args.project_root).resolve()
-    repositories = load_source_repositories(
-        resolve_config_path(project_root, args.config),
-        source_mode=args.source_mode,
-    )
-    build_site(repositories, project_root / args.output_dir, project_root)
+    build_generated_inputs(project_root, args.config, args.output_dir, args.source_mode)
 
 
 def handle_source_validate(args: argparse.Namespace) -> None:

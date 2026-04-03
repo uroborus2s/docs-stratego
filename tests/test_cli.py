@@ -61,6 +61,34 @@ class CliTests(unittest.TestCase):
 
         sync_pointers.assert_called_once()
 
+    def test_dev_command_runs_sync_build_and_mkdocs_serve(self) -> None:
+        with (
+            mock.patch.object(self.module, "sync_sources") as sync_sources,
+            mock.patch.object(self.module, "build_generated_inputs", return_value=Path("/tmp/mkdocs.generated.yml")) as build_inputs,
+            mock.patch.object(self.module, "run_mkdocs_command") as run_mkdocs,
+            redirect_stdout(io.StringIO()) as stdout,
+        ):
+            self.module.main(["dev", "--project-root", ".", "--host", "127.0.0.1", "--port", "9000"])
+
+        sync_sources.assert_called_once()
+        build_inputs.assert_called_once()
+        run_mkdocs.assert_called_once_with(
+            ["serve", "-f", "/tmp/mkdocs.generated.yml", "-a", "127.0.0.1:9000"]
+        )
+        self.assertIn("Preview: http://127.0.0.1:9000/", stdout.getvalue())
+
+    def test_dev_command_build_only_runs_mkdocs_build(self) -> None:
+        with (
+            mock.patch.object(self.module, "sync_sources"),
+            mock.patch.object(self.module, "build_generated_inputs", return_value=Path("/tmp/mkdocs.generated.yml")),
+            mock.patch.object(self.module, "run_mkdocs_command") as run_mkdocs,
+        ):
+            self.module.main(["dev", "--project-root", ".", "--build-only", "--site-dir", "site-out"])
+
+        run_mkdocs.assert_called_once_with(
+            ["build", "-f", "/tmp/mkdocs.generated.yml", "-d", str((Path(".").resolve() / "site-out").resolve())]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

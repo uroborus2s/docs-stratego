@@ -184,8 +184,8 @@ Actions Secrets：
 
 | 运行场景 | 典型入口 | `source_mode` | 说明 |
 | --- | --- | --- | --- |
-| 本地开发 | `./start.sh` | `local` | 直接读取维护机本地工作副本，迭代最快 |
-| 本地生产预演 | `./start.sh --build-only --source-mode remote` 或手动 `docs-stratego sync + docs-stratego build + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
+| 本地开发 | `uv run docs-stratego dev --project-root .` | `local` | 直接读取维护机本地工作副本，迭代最快 |
+| 本地生产预演 | `uv run docs-stratego dev --project-root . --build-only --source-mode remote` 或手动 `docs-stratego sync + docs-stratego build + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
 | 正式生产发布 | GitHub Actions `validate -> deploy` | `remote` | 强制从 GitHub 远程仓库重新拉取，验证真实发布输入 |
 
 ## 4. 维护机全量重建
@@ -204,9 +204,9 @@ Actions Secrets：
 
 ### 本地开发
 
-- 可以直接运行 `./start.sh`
+- 可以直接运行 `uv run docs-stratego dev --project-root .`
 - 默认 `source_mode=local`
-- 如需模拟远程仓构建，可运行 `./start.sh --source-mode remote`
+- 如需模拟远程仓构建，可运行 `uv run docs-stratego dev --project-root . --source-mode remote`
 - 本地模式直接依赖维护机上的项目工作副本
 - 本地不一定跑宿主机 Nginx
 - 主要验证目录、页面、主题和导航

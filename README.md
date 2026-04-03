@@ -24,29 +24,34 @@
 
 ```bash
 uv sync
-uv run docs-stratego sync --project-root .
-uv run docs-stratego build --project-root . --output-dir .generated
-uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
+uv run docs-stratego dev --project-root .
 ```
 
 本地快速重建并启动预览：
 
 ```bash
-./start.sh
+uv run docs-stratego dev --project-root .
 ```
 
 如果要在本机模拟服务器侧的远程拉仓行为：
 
 ```bash
-./start.sh --source-mode remote
+uv run docs-stratego dev --project-root . --source-mode remote
 ```
 
-`start.sh` 内部统一使用 `uv sync`、`uv run docs-stratego` 和 `uv run mkdocs`，不再直接调用 `.venv/bin/...`。
-
-如果虚拟环境或缓存异常，需要删除 `.venv` 并用 `uv` 重新初始化：
+如果你只想做一次构建、不启动本地预览：
 
 ```bash
-./start.sh --reset-venv
+uv run docs-stratego dev --project-root . --build-only
+```
+
+`docs-stratego dev` 内部会顺序执行 `sync -> build -> mkdocs serve`；`--build-only` 时执行 `mkdocs build`。
+
+如果虚拟环境或缓存异常，直接删除 `.venv` 后重新执行：
+
+```bash
+rm -rf .venv
+uv sync
 ```
 
 当前正式配置已经包含 6 个项目：
@@ -65,7 +70,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 - `remote`
   远程构建先初始化 submodule，再在子仓内显式 `fetch + checkout` 目标分支，并只保留顶层 `docs/`
 
-因此本地预览和 GitHub Actions 会走同一套同步逻辑，只是 source mode 不同；`start.sh` 也会在构建前先执行 `docs-stratego sync` 和 `docs-stratego build`。
+因此本地预览和 GitHub Actions 会走同一套同步逻辑，只是 source mode 不同；开发环境统一使用 `docs-stratego dev`，CI 和发布链路仍保持 `docs-stratego sync` 与 `docs-stratego build` 分步执行。
 
 ## 文档标准
 

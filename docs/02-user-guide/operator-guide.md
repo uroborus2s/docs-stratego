@@ -14,11 +14,11 @@
 ### 2.1 模式选择
 - **本地开发模式 (Local Mode)**：直接读取本机已有的子仓目录。速度最快，用于频繁修改。
   ```bash
-  ./start.sh --source-mode local
+  uv run docs-stratego dev --project-root . --source-mode local
   ```
 - **生产预演模式 (Remote Mode)**：模拟 CI 环境，真实从远程拉取子仓。用于发布前的最后确认。
   ```bash
-  ./start.sh --source-mode remote
+  uv run docs-stratego dev --project-root . --source-mode remote
   ```
 
 ### 2.2 验证指标

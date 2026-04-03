@@ -470,7 +470,7 @@ curl -I https://docs.example.com/docs-stratego/04-project-development/
 
 ```bash
 cd <project-root>
-./start.sh --build-only --source-mode remote
+uv run docs-stratego dev --project-root . --build-only --source-mode remote
 ```
 
 或者：
