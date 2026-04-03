@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Operator shared PR review mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing the shared pointer sync PR and the operator review checklist.</desc>
+  <rect width="1200" height="760" fill="#f5f7fb"/>
+  <rect x="28" y="28" width="1144" height="704" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="28" y="28" width="1144" height="54" rx="18" fill="#edf2f7" stroke="#d0d7de"/>
+  <text x="62" y="63" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">Pull request · docs-stratego</text>
+  <text x="62" y="124" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#111827">chore: sync source repository pointers</text>
+  <text x="62" y="160" font-family="Arial, sans-serif" font-size="18" fill="#475569">bot/sync-source-pointers → main</text>
+
+  <rect x="62" y="196" width="640" height="470" rx="18" fill="#f8fafc" stroke="#d0d7de"/>
+  <text x="94" y="238" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">Files changed</text>
+  <g font-family="Courier New, monospace" font-size="19" fill="#0f172a">
+    <text x="94" y="292">M  config/source-repos.json</text>
+    <text x="94" y="328">M  sources/shanforge</text>
+    <text x="94" y="364">M  sources/ride-loop</text>
+    <text x="94" y="400">M  .gitmodules</text>
+  </g>
+  <rect x="94" y="442" width="574" height="184" rx="16" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="120" y="484" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">Checks</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="120" y="524">• Validate Source Pointer PR</text>
+    <text x="120" y="556">• tests.test_sync_source_pointers</text>
+    <text x="120" y="588">• docs-stratego sync/build remote verification</text>
+  </g>
+  <rect x="446" y="548" width="180" height="36" rx="8" fill="#dcfce7" stroke="#22c55e"/>
+  <text x="486" y="572" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#166534">all required checks</text>
+
+  <rect x="738" y="196" width="382" height="470" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="770" y="238" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">维护者审核清单</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="770" y="292">1. 确认变更只涉及预期的源仓</text>
+    <text x="770" y="330">2. 查看 gitlink 是否和源仓更新一致</text>
+    <text x="770" y="368">3. 确认共享 PR 检查全部通过</text>
+    <text x="770" y="406">4. 如有预览链接，抽查首页与私有页</text>
+    <text x="770" y="444">5. 无异常后再执行 Squash and merge</text>
+  </g>
+  <rect x="770" y="484" width="310" height="116" rx="16" fill="#eff6ff" stroke="#60a5fa"/>
+  <text x="794" y="526" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#1d4ed8">不要跳过的判断</text>
+  <text x="794" y="558" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">如果 PR 混入与本次子仓无关的指针变化，</text>
+  <text x="794" y="586" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">先查并发通知或手工同步，再决定是否合并。</text>
+
+  <rect x="62" y="686" width="1058" height="28" rx="14" fill="#e2e8f0"/>
+  <rect x="842" y="686" width="226" height="28" rx="14" fill="#22c55e"/>
+  <text x="62" y="710" font-family="Arial, sans-serif" font-size="16" fill="#475569">目标不是“看见 PR 就合并”，而是确认它确实代表本次文档变更的安全输入</text>
+</svg>

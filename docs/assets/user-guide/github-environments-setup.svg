@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub environments setup mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing repository settings and environments creation.</desc>
+  <rect width="1200" height="760" fill="#f6f8fa"/>
+  <rect x="24" y="24" width="1152" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="56" y="64" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#24292f">docs-stratego</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#57606a">
+    <text x="220" y="64">Code</text>
+    <text x="290" y="64">Issues</text>
+    <text x="360" y="64">Pull requests</text>
+    <text x="500" y="64">Actions</text>
+    <text x="590" y="64">Settings</text>
+  </g>
+  <rect x="560" y="38" width="116" height="36" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="583" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#9a6700">Settings</text>
+
+  <rect x="24" y="108" width="260" height="628" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="56" y="150" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#24292f">Settings</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#57606a">
+    <text x="56" y="205">General</text>
+    <text x="56" y="245">Access</text>
+    <text x="56" y="285">Actions</text>
+    <text x="56" y="325">Secrets and variables</text>
+    <text x="56" y="365">Environments</text>
+  </g>
+  <rect x="44" y="342" width="220" height="38" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="66" y="367" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0969da">Environments</text>
+
+  <rect x="308" y="108" width="868" height="628" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="340" y="156" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#24292f">Environments</text>
+  <rect x="944" y="128" width="188" height="44" rx="10" fill="#1f883d"/>
+  <text x="978" y="156" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">New environment</text>
+
+  <rect x="340" y="208" width="360" height="188" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="372" y="252" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#24292f">testpypi</text>
+  <text x="372" y="292" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Recommended for first dry run</text>
+  <text x="372" y="330" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Optional reviewers</text>
+  <rect x="372" y="348" width="180" height="34" rx="8" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="402" y="371" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#1a7f37">match workflow env</text>
+
+  <rect x="732" y="208" width="360" height="188" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="764" y="252" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#24292f">pypi</text>
+  <text x="764" y="292" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Recommended for production publish</text>
+  <text x="764" y="330" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Add required reviewers</text>
+  <rect x="764" y="348" width="194" height="34" rx="8" fill="#fff8c5" stroke="#bf8700"/>
+  <text x="792" y="371" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#9a6700">protect prod publish</text>
+
+  <rect x="340" y="432" width="752" height="240" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="372" y="474" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#24292f">Checklist</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#24292f">
+    <text x="372" y="518">1. Create two environments: testpypi and pypi</text>
+    <text x="372" y="554">2. Keep names identical to workflow environment values</text>
+    <text x="372" y="590">3. Add reviewers to pypi if you want manual approval</text>
+    <text x="372" y="626">4. Continue to TestPyPI / PyPI trusted publisher setup</text>
+  </g>
+</svg>

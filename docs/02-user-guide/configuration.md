@@ -188,6 +188,12 @@ Actions Secrets：
 | 本地生产预演 | `uv run docs-stratego dev --project-root . --build-only --source-mode remote` 或手动 `docs-stratego sync + docs-stratego build + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
 | 正式生产发布 | GitHub Actions `validate -> deploy` | `remote` | 强制从 GitHub 远程仓库重新拉取，验证真实发布输入 |
 
+补充说明：
+
+- 当前 `docs-stratego dev` 会在 `source_mode=local` 下自动重新执行 `sync` 和 `build`
+- `source_mode=remote` 仍然是一轮式预演，修改远程输入后需要重跑命令
+- 具体操作见 [本地开发与预览](local-development.md)
+
 ## 4. 维护机全量重建
 
 如果走 `scripts/deploy_remote.sh` 做全量重建，需要一个包含完整仓库的维护工作区；标准生产服务器上的稀疏运行目录不适合直接执行它。
@@ -207,6 +213,8 @@ Actions Secrets：
 - 可以直接运行 `uv run docs-stratego dev --project-root .`
 - 默认 `source_mode=local`
 - 如需模拟远程仓构建，可运行 `uv run docs-stratego dev --project-root . --source-mode remote`
+- 修改真实本地源文档后，会自动触发重建
+- 如需重新确认远程仓输入，需重新启动 `docs-stratego dev --source-mode remote`
 - 本地模式直接依赖维护机上的项目工作副本
 - 本地不一定跑宿主机 Nginx
 - 主要验证目录、页面、主题和导航

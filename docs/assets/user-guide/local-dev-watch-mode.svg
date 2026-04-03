@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Local development watch mode mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing the docs-stratego dev command, watch rebuild output, and browser refresh flow.</desc>
+  <rect width="1200" height="760" fill="#f4f6fb"/>
+  <rect x="36" y="40" width="540" height="520" rx="18" fill="#0f172a"/>
+  <rect x="36" y="40" width="540" height="54" rx="18" fill="#111827"/>
+  <circle cx="72" cy="67" r="7" fill="#ef4444"/>
+  <circle cx="96" cy="67" r="7" fill="#f59e0b"/>
+  <circle cx="120" cy="67" r="7" fill="#22c55e"/>
+  <text x="154" y="74" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Terminal</text>
+  <g font-family="Courier New, monospace" font-size="22" fill="#d1fae5">
+    <text x="68" y="140">$ uv sync</text>
+    <text x="68" y="188">$ uv run docs-stratego dev --project-root .</text>
+  </g>
+  <g font-family="Courier New, monospace" font-size="20" fill="#cbd5e1">
+    <text x="68" y="250">Preview: http://127.0.0.1:8001/</text>
+    <text x="68" y="284">(source mode: local, watch mode: enabled)</text>
+    <text x="68" y="344">Watching:</text>
+    <text x="100" y="378">- docs/</text>
+    <text x="100" y="412">- config/source-repos.json</text>
+    <text x="100" y="446">- local source repo docs/</text>
+    <text x="68" y="506">Detected source doc changes. Rebuilt generated docs.</text>
+  </g>
+  <rect x="64" y="472" width="480" height="54" rx="12" fill="#052e16" stroke="#22c55e"/>
+  <text x="86" y="505" font-family="Courier New, monospace" font-size="19" font-weight="700" fill="#bbf7d0">watch success: sync -&gt; build completed again</text>
+
+  <rect x="622" y="40" width="542" height="520" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="622" y="40" width="542" height="54" rx="18" fill="#edf2f7" stroke="#d0d7de"/>
+  <text x="656" y="74" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1f2937">Browser Preview</text>
+  <text x="656" y="142" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#111827">本地开发与预览</text>
+  <text x="656" y="182" font-family="Arial, sans-serif" font-size="19" fill="#475569">修改源文档后，等待终端输出，再刷新浏览器页面。</text>
+  <rect x="656" y="220" width="470" height="108" rx="16" fill="#eff6ff" stroke="#60a5fa"/>
+  <text x="688" y="266" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#1d4ed8">这一步你会看到什么</text>
+  <text x="688" y="300" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">1. 保存 Markdown 或配置文件</text>
+  <text x="688" y="326" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">2. 终端出现自动重建日志</text>
+  <text x="688" y="352" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">3. 浏览器刷新后看到最新内容</text>
+  <rect x="656" y="374" width="470" height="134" rx="16" fill="#f8fafc" stroke="#d0d7de"/>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="688" y="420">local 模式：支持 watch 自动重建</text>
+    <text x="688" y="454">remote 模式：仅一次性预演，改完后需要重启命令</text>
+    <text x="688" y="488">build-only：只验证构建，不启动预览服务</text>
+  </g>
+
+  <path d="M580 284 C610 284, 618 284, 640 284" fill="none" stroke="#2563eb" stroke-width="4"/>
+  <polygon points="640,284 624,276 624,292" fill="#2563eb"/>
+  <text x="584" y="264" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#1d4ed8">刷新页面</text>
+
+  <rect x="36" y="600" width="1128" height="116" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="70" y="646" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">判断是否该重启 `dev` 的最短规则</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="70" y="684">不需要重启：你改的是根仓 `docs/`、本地源仓 `docs/`、`config/source-repos.json`，且当前是 `source_mode=local`。</text>
+    <text x="70" y="710">需要重启：你切到 `source_mode=remote`，或想重新验证远程仓输入，而不是本地工作副本。</text>
+  </g>
+</svg>

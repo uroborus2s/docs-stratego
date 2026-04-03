@@ -119,6 +119,9 @@ class DeployStackTests(unittest.TestCase):
         contributor_index_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "index.md"
         ).read_text(encoding="utf-8")
+        local_development_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "local-development.md"
+        ).read_text(encoding="utf-8")
         contributor_standard_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "source-docs-standard.md"
         ).read_text(encoding="utf-8")
@@ -128,11 +131,21 @@ class DeployStackTests(unittest.TestCase):
         distribution_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "distribution.md"
         ).read_text(encoding="utf-8")
+        publish_setup_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "publish-setup.md"
+        ).read_text(encoding="utf-8")
         release_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "release.md"
         ).read_text(encoding="utf-8")
         admin_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "admin-guide.md").read_text(encoding="utf-8")
         config_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "configuration.md").read_text(encoding="utf-8")
+        workflow_report_text = (
+            PROJECT_ROOT
+            / "docs"
+            / "04-project-development"
+            / "08-operations-maintenance"
+            / "github-actions-workflow-report.md"
+        ).read_text(encoding="utf-8")
 
         self.assertIn("source-pointer-sync-requested", sync_workflow_text)
         self.assertNotIn("source-docs-updated", sync_workflow_text)
@@ -152,15 +165,22 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("自动联动", usage_text)
         self.assertIn("CLI 命令", usage_text)
         self.assertIn("CLI 分发与发布", usage_text)
+        self.assertIn("发布前外部配置", usage_text)
         self.assertIn("CLI 发布手册", usage_text)
         self.assertIn("uv run docs-stratego dev", usage_text)
         self.assertIn("接入知识地图", contributor_index_text)
+        self.assertIn("发布前外部配置", contributor_index_text)
+        self.assertIn("source_mode=local` 下支持源文档热重建", local_development_text)
+        self.assertIn("source_mode=remote", local_development_text)
         self.assertIn("唯一导航与权限事实源", contributor_standard_text)
         self.assertIn("uv run docs-stratego dev", (PROJECT_ROOT / "README.md").read_text(encoding="utf-8"))
         self.assertIn("uv run docs-stratego dev", contributor_cli_text)
+        self.assertIn("自动重建", contributor_cli_text)
         self.assertIn("uv run docs-stratego source add", contributor_cli_text)
         self.assertIn("uv run docs-stratego source remove", contributor_cli_text)
         self.assertIn("uvx --from 'docs-stratego==<version>'", contributor_cli_text)
+        self.assertIn("Trusted Publisher", publish_setup_text)
+        self.assertIn("publish-cli.yml", publish_setup_text)
         self.assertIn("Trusted Publishing", distribution_text)
         self.assertIn("TestPyPI", distribution_text)
         self.assertIn("uv tool install", distribution_text)
@@ -175,6 +195,10 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("DOCS_STRATEGO_SYNC_PAT", admin_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", config_text)
         self.assertIn("source scaffold-notify", config_text)
+        self.assertIn("Deploy Docs", workflow_report_text)
+        self.assertIn("Sync Source Pointers", workflow_report_text)
+        self.assertIn("Validate Source Pointer PR", workflow_report_text)
+        self.assertIn("Publish CLI", workflow_report_text)
 
 
 if __name__ == "__main__":

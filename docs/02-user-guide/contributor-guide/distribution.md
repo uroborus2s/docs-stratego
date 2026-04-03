@@ -3,6 +3,7 @@
 这页回答的是：怎样把 `docs-stratego` CLI 从“只在根仓本地可用”，演进成“外部源仓可以直接安装和执行”。
 
 如果你现在已经准备实际发版，请直接读 [CLI 发布手册](release.md)。
+如果你还没完成 GitHub / TestPyPI / PyPI 的首次外部配置，请先读 [发布前外部配置](publish-setup.md)。
 
 ## 1. 当前边界
 
@@ -200,7 +201,7 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --help
 
 1. 保留当前根仓内 `uv run docs-stratego ...` 作为开发入口
 2. 增加“已发布包”的外部源仓入口，统一文档写法为 `uvx --from 'docs-stratego==<version>' ...`
-3. 先打通 TestPyPI 和内部正式索引
+3. 先打通 GitHub 环境、TestPyPI 和 PyPI Trusted Publisher
 4. 等 CLI 默认值、包元数据和版本治理稳定后，再决定是否发布到公开 PyPI
 
 当前推荐的 CI/CD 策略是：

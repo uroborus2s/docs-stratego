@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">PyPI project publishing entry mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing Manage and Publishing entry on project pages.</desc>
+  <rect width="1200" height="760" fill="#f4f6fb"/>
+  <rect x="24" y="24" width="1152" height="72" rx="12" fill="#0b1f3a"/>
+  <text x="54" y="68" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">PyPI / TestPyPI</text>
+
+  <rect x="24" y="116" width="1152" height="620" rx="12" fill="#ffffff" stroke="#d7dce5"/>
+  <text x="64" y="168" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#1b1f24">Project: docs-stratego</text>
+  <rect x="952" y="138" width="150" height="40" rx="10" fill="#0d6efd"/>
+  <text x="998" y="164" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Manage</text>
+
+  <rect x="64" y="214" width="250" height="468" rx="12" fill="#f7f9fc" stroke="#d7dce5"/>
+  <text x="96" y="258" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1b1f24">Sidebar</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#57606a">
+    <text x="96" y="314">Overview</text>
+    <text x="96" y="354">Releases</text>
+    <text x="96" y="394">Collaborators</text>
+    <text x="96" y="434">Publishing</text>
+    <text x="96" y="474">Settings</text>
+  </g>
+  <rect x="82" y="408" width="214" height="40" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="114" y="434" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0969da">Publishing</text>
+
+  <rect x="346" y="214" width="786" height="468" rx="12" fill="#f7f9fc" stroke="#d7dce5"/>
+  <text x="384" y="260" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#1b1f24">Trusted publishing</text>
+  <text x="384" y="302" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Open this page before adding GitHub Actions as a trusted publisher.</text>
+
+  <rect x="384" y="336" width="320" height="150" rx="12" fill="#ffffff" stroke="#d7dce5"/>
+  <text x="416" y="378" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#1b1f24">Step 1</text>
+  <text x="416" y="414" font-family="Arial, sans-serif" font-size="18" fill="#1b1f24">Click Manage on project page</text>
+
+  <rect x="736" y="336" width="320" height="150" rx="12" fill="#ffffff" stroke="#d7dce5"/>
+  <text x="768" y="378" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#1b1f24">Step 2</text>
+  <text x="768" y="414" font-family="Arial, sans-serif" font-size="18" fill="#1b1f24">Open Publishing in sidebar</text>
+
+  <rect x="384" y="520" width="672" height="118" rx="12" fill="#fff8c5" stroke="#bf8700"/>
+  <text x="416" y="566" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#9a6700">Repeat on both sites</text>
+  <text x="416" y="604" font-family="Arial, sans-serif" font-size="18" fill="#9a6700">Use test.pypi.org first, then pypi.org with the production environment name.</text>
+</svg>

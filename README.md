@@ -47,6 +47,11 @@ uv run docs-stratego dev --project-root . --build-only
 
 `docs-stratego dev` 内部会顺序执行 `sync -> build -> mkdocs serve`；`--build-only` 时执行 `mkdocs build`。
 
+注意：
+
+- 当前 `docs-stratego dev` 在 `source_mode=local` 下会自动监听根仓 `docs/`、本地源仓 `docs/` 和 `config/source-repos.json`
+- 当前 `source_mode=remote` 仍然是一次性预演；如果你改了远程输入配置后要重新确认，请重新运行 `docs-stratego dev --source-mode remote`
+
 如果虚拟环境或缓存异常，直接删除 `.venv` 后重新执行：
 
 ```bash
@@ -87,6 +92,7 @@ uv sync
 - 未声明的 Markdown 页面直接视为构建错误
 
 源仓接入、自动联动、移除和 CLI 命令说明见 [子仓接入指南](./docs/02-user-guide/usage.md)。
+本地开发与预览方式见 [本地开发与预览](./docs/02-user-guide/local-development.md)。
 
 ## 认证与部署
 

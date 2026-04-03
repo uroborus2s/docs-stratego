@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Source notify workflow mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing the source repository secret, generated workflow, and root repository shared PR flow.</desc>
+  <rect width="1200" height="760" fill="#f6f8fa"/>
+  <text x="52" y="74" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111827">自动联动的三步确认</text>
+  <text x="52" y="108" font-family="Arial, sans-serif" font-size="20" fill="#475569">核心是：源仓 Secret 存在，通知 workflow 已提交，根仓收到 dispatch 并形成共享 PR。</text>
+
+  <rect x="52" y="150" width="338" height="510" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="84" y="194" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">1. 源仓 Secret</text>
+  <rect x="84" y="224" width="274" height="150" rx="14" fill="#f8fafc" stroke="#d0d7de"/>
+  <text x="108" y="266" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#111827">Settings &gt; Secrets and variables</text>
+  <text x="108" y="302" font-family="Arial, sans-serif" font-size="18" fill="#475569">新增 Secret:</text>
+  <rect x="108" y="322" width="226" height="34" rx="8" fill="#fee2e2" stroke="#ef4444"/>
+  <text x="122" y="345" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#b91c1c">DOCS_STRATEGO_DISPATCH_TOKEN</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="84" y="430">作用边界：</text>
+    <text x="102" y="464">- 只负责调用根仓 dispatch</text>
+    <text x="102" y="496">- 不负责部署站点</text>
+    <text x="102" y="528">- 不替代根仓的发布凭证</text>
+  </g>
+
+  <rect x="430" y="150" width="338" height="510" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="462" y="194" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">2. 通知 workflow</text>
+  <g font-family="Courier New, monospace" font-size="18" fill="#0f172a">
+    <text x="462" y="248">uvx --from 'docs-stratego==&lt;version&gt;'</text>
+    <text x="462" y="278">docs-stratego source scaffold-notify</text>
+    <text x="462" y="308">--repo-path /path/to/source-repo</text>
+    <text x="462" y="338">--branch main</text>
+  </g>
+  <rect x="462" y="378" width="274" height="114" rx="14" fill="#eff6ff" stroke="#60a5fa"/>
+  <text x="486" y="420" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#1d4ed8">生成结果</text>
+  <text x="486" y="454" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">.github/workflows/notify-docs-stratego.yml</text>
+  <text x="486" y="482" font-family="Arial, sans-serif" font-size="18" fill="#1f2937">监听指定分支的 `docs/**` 变化</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="462" y="550">你要确认：</text>
+    <text x="480" y="584">- workflow 已提交到源仓</text>
+    <text x="480" y="616">- `--branch` 与团队实际分支一致</text>
+  </g>
+
+  <rect x="808" y="150" width="340" height="510" rx="18" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="840" y="194" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">3. 根仓共享 PR</text>
+  <rect x="840" y="228" width="276" height="286" rx="14" fill="#f8fafc" stroke="#d0d7de"/>
+  <text x="866" y="270" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">chore: sync source repository pointers</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="866" y="314">事件名：source-pointer-sync-requested</text>
+    <text x="866" y="350">分支：bot/sync-source-pointers</text>
+    <text x="866" y="386">检查：Validate Source Pointer PR</text>
+    <text x="866" y="422">结果：人工审核后合并</text>
+  </g>
+  <rect x="866" y="454" width="158" height="34" rx="8" fill="#dcfce7" stroke="#22c55e"/>
+  <text x="892" y="477" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#166534">不是自动发布</text>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#334155">
+    <text x="840" y="560">你要确认：</text>
+    <text x="858" y="594">- 根仓收到 dispatch</text>
+    <text x="858" y="626">- 共享 PR 被创建或复用</text>
+  </g>
+
+  <path d="M390 404 C412 404, 412 404, 430 404" fill="none" stroke="#2563eb" stroke-width="5"/>
+  <polygon points="430,404 414,396 414,412" fill="#2563eb"/>
+  <path d="M768 404 C790 404, 790 404, 808 404" fill="none" stroke="#2563eb" stroke-width="5"/>
+  <polygon points="808,404 792,396 792,412" fill="#2563eb"/>
+</svg>

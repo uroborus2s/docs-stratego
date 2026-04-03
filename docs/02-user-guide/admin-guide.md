@@ -1,63 +1,122 @@
-# 管理员指南 (Admin Guide)
+# 管理员指南
 
-管理员负责聚合站点的基础设施维护、外部仓库接入管理以及权限体系的治理。
+管理员负责的是平台层，不是日常内容编辑。  
+这页用来回答“平台该由谁管、该在哪里配、什么时候该改哪一层配置”。
 
-## 1. 职责边界与治理要求
-管理员的主要职责是确立标准，而非日常内容更新。
-- **治理要求**：禁止在根仓直接改写子仓内容，所有权限和导航必须在源仓层面通过 `index.md` 声明。
-- **环境隔离**：区分本地开发环境与生产运行环境。
+## 1. 管理员最核心的职责
 
----
+管理员需要保证 4 件事：
 
-## 2. 部署拓扑与架构逻辑
-`docs-stratego` 采用“宿主机 Nginx + 容器化认证栈”的混合架构：
+1. 平台运行环境可用
+2. 根仓能安全读取远程源仓
+3. 发布链路和权限边界稳定
+4. 外部源仓和 CLI 的治理规则明确
 
-- **宿主机 (Host)**：
-  - 静态站点目录（由 GitHub Actions 部署）。
-  - Nginx 权限转发配置 (`private_locations.conf`)。
-- **容器环境 (Docker)**：
-  - **Casdoor**：身份认证中心（Github 登录、本地账号）。
-  - **oauth2-proxy**：代理认证网关，负责向 Nginx 提供 `auth_request` 指令。
-  - **Redis**：存储 Session 会话状态。
+## 2. 先分清什么归管理员管，什么不归
 
----
+### 2.1 归管理员管
 
-## 3. 接入一个新源仓 (Standard Onboarding)
+- 服务器与 Docker 认证栈
+- GitHub Actions、GitHub App、Secrets、Variables
+- PyPI / TestPyPI Trusted Publisher
+- 根仓 `config/source-repos.json` 的正式登记
 
-接入新项目是管理员最核心的任务。
+### 2.2 不归管理员直接改
 
-1. **源仓改造**：要求源项目按 [源文档标准](contributor-guide/source-docs-standard.md) 完成其 `docs/` 目录和 `index.md` 改造。
-2. **配置定义**：优先使用 [CLI 命令](contributor-guide/cli.md) 中的 `source add` 完成 `config/source-repos.json` 登记。
-   - `local` 模式：指向本地路径。
-   - `remote` 模式：配置 Git URL 和 `submodule_sparse` 模式。
-3. **权限源安装 (针对私有仓库)**：
-   - 必须将私有项目安装给 `docs-stratego-source-reader` GitHub App。
-4. **验证构建**：
-   ```bash
-   uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
-   uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
-   ```
-5. **维护共享 bot PR**：如需手动补跑子仓指针同步，执行 `uv run docs-stratego source sync-pointers --project-root /path/to/docs-stratego`。
-6. **发布变更**：合并 PR 后触发生产环境部署。
+- 源仓具体文档内容
+- 子仓页面排序、正文和权限声明
+- 根仓里对外公开的页面内容事实
 
----
+治理原则：
 
-## 4. 关键凭证管理 (Secrets Management)
+- 禁止在根仓直接改写子仓文档内容
+- 页面权限和导航事实源必须由源仓 `docs/index.md` 声明
+- 本地开发环境和生产环境必须分开管理
 
-所有的生产密钥均存储在 GitHub Actions Secrets 中。
+## 3. 平台运行拓扑
 
-| 分类 | 典型 Secret | 说明 |
-| :--- | :--- | :--- |
-| **部署权限** | `DOCS_DEPLOY_SSH_KEY` | 用于 SSH 传输 site 文件到生产服务器。 |
-| **源码读取** | `DOCS_SOURCE_APP_PRIVATE_KEY` | GitHub App (Source Reader) 的私钥。 |
-| **联动凭证** | `DOCS_STRATEGO_SYNC_PAT` | 用于自动同步子仓指针的 Personal Access Token。 |
-| **子仓通知** | `DOCS_STRATEGO_DISPATCH_TOKEN` | 配置在各子仓中，用于向根仓发送 `repository_dispatch`。 |
-| **认证配置** | `CASDOOR_POSTGRES_PWD` | 容器环境内部敏感密码。 |
+管理员需要记住的拓扑边界是：
 
----
+- 宿主机 Nginx 提供静态站点与私有路径拦截
+- Docker 内运行 `postgres`、`casdoor`、`oauth2-proxy`
+- GitHub Actions 在 Runner 中构建站点，再把产物发到服务器
 
-## 5. 首次引导与后续维护
-- **首次部署**：请参阅 [安装说明 (Installation)](installation.md)。
-- **深度配置**：关于 Redis 共享或多域名配置，请参阅 [配置说明 (Configuration)](configuration.md)。
-- **接入与移除标准动作**：请参阅 [子仓接入指南 (Contributor Guide)](usage.md)。
-- **日常排障**：如遇构建失败，按 [维护者指南 (Operator Guide)](operator-guide.md) 的故障处理矩阵排查。
+如果你要做首次安装，请直接读 [安装说明](installation.md)。  
+如果你要做日常配置调整，请读 [配置说明](configuration.md)。
+
+## 4. 管理员最常见的 3 条工作路径
+
+### 4.1 首次安装平台
+
+阅读顺序：
+
+1. [安装说明](installation.md)
+2. [配置说明](configuration.md)
+3. [维护者指南](operator-guide.md)
+
+### 4.2 接入一个新的私有源仓
+
+阅读顺序：
+
+1. [子仓库接入指南](usage.md)
+2. [接入聚合站点](contributor-guide/onboarding.md)
+3. [CLI 命令](contributor-guide/cli.md)
+
+额外动作：
+
+- 将该私有仓安装给 `docs-stratego-source-reader` GitHub App
+- 用 remote 模式做一次真实构建验证
+
+### 4.3 发布 CLI 给外部源仓使用
+
+阅读顺序：
+
+1. [CLI 分发与发布](contributor-guide/distribution.md)
+2. [发布前外部配置](contributor-guide/publish-setup.md)
+3. [CLI 发布手册](contributor-guide/release.md)
+
+## 5. 关键凭证与配置归属
+
+| 分类 | 典型项 | 用途 |
+| --- | --- | --- |
+| 部署权限 | `DOCS_DEPLOY_SSH_KEY` | 把构建产物上传到服务器 |
+| 源码读取 | `DOCS_SOURCE_APP_ID`、`DOCS_SOURCE_APP_PRIVATE_KEY` | 让 GitHub Actions 读取私有源仓 |
+| 联动凭证 | `DOCS_STRATEGO_SYNC_PAT` | 根仓维护共享 bot 分支和 PR |
+| 子仓通知 | `DOCS_STRATEGO_DISPATCH_TOKEN` | 子仓向根仓发送 `repository_dispatch` |
+| 认证运行配置 | `deploy/.env`、`oauth2-proxy.cfg`、`app.conf` | 控制 Casdoor、oauth2-proxy、数据库与 Redis |
+
+## 6. 管理员最容易混淆的边界
+
+### 6.1 `DOCS_STRATEGO_DISPATCH_TOKEN` 在哪里配
+
+它配在源仓，不配在根仓。  
+作用是“通知根仓”，不是“替根仓发布”。
+
+### 6.2 GitHub App 和 PyPI Trusted Publisher 是不是同一种东西
+
+不是：
+
+- GitHub App 解决“读取私有源仓”
+- Trusted Publisher 解决“发布 CLI 到 TestPyPI / PyPI”
+
+### 6.3 本地预览失败时，管理员一定要先看服务器吗
+
+不一定。  
+很多问题先在本地 `docs-stratego dev` 就能复现，应优先区分是“本地构建问题”还是“服务器部署问题”。
+
+## 7. 什么时候应该优先读哪一页
+
+- 想搭服务器：读 [安装说明](installation.md)
+- 想改配置：读 [配置说明](configuration.md)
+- 想接入或移除源仓：读 [子仓库接入指南](usage.md)
+- 想处理共享 PR 和发布后验证：读 [维护者指南](operator-guide.md)
+- 想配置 CLI 发布外部依赖：读 [发布前外部配置](contributor-guide/publish-setup.md)
+
+## 8. 管理员侧成功标准
+
+如果平台治理是健康的，你应该能确认：
+
+1. 源仓接入和移除都有标准命令与文档
+2. 私有源仓读取和 CLI 发布分别有独立凭证体系
+3. 服务器只承载运行时，不承担本地构建职责
+4. 维护者能在不依赖管理员的情况下完成日常预览和审核

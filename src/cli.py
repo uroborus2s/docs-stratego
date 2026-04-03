@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from dev_server import resolve_dev_watch_paths, serve_mkdocs_with_watch
 from models import SourceRegistration, ValidationReport
 from site_builder import build_site
 from source_admin import (
@@ -133,6 +134,18 @@ def run_mkdocs_command(args: list[str]) -> None:
     subprocess.run([sys.executable, "-m", "mkdocs", *args], check=True)
 
 
+def rebuild_dev_inputs(
+    project_root: Path,
+    config_path: Path,
+    config: str,
+    output_dir: str,
+    source_mode: str,
+) -> list[Path]:
+    sync_sources(config_path, project_root, source_mode=source_mode)
+    build_generated_inputs(project_root, config, output_dir, source_mode)
+    return resolve_dev_watch_paths(project_root, config_path)
+
+
 def handle_dev(args: argparse.Namespace) -> None:
     project_root = Path(args.project_root).resolve()
     config_path = resolve_config_path(project_root, args.config)
@@ -143,7 +156,27 @@ def handle_dev(args: argparse.Namespace) -> None:
         run_mkdocs_command(["build", "-f", str(generated_config), "-d", str((project_root / args.site_dir).resolve())])
         return
 
-    print(f"Preview: http://{args.host}:{args.port}/ (source mode: {args.source_mode})")
+    watch_enabled = args.source_mode == "local"
+    watch_label = "enabled" if watch_enabled else "disabled"
+    print(f"Preview: http://{args.host}:{args.port}/ (source mode: {args.source_mode}, watch mode: {watch_label})")
+
+    if watch_enabled:
+        watch_paths = resolve_dev_watch_paths(project_root, config_path)
+        serve_mkdocs_with_watch(
+            generated_config=generated_config,
+            host=args.host,
+            port=args.port,
+            watch_paths=watch_paths,
+            rebuild_callback=lambda: rebuild_dev_inputs(
+                project_root=project_root,
+                config_path=config_path,
+                config=args.config,
+                output_dir=args.output_dir,
+                source_mode=args.source_mode,
+            ),
+        )
+        return
+
     run_mkdocs_command(["serve", "-f", str(generated_config), "-a", f"{args.host}:{args.port}"])
 
 

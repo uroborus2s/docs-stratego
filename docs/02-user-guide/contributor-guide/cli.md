@@ -148,7 +148,7 @@ uv run docs-stratego dev --project-root /path/to/docs-stratego
 用途：
 
 - 顺序执行 `sync -> build -> mkdocs serve`
-- 默认使用 `source_mode=local`，直接读取维护机本地工作副本
+- 默认使用 `source_mode=local`，直接读取维护机本地工作副本，并自动监听源文档变化
 - 适合根仓维护者本地调试和预览，不作为外部源仓默认入口
 
 常用参数：
@@ -157,6 +157,12 @@ uv run docs-stratego dev --project-root /path/to/docs-stratego
 - `--build-only`：只做 `mkdocs build`，不启动预览服务
 - `--host` / `--port`：调整本地监听地址
 - `--site-dir`：调整 `mkdocs build` 的输出目录
+
+热更新边界：
+
+- `source_mode=local`：支持对根仓 `docs/`、本地源仓 `docs/` 和 `config/source-repos.json` 的自动重建
+- `source_mode=remote`：仍然是一轮式预演，不会持续轮询远程仓
+- 如果你需要重新确认远程输入，请重新执行 `docs-stratego dev --source-mode remote`
 
 ## 4. 构建链路命令
 

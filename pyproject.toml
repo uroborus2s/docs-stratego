@@ -43,6 +43,7 @@ explicit = true
 package-dir = {"" = "src"}
 py-modules = [
   "cli",
+  "dev_server",
   "models",
   "site_builder",
   "source_admin",

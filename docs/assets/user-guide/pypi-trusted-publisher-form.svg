@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">PyPI trusted publisher form mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing the GitHub Actions trusted publisher form values.</desc>
+  <rect width="1200" height="760" fill="#f4f6fb"/>
+  <rect x="120" y="40" width="960" height="680" rx="16" fill="#ffffff" stroke="#d7dce5"/>
+  <text x="170" y="96" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#1b1f24">Add GitHub Actions publisher</text>
+  <text x="170" y="132" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Values shown here must match the repository and workflow exactly.</text>
+
+  <g font-family="Arial, sans-serif" font-size="20" fill="#1b1f24">
+    <text x="170" y="210">Owner</text>
+    <text x="170" y="318">Repository name</text>
+    <text x="170" y="426">Workflow name</text>
+    <text x="170" y="534">Environment name</text>
+  </g>
+
+  <g font-family="Arial, sans-serif" font-size="22" fill="#1b1f24">
+    <rect x="170" y="228" width="860" height="56" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="196" y="264">uroborus2s</text>
+
+    <rect x="170" y="336" width="860" height="56" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="196" y="372">docs-stratego</text>
+
+    <rect x="170" y="444" width="860" height="56" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="196" y="480">publish-cli.yml</text>
+
+    <rect x="170" y="552" width="860" height="56" rx="10" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+    <text x="196" y="588">testpypi or pypi</text>
+  </g>
+
+  <rect x="170" y="638" width="198" height="44" rx="10" fill="#1f883d"/>
+  <text x="228" y="666" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Add</text>
+
+  <rect x="404" y="632" width="626" height="56" rx="10" fill="#ddf4ff" stroke="#0969da"/>
+  <text x="430" y="667" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0969da">Tip: TestPyPI uses environment testpypi, production PyPI uses environment pypi.</text>
+</svg>

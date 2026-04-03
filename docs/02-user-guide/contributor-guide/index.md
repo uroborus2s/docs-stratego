@@ -12,6 +12,7 @@
 | [移除流程](offboarding.md) | 想暂停联动或彻底下线源仓 | 知道该删什么、保留什么 |
 | [CLI 命令](cli.md) | 想把人工步骤变成可重复执行的命令 | 知道命令、参数和安全开关 |
 | [CLI 分发与发布](distribution.md) | 想让外部源仓直接使用 CLI | 知道安装方式、发布路径和版本治理 |
+| [发布前外部配置](publish-setup.md) | 准备首次把 CLI 发到 TestPyPI / PyPI | 知道 GitHub 环境、Trusted Publisher 和手动演练如何配置 |
 | [CLI 发布手册](release.md) | 你已经决定发新版本 | 知道怎么 bump 版本、打 tag、发布和验证 |
 
 ## 2. 推荐阅读顺序
@@ -23,7 +24,8 @@
 3. `automation.md`
 4. `cli.md`
 5. `distribution.md`
-6. `release.md`
+6. `publish-setup.md`
+7. `release.md`
 
 ### 已接入后的日常维护
 

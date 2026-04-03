@@ -1,54 +1,57 @@
 # 子仓库接入指南
 
-本文是 `Contributor Guide` 的入口页，面向三类读者：
+这页是接入相关内容的总入口。  
+如果你眼前的任务和“把一个源仓接进来、联动起来、再安全移出去”有关，就从这页开始。
 
-- 源仓文档作者：需要先把自己的 `docs/` 写到合规。
-- 接入执行者：需要把源仓登记到 `docs-stratego` 根仓。
-- 下线执行者：需要安全移除自动联动和根仓登记。
+## 1. 你在这套指南里最常做的 4 件事
 
-## 0. 先记住 CLI 的使用边界
+![接入新源仓的流程示意截图](../assets/user-guide/source-onboarding-flow.svg)
 
-`docs-stratego` 命令现在有两种运行方式：
+| 你现在要做什么 | 先读哪页 | 读完后应完成什么 |
+| --- | --- | --- |
+| 第一次接入一个新源仓 | [源文档标准](contributor-guide/source-docs-standard.md) → [接入聚合站点](contributor-guide/onboarding.md) | 源仓通过校验，并成功登记到根仓 |
+| 补齐自动联动 | [自动联动](contributor-guide/automation.md) | 源仓 `docs/**` 变更后能通知根仓共享 PR |
+| 安全下线一个源仓 | [移除流程](contributor-guide/offboarding.md) | 自动联动和根仓登记都被安全移除 |
+| 把 CLI 发给外部源仓使用 | [CLI 分发与发布](contributor-guide/distribution.md) → [发布前外部配置](contributor-guide/publish-setup.md) → [CLI 发布手册](contributor-guide/release.md) | 外部源仓可以按固定版本安装和执行 CLI |
+
+## 2. 先记住 CLI 的使用边界
+
+`docs-stratego` 有两种运行方式：
 
 - 在 `docs-stratego` 根仓内开发或 CI：使用 `uv run docs-stratego ...`
-- 在外部源仓直接调用：需要先把 CLI 发布为可安装包，再使用 `uvx` 或 `uv tool install`
+- 在外部源仓直接调用：先发布为可安装包，再使用 `uvx` 或 `uv tool install`
 
-如果你是源仓接入方，不要默认把 `uv run docs-stratego ...` 当成“任意仓库天然可用”的命令。
+如果你是源仓接入方，不要把 `uv run docs-stratego ...` 理解成“任意仓库天然可用”的命令。
 
-## 1. 先按角色选阅读路径
+## 3. 第一次接入时的最短闭环
 
-| 你现在要做什么 | 先读什么 | 再读什么 | 最后做什么 |
-| --- | --- | --- | --- |
-| 第一次接入一个新源仓 | [源文档标准](contributor-guide/source-docs-standard.md) | [接入聚合站点](contributor-guide/onboarding.md) | [自动联动](contributor-guide/automation.md) |
-| 已接入源仓，想补齐自动同步 | [自动联动](contributor-guide/automation.md) | [CLI 命令](contributor-guide/cli.md) | [维护者指南](operator-guide.md) |
-| 想批量执行接入、校验或移除 | [CLI 命令](contributor-guide/cli.md) | [接入聚合站点](contributor-guide/onboarding.md) | [移除流程](contributor-guide/offboarding.md) |
-| 想让外部源仓直接可用 CLI | [CLI 分发与发布](contributor-guide/distribution.md) | [CLI 命令](contributor-guide/cli.md) | [管理员指南](admin-guide.md) |
-| 想把 CLI 正式发到包仓库 | [CLI 发布手册](contributor-guide/release.md) | [CLI 分发与发布](contributor-guide/distribution.md) | [管理员指南](admin-guide.md) |
-| 想下线一个源仓 | [移除流程](contributor-guide/offboarding.md) | [CLI 命令](contributor-guide/cli.md) | [管理员指南](admin-guide.md) |
+如果你只想快速完成一次正确接入，请按下面顺序走：
 
-## 2. 如果你只想快速完成接入
+1. 阅读 [源文档标准](contributor-guide/source-docs-standard.md)
+2. 在源仓运行 `source validate`
+3. 在根仓运行 `source add`
+4. 用 `sync --source-mode remote`、`build --source-mode remote`、`mkdocs build` 做一次真实构建验证
+5. 如果该源仓未来还会持续更新，再补 [自动联动](contributor-guide/automation.md)
 
-按这个顺序读最省脑力：
+## 4. 这套指南解决哪些知识盲点
 
-1. [源文档标准](contributor-guide/source-docs-standard.md)
-2. [接入聚合站点](contributor-guide/onboarding.md)
-3. [自动联动](contributor-guide/automation.md)
-4. [CLI 命令](contributor-guide/cli.md)
-5. [CLI 分发与发布](contributor-guide/distribution.md)
-6. [CLI 发布手册](contributor-guide/release.md)
+以前最容易混淆的点有 4 个：
 
-## 3. 接入总览
+- 源仓侧和根仓侧命令到底分别在哪执行
+- 源仓接入完成后，是否还要额外配置自动联动
+- 本地 `uv run docs-stratego ...` 能不能直接拿去给外部源仓使用
+- CLI 发布到 TestPyPI / PyPI 前，到底要先去 GitHub 和包仓库上配什么
 
-一个完整接入流程有四步：
+当前这些问题分别对应到：
 
-1. 在源仓把 `docs/` 改到合规，确保根 `docs/index.md` 是唯一导航和权限事实源。
-2. 在源仓本地执行已发布 CLI 的校验命令，例如 `uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo`。
-3. 在 `docs-stratego` 根仓执行 `uv run docs-stratego source add ...` 完成配置登记，必要时同时注册 submodule。
-4. 在源仓执行已发布 CLI 的通知脚手架命令，例如 `uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify --repo-path /path/to/source-repo`。
+- [接入聚合站点](contributor-guide/onboarding.md)
+- [自动联动](contributor-guide/automation.md)
+- [CLI 命令](contributor-guide/cli.md)
+- [发布前外部配置](contributor-guide/publish-setup.md)
 
-## 4. 命令入口
+## 5. 命令入口总表
 
-本次接入相关的正式命令已经收口到 `docs-stratego` CLI：
+这组任务会用到的正式命令是：
 
 - `uv run docs-stratego dev`
 - `uvx --from 'docs-stratego==<version>' docs-stratego source validate`
@@ -59,15 +62,36 @@
 - `uv run docs-stratego sync`
 - `uv run docs-stratego build`
 
-完整参数、安装方式和安全开关见 [CLI 命令](contributor-guide/cli.md)；发布方案见 [CLI 分发与发布](contributor-guide/distribution.md)。
+完整参数和安全开关见 [CLI 命令](contributor-guide/cli.md)。
 
-## 5. 本指南包含哪些页面
+## 6. 推荐阅读顺序
 
-- [接入知识地图](contributor-guide/index.md)：帮助你判断每一页解决什么问题。
-- [源文档标准](contributor-guide/source-docs-standard.md)：公开标准事实源。
-- [接入聚合站点](contributor-guide/onboarding.md)：根仓登记与验证流程。
-- [自动联动](contributor-guide/automation.md)：源仓通知根仓的 workflow 与 Secret。
-- [移除流程](contributor-guide/offboarding.md)：暂停联动或完整下线的步骤。
-- [CLI 命令](contributor-guide/cli.md)：所有接入/移除相关命令。
-- [CLI 分发与发布](contributor-guide/distribution.md)：外部源仓如何安装、执行和升级 CLI。
-- [CLI 发布手册](contributor-guide/release.md)：维护者如何 bump 版本、打 tag、发布和验证。
+### 只做接入
+
+1. [源文档标准](contributor-guide/source-docs-standard.md)
+2. [接入聚合站点](contributor-guide/onboarding.md)
+3. [CLI 命令](contributor-guide/cli.md)
+
+### 接入后还要持续联动
+
+1. [接入聚合站点](contributor-guide/onboarding.md)
+2. [自动联动](contributor-guide/automation.md)
+3. [维护者指南](operator-guide.md)
+
+### 需要发布 CLI
+
+1. [CLI 分发与发布](contributor-guide/distribution.md)
+2. [发布前外部配置](contributor-guide/publish-setup.md)
+3. [CLI 发布手册](contributor-guide/release.md)
+
+## 7. 这组页面各自解决什么问题
+
+- [接入知识地图](contributor-guide/index.md)：帮你判断每一页解决什么问题。
+- [源文档标准](contributor-guide/source-docs-standard.md)：告诉你源仓 `docs/` 怎么写才合规。
+- [接入聚合站点](contributor-guide/onboarding.md)：告诉你如何把源仓登记进根仓。
+- [自动联动](contributor-guide/automation.md)：告诉你如何把源仓变更自动推到根仓共享 PR。
+- [移除流程](contributor-guide/offboarding.md)：告诉你如何停联动或完整下线。
+- [CLI 命令](contributor-guide/cli.md)：告诉你不同场景下该执行哪些命令。
+- [CLI 分发与发布](contributor-guide/distribution.md)：告诉你如何把 CLI 交给外部源仓使用。
+- [发布前外部配置](contributor-guide/publish-setup.md)：告诉你 GitHub、TestPyPI、PyPI 的首次配置怎么做。
+- [CLI 发布手册](contributor-guide/release.md)：告诉你真正发版时的执行步骤。

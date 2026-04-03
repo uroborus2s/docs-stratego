@@ -25,8 +25,10 @@
 - 变更：已修复 `CR-001` 根仓实现中的事件名、凭证与脚本解析问题，根仓侧自动同步能力已具备
 - 变更：已按 CLI-first 收敛项目入口，删除旧 Python 包装脚本，并把 workflow、启动脚本和公开文档统一切到 `docs-stratego` CLI
 - 变更：已将源码从 `src/docs_stratego/` 平铺迁移到 `src/`，取消额外包层，打包入口改为顶层模块
+- 变更：已补齐“本地开发与预览”“发布前外部配置”和 GitHub Actions 工作流报告，用户指南阅读路径已重新按任务和角色收口
+- 变更：`docs-stratego dev` 已支持 `source_mode=local` 的 watch 模式，可在本地源文档变更后自动重新执行 `sync -> build`
 - 缺陷：已修复用户指南旧文件名残留导致的 `configuration.md -> usage.md` 文档编译告警
-- 验证：已完成 CLI-first 重构后的本地回归，`36` 个单元测试通过；真实 GitHub 端到端演练仍待执行
+- 验证：已完成当前 CLI-first + watch 模式本地回归，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `40` 个测试通过，`docs-stratego build` 与 `mkdocs build` 通过；真实 GitHub 端到端演练仍待执行
 
 ## 最新集成
 
@@ -69,6 +71,9 @@
 - GitHub Actions 已收口为 GitHub App 唯一正式私有源仓读取方案，并已升级为 `actions/create-github-app-token@v3`
 - `docs/02-user-guide/installation.md` 已成为唯一部署事实源；原 `cloud-server-cicd-playbook.md` 已删除，README 与运维文档入口已同步切换
 - `docs/02-user-guide/` 已补齐本地 `local/remote` 两种构建入口、`docs-stratego dev --build-only` 用法，以及“子仓文档变更后如何重新触发根仓发布”的说明
+- `docs/02-user-guide/local-development.md` 已明确 `docs-stratego dev` 在 `source_mode=local` 下支持 watch 自动重建，在 `source_mode=remote` 下仍需手工重跑
+- `docs/02-user-guide/contributor-guide/publish-setup.md` 已补齐 GitHub 环境、TestPyPI、PyPI Trusted Publisher 的首次配置步骤和示意截图
+- `docs/04-project-development/08-operations-maintenance/github-actions-workflow-report.md` 已记录 4 个 GitHub Actions workflow 的触发条件、凭证依赖、产物流转和风险边界
 - GitHub Actions 现显式将 MkDocs 制品输出到 `$GITHUB_WORKSPACE/site`，避免 `.generated/site` 与 deploy 打包路径不一致导致的空制品问题
 - 站点静态资源现新增 `access-control.js` 与同源桥接页 `assets/auth/popup-complete.html`：公开与私有页面共用同一套导航且不额外显示锁定标记，匿名用户点击私有页面时同步拉起独立登录小窗；登录成功后由桥接页通过 `postMessage` 通知主页面并自动关闭小窗，关闭小窗则继续浏览公开文档
 - 主页面现在会在重新获得焦点或接收到新的页面点击时主动关闭仍未完成的登录小窗，避免小窗仅退到后台

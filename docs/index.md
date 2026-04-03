@@ -25,6 +25,9 @@ mkdocs:
         - title: 阅读者指南
           path: 02-user-guide/reader-guide.md
           access: public
+        - title: 本地开发与预览
+          path: 02-user-guide/local-development.md
+          access: public
         - title: 维护者指南
           path: 02-user-guide/operator-guide.md
           access: public
@@ -53,6 +56,9 @@ mkdocs:
               access: public
             - title: CLI 分发与发布
               path: 02-user-guide/contributor-guide/distribution.md
+              access: public
+            - title: 发布前外部配置
+              path: 02-user-guide/contributor-guide/publish-setup.md
               access: public
             - title: CLI 发布手册
               path: 02-user-guide/contributor-guide/release.md
@@ -216,6 +222,9 @@ mkdocs:
               access: private
             - title: 运维手册
               path: 04-project-development/08-operations-maintenance/operations-runbook.md
+              access: private
+            - title: GitHub Actions 工作流报告
+              path: 04-project-development/08-operations-maintenance/github-actions-workflow-report.md
               access: private
             - title: 服务器部署 SOP
               path: 04-project-development/08-operations-maintenance/server-deployment-sop.md

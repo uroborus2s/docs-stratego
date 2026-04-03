@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Actions manual publish mock screenshot</title>
+  <desc id="desc">Illustrative screenshot showing the Publish CLI workflow and the Run workflow panel.</desc>
+  <rect width="1200" height="760" fill="#f6f8fa"/>
+  <rect x="24" y="24" width="1152" height="72" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="54" y="68" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#24292f">Actions / Publish CLI</text>
+
+  <rect x="24" y="116" width="730" height="620" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="54" y="164" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#24292f">Workflow graph</text>
+  <rect x="72" y="212" width="170" height="82" rx="12" fill="#ddf4ff" stroke="#0969da"/>
+  <text x="122" y="260" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0969da">build</text>
+  <rect x="292" y="212" width="170" height="82" rx="12" fill="#dafbe1" stroke="#1a7f37"/>
+  <text x="314" y="260" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1a7f37">publish-testpypi</text>
+  <rect x="512" y="212" width="170" height="82" rx="12" fill="#fff8c5" stroke="#bf8700"/>
+  <text x="526" y="260" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#9a6700">smoke-test</text>
+  <rect x="292" y="364" width="170" height="82" rx="12" fill="#ffd8d3" stroke="#cf222e"/>
+  <text x="330" y="412" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#cf222e">publish-pypi</text>
+  <path d="M242 252 H292" stroke="#8c959f" stroke-width="4"/>
+  <path d="M462 252 H512" stroke="#8c959f" stroke-width="4"/>
+  <path d="M597 294 V364 H462" stroke="#8c959f" stroke-width="4" fill="none"/>
+
+  <rect x="790" y="116" width="386" height="620" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="822" y="164" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#24292f">Run workflow</text>
+
+  <text x="822" y="234" font-family="Arial, sans-serif" font-size="18" fill="#24292f">Branch</text>
+  <rect x="822" y="248" width="320" height="52" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="850" y="281" font-family="Arial, sans-serif" font-size="20" fill="#24292f">main</text>
+
+  <text x="822" y="360" font-family="Arial, sans-serif" font-size="18" fill="#24292f">publish_target</text>
+  <rect x="822" y="374" width="320" height="52" rx="10" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="850" y="407" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#9a6700">testpypi</text>
+  <text x="822" y="448" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Use testpypi first for dry run.</text>
+  <text x="822" y="480" font-family="Arial, sans-serif" font-size="18" fill="#57606a">Use both only when you intentionally want prod publish.</text>
+
+  <rect x="822" y="548" width="180" height="46" rx="10" fill="#1f883d"/>
+  <text x="868" y="578" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Run workflow</text>
+</svg>
