@@ -32,6 +32,7 @@
 
 - [ ] 已完成代码、文档和测试同步
 - [ ] `uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers tests.test_source_admin tests.test_cli` 通过
+- [ ] `uv run docs-stratego dev --help` 通过
 - [ ] `uv run docs-stratego build --project-root . --output-dir .generated --source-mode local` 通过
 - [ ] `uv run mkdocs build -f .generated/mkdocs.generated.yml -d /tmp/docs-stratego-site-check` 通过
 - [ ] `pyproject.toml` 中的版本号准备好更新
@@ -44,14 +45,14 @@
 
 ```toml
 [project]
-version = "0.1.0"
+version = "0.1.1"
 ```
 
 建议规则：
 
-- 修 Bug：升补丁号，例如 `0.1.0 -> 0.1.1`
-- 新增兼容能力：升次版本，例如 `0.1.0 -> 0.2.0`
-- 不兼容改动：升主版本，例如 `0.1.0 -> 1.0.0`
+- 修 Bug：升补丁号，例如 `0.1.1 -> 0.1.2`
+- 新增兼容能力：升次版本，例如 `0.1.1 -> 0.2.0`
+- 不兼容改动：升主版本，例如 `0.1.1 -> 1.0.0`
 
 ## 5. 本地发版前验证
 
@@ -67,6 +68,7 @@ uv build --no-sources
 
 ```bash
 uv run docs-stratego --help
+uv run docs-stratego dev --help
 uv run docs-stratego source validate --help
 ```
 

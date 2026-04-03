@@ -62,3 +62,4 @@
 - 本地回归已更新到 CLI-first 结构，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `34` 个测试通过
 - 将源码目录从 `src/docs_stratego/` 迁移到 `src/` 根下，更新 `pyproject.toml` 为 `py-modules` 打包方式，并同步修正所有导入路径、测试和文档引用
 - 删除 `start.sh`，新增 `docs-stratego dev` 作为本地开发网站的统一入口，支持 `--source-mode`、`--build-only`、`--host`、`--port`
+- 补齐 `Contributor Guide` 对 `docs-stratego dev` 的正式命令说明，并将本地回归状态同步更新为 `36` 个测试通过

@@ -26,7 +26,7 @@
 - 变更：已按 CLI-first 收敛项目入口，删除旧 Python 包装脚本，并把 workflow、启动脚本和公开文档统一切到 `docs-stratego` CLI
 - 变更：已将源码从 `src/docs_stratego/` 平铺迁移到 `src/`，取消额外包层，打包入口改为顶层模块
 - 缺陷：已修复用户指南旧文件名残留导致的 `configuration.md -> usage.md` 文档编译告警
-- 验证：已完成 CLI-first 重构后的本地回归，`34` 个单元测试通过；真实 GitHub 端到端演练仍待执行
+- 验证：已完成 CLI-first 重构后的本地回归，`36` 个单元测试通过；真实 GitHub 端到端演练仍待执行
 
 ## 最新集成
 
@@ -40,7 +40,7 @@
 - 当前 `docs/index.md` 已按 `docs_profile` 刷新根导航，各级目录 `index.md` 已刷新为正文概览页
 - 当前未单独启用 `03-developer-guide`；稳定对外扩展能力仍由用户指南与内部设计文档承载
 - 当前构建链路为 `docs-stratego sync` -> `docs-stratego build` -> `mkdocs build`
-- 仓库已新增正式 CLI 入口 `uv run docs-stratego`，公开暴露 `source validate/add/remove/scaffold-notify/sync-pointers` 与 `sync/build`
+- 仓库已新增正式 CLI 入口 `uv run docs-stratego`，公开暴露 `dev`、`source validate/add/remove/scaffold-notify/sync-pointers` 与 `sync/build`
 - 当前源码平铺位于 `src/cli.py`、`src/site_builder.py`、`src/source_admin.py`、`src/source_config.py`、`src/source_pointer_sync.py`、`src/source_sync.py`、`src/models.py`
 - 已新增 `.generated/authz/permissions.json` 与 `.generated/nginx/private_locations.conf`
 - 认证部署栈为宿主机 Nginx + Docker 内 Casdoor/oauth2-proxy + 现有 Redis

@@ -50,6 +50,7 @@
 
 本次接入相关的正式命令已经收口到 `docs-stratego` CLI：
 
+- `uv run docs-stratego dev`
 - `uvx --from 'docs-stratego==<version>' docs-stratego source validate`
 - `uv run docs-stratego source add`
 - `uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify`

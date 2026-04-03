@@ -1,6 +1,6 @@
 # CLI 命令
 
-本页收口所有“接入、校验、联动、移除、共享 PR 同步、构建”相关命令。
+本页收口所有“本地开发预览、接入、校验、联动、移除、共享 PR 同步、构建”相关命令。
 
 ## 1. 先区分两种运行模式
 
@@ -139,6 +139,25 @@ uv run docs-stratego source sync-pointers \
 - `--title`：共享 PR 标题，默认 `chore: sync source repository pointers`
 - `--config`：源仓配置文件，默认 `config/source-repos.json`
 
+### 3.4 本地快速预览开发站点
+
+```bash
+uv run docs-stratego dev --project-root /path/to/docs-stratego
+```
+
+用途：
+
+- 顺序执行 `sync -> build -> mkdocs serve`
+- 默认使用 `source_mode=local`，直接读取维护机本地工作副本
+- 适合根仓维护者本地调试和预览，不作为外部源仓默认入口
+
+常用参数：
+
+- `--source-mode remote`：用远程仓输入做接近生产的预演
+- `--build-only`：只做 `mkdocs build`，不启动预览服务
+- `--host` / `--port`：调整本地监听地址
+- `--site-dir`：调整 `mkdocs build` 的输出目录
+
 ## 4. 构建链路命令
 
 ### 4.1 同步源仓
@@ -153,7 +172,7 @@ uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode re
 uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
 ```
 
-这两条命令就是当前仓库和 CI 的正式入口，不再保留独立 Python 包装脚本。
+`dev` 负责本地开发预览；`sync` 和 `build` 仍是当前仓库和 CI 的正式分步入口，不再保留独立 Python 包装脚本。
 
 ## 5. 推荐使用顺序
 
