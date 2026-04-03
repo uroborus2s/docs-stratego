@@ -8,7 +8,7 @@
 | REQ-006 | `backend-design.md` | `deploy/docker-compose.yml` | `deployment-guide.md` |
 | REQ-009 | `02-user-guide/contributor-guide/automation.md` | `.github/workflows/sync-source-pointers.yml` | `usage.md` |
 | REQ-010 | `technical-selection.md` | `.github/workflows/sync-source-pointers.yml` | `admin-guide.md` |
-| REQ-011 | `backend-design.md` | `scripts/sync_source_pointers.py` | `admin-guide.md` |
+| REQ-011 | `backend-design.md` | `source_pointer_sync.py`, `cli.py` | `admin-guide.md` |
 | REQ-012 | `test-plan.md` | `.github/workflows/validate-source-pointer-pr.yml` | `usage.md` |
 | REQ-013 | `02-user-guide/contributor-guide/automation.md` | `usage.md`, `admin-guide.md`, `configuration.md` | `configuration.md` |
 | REQ-014 | `usage.md`, `02-user-guide/contributor-guide/index.md` | `docs/index.md` | `02-user-guide/index.md` |

@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/04-project-development/08-operations-maintenance/core-maintainer-guide.md

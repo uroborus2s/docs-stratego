@@ -1,1 +1,0 @@
-/Users/uroborus/AiProject/docs-stratego/docs/04-project-development/index.md

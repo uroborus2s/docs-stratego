@@ -3,7 +3,7 @@
 - 当前画像：自定义技术画像
 - 预设：custom
 - 技术栈：MkDocs Material + Python/uv + git submodule + sparse-checkout + Casdoor + oauth2-proxy + Nginx + Gemini CLI/Codex
-- 最近更新时间：2026-03-27
+- 最近更新时间：2026-04-03
 
 ## 项目范围
 
@@ -13,10 +13,13 @@
 
 ## 必装/必选模块
 
-- `src/docs_stratego/source_sync.py`
-- `src/docs_stratego/site_builder.py`
-- `src/docs_stratego/source_admin.py`
-- `src/docs_stratego/cli.py`
+- `src/source_sync.py`
+- `src/source_config.py`
+- `src/site_builder.py`
+- `src/source_admin.py`
+- `src/source_pointer_sync.py`
+- `src/models.py`
+- `src/cli.py`
 - `deploy/docker-compose.yml`
 
 ## 关键工程规则
@@ -38,6 +41,7 @@
 ## 推荐初始化动作
 
 - 先执行 `uv sync`
+- 再执行 `uv run docs-stratego sync --project-root .`
 - 再执行 `uv run docs-stratego build --project-root . --output-dir .generated`
 
 ## 参考资料

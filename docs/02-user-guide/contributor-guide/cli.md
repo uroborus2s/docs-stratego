@@ -1,6 +1,6 @@
 # CLI 命令
 
-本页收口所有“接入、校验、联动、移除”相关命令。
+本页收口所有“接入、校验、联动、移除、共享 PR 同步、构建”相关命令。
 
 ## 1. 先区分两种运行模式
 
@@ -120,6 +120,25 @@ uv run docs-stratego source remove \
 - 必须显式带 `--yes`
 - `docs-stratego` 自身不会被允许移除
 
+### 3.3 手动同步共享 bot PR
+
+```bash
+uv run docs-stratego source sync-pointers \
+  --project-root /path/to/docs-stratego
+```
+
+用途：
+
+- 拉取 remote 模式下的全部源仓指针
+- 收敛 `sources/*` gitlink 变化
+- 复用或更新共享 bot PR
+
+常用参数：
+
+- `--branch`：共享 bot 分支，默认 `bot/sync-source-pointers`
+- `--title`：共享 PR 标题，默认 `chore: sync source repository pointers`
+- `--config`：源仓配置文件，默认 `config/source-repos.json`
+
 ## 4. 构建链路命令
 
 ### 4.1 同步源仓
@@ -134,7 +153,7 @@ uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode re
 uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
 ```
 
-这两条命令是对现有同步和构建脚本的正式 CLI 封装。CI 仍可继续使用脚本包装层，但面向接入方的推荐入口已经切到 `docs-stratego`。
+这两条命令就是当前仓库和 CI 的正式入口，不再保留独立 Python 包装脚本。
 
 ## 5. 推荐使用顺序
 
@@ -152,6 +171,12 @@ uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode r
 2. `source remove --yes`
 3. `sync`
 4. `build`
+
+### 共享 bot PR 补跑
+
+1. `source sync-pointers`
+2. 等待共享 PR 更新
+3. 通过 `sync` / `build` 或对应 CI 校验结果确认可合并
 
 ## 6. 版本建议
 

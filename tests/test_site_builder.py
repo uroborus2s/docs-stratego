@@ -15,7 +15,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 def load_module():
-    return importlib.import_module("docs_stratego.site_builder")
+    return importlib.import_module("site_builder")
 
 
 class SiteBuilderTests(unittest.TestCase):

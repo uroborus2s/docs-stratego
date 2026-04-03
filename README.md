@@ -13,14 +13,10 @@
 
 - `docs/`
   本仓自己的标准化文档源，同时也是外部源仓的写法示例
-- `src/docs_stratego/`
-  稀疏同步、元数据解析、站点构建和权限清单生成逻辑
-- `scripts/sync_sources.py`
-  更新 submodule 并只展开源仓 `docs/`
-- `scripts/build_site.py`
-  生成 `.generated/site_docs/`、`permissions.json`、Nginx 私有规则和 MkDocs 配置
+- `src/`
+  CLI、稀疏同步、元数据解析、站点构建和权限清单生成逻辑
 - `scripts/deploy_remote.sh`
-  面向完整仓库工作区的全量重建与应急部署入口；标准生产服务器不依赖它做日常发布
+  面向完整仓库工作区的全量重建与应急部署入口；日常同步与构建统一走 `docs-stratego` CLI，标准生产服务器不依赖它做日常发布
 - `deploy/`
   Casdoor、oauth2-proxy 与宿主机 Nginx 配置模板
 
@@ -45,7 +41,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ./start.sh --source-mode remote
 ```
 
-`start.sh` 内部统一使用 `uv sync`、`uv run python` 和 `uv run mkdocs`，不再直接调用 `.venv/bin/...`。
+`start.sh` 内部统一使用 `uv sync`、`uv run docs-stratego` 和 `uv run mkdocs`，不再直接调用 `.venv/bin/...`。
 
 如果虚拟环境或缓存异常，需要删除 `.venv` 并用 `uv` 重新初始化：
 
@@ -69,7 +65,7 @@ uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 - `remote`
   远程构建先初始化 submodule，再在子仓内显式 `fetch + checkout` 目标分支，并只保留顶层 `docs/`
 
-因此本地预览和 GitHub Actions 会走同一套同步逻辑，只是 source mode 不同；`start.sh` 也会在构建前先执行 `scripts/sync_sources.py`。
+因此本地预览和 GitHub Actions 会走同一套同步逻辑，只是 source mode 不同；`start.sh` 也会在构建前先执行 `docs-stratego sync` 和 `docs-stratego build`。
 
 ## 文档标准
 

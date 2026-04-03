@@ -7,7 +7,7 @@ name = "docs-stratego"
 version = "0.1.0"
 description = "Central documentation hub for multi-repo software projects"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
   "mkdocs>=1.6,<2.0",
   "mkdocs-material>=9.6,<10.0",
@@ -19,7 +19,7 @@ Repository = "https://github.com/uroborus2s/docs-stratego"
 Documentation = "https://github.com/uroborus2s/docs-stratego/tree/main/docs"
 
 [project.scripts]
-docs-stratego = "docs_stratego.cli:main"
+docs-stratego = "cli:main"
 
 [tool.ruff]
 line-length = 100
@@ -41,6 +41,12 @@ explicit = true
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
+py-modules = [
+  "cli",
+  "models",
+  "site_builder",
+  "source_admin",
+  "source_config",
+  "source_pointer_sync",
+  "source_sync",
+]

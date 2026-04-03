@@ -29,11 +29,11 @@
 
 当前实现由以下模块消费公开标准：
 
-- `src/docs_stratego/site_builder.py`
+- `src/site_builder.py`
   - 解析根 `docs/index.md`
   - 校验 `mkdocs.nav`、页面权限和契约文件
   - 生成导航、权限清单和契约渲染页
-- `src/docs_stratego/source_admin.py`
+- `src/source_admin.py`
   - 提供 `source validate` 命令
   - 复用与构建器一致的解析规则校验源仓
 

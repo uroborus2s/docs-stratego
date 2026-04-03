@@ -1,1 +1,0 @@
-/Users/uroborus/NodeProject/wps/obsync-root/docs/03-developer-guide/function-api/index.md

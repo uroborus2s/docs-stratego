@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/03-developer-guide/04-development/04-core-capabilities.md

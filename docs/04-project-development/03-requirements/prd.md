@@ -25,7 +25,7 @@
 | REQ-009 | 已接入子仓在目标分支发生 `docs/**` 变更后，必须能够自动通知根仓发起子仓指针同步。 | 子仓存在独立通知 workflow；`docs/**` push 成功后，根仓收到 `repository_dispatch: source-pointer-sync-requested`。 |
 | REQ-010 | 根仓必须将“同步子仓指针”和“正式发布站点”拆分为独立工作流。 | 子仓通知只触发同步和共享 bot PR，不直接触发 `Deploy Docs` 发布。 |
 | REQ-011 | 根仓必须把所有已落后子仓指针汇总到同一个共享 bot PR。 | 同步任务检测到多个 `sources/*` gitlink 变化时，统一更新 `bot/sync-source-pointers` 并复用一个未合并 PR。 |
-| REQ-012 | 共享 bot PR 在合并前必须经过自动校验和人工审核。 | PR 检查至少包含单元测试、`sync_sources.py --source-mode remote`、`build_site.py` 和 `mkdocs build`；合并动作由维护者手动执行。 |
+| REQ-012 | 共享 bot PR 在合并前必须经过自动校验和人工审核。 | PR 检查至少包含单元测试、`docs-stratego sync --source-mode remote`、`docs-stratego build` 和 `mkdocs build`；合并动作由维护者手动执行。 |
 | REQ-013 | 接入新子仓时，文档必须明确要求子仓新增自动通知文件和必要凭证。 | 使用指南、管理员指南和配置说明明确列出子仓至少新增 `.github/workflows/notify-docs-stratego.yml`，并配置 dispatch 所需 Secret。 |
 | REQ-014 | `Contributor Guide` 必须成为接入方的公开事实源。 | 源文档标准、接入步骤、自动联动、移除流程和 CLI 命令都能在 `02-user-guide/` 内找到。 |
 | REQ-015 | 系统必须提供完整的源仓移除流程。 | 文档明确区分“暂停自动联动”和“完整移除”，并给出验证步骤。 |

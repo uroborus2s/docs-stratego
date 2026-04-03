@@ -71,4 +71,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.DOCS_STRATEGO_SYNC_PAT }}
         run: |
-          uv run python scripts/sync_source_pointers.py --config config/source-repos.json --project-root .
+          uv run docs-stratego source sync-pointers --config config/source-repos.json --project-root .

@@ -1,1 +1,0 @@
-/Users/uroborus/NodeProject/ride-loop/docs/04-project-development/02-discovery/brainstorm-record.md

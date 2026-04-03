@@ -1,1 +1,0 @@
-/Users/uroborus/AiProject/shanforge/docs/01-getting-started/quick-start.md

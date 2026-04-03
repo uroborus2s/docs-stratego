@@ -23,8 +23,9 @@
 - 变更：已批准 `CR-001`，将新增“子仓 `docs/**` 变更自动通知根仓共享 bot PR”的需求、任务与文档口径
 - 变更：已批准 `CR-002` / `CR-003`，将公开重构 `Contributor Guide`，并提供源仓接入/移除辅助 CLI
 - 变更：已修复 `CR-001` 根仓实现中的事件名、凭证与脚本解析问题，根仓侧自动同步能力已具备
+- 变更：已按 CLI-first 收敛项目入口，删除旧 Python 包装脚本，并把 workflow、启动脚本和公开文档统一切到 `docs-stratego` CLI
 - 缺陷：已修复用户指南旧文件名残留导致的 `configuration.md -> usage.md` 文档编译告警
-- 验证：已完成 `Sync Source Pointers` 相关本地回归，`23` 个单元测试通过；真实 GitHub 端到端演练仍待执行
+- 验证：已完成 CLI-first 重构后的本地回归，`34` 个单元测试通过；真实 GitHub 端到端演练仍待执行
 
 ## 最新集成
 
@@ -32,12 +33,13 @@
 - 当前接入公开事实源已迁移到 `docs/02-user-guide/contributor-guide/`，按“标准 -> 接入 -> 联动 -> 移除 -> CLI”组织
 - 公开接入指南已进一步收紧 CLI 边界：根仓内继续使用 `uv run docs-stratego`，外部源仓改为“已发布包 + `uvx/uv tool install`”口径，并新增 `CLI 分发与发布` 页面
 - 仓库已新增 `publish-cli.yml`：普通 `push` 不发包，只有 `cli-v*.*.*` tag 或手动演练才触发 `TestPyPI -> smoke test -> PyPI` 发布链路
+- `Contributor Guide` 已补齐 `CLI 发布手册` 页面，明确版本更新、tag 规则、发布步骤、失败处理和对外升级口径
 - 当前源文档标准已扩展为“Markdown 页面 + OpenAPI 契约 + MCP tools 快照”三类可声明内容；根 `docs/index.md` 的页面节点现在允许指向 `*.openapi.*` 与 `*.mcp-tools.*`
 - 页面权限当前只认根 `docs/index.md` 页面节点的 `access`；`external/`、`internal/` 只作为目录组织语义，不参与权限判断
 - 当前 `docs/index.md` 已按 `docs_profile` 刷新根导航，各级目录 `index.md` 已刷新为正文概览页
 - 当前未单独启用 `03-developer-guide`；稳定对外扩展能力仍由用户指南与内部设计文档承载
-- 当前构建链路为 `sync_sources.py` -> `build_site.py` -> `mkdocs build`
-- 仓库已新增正式 CLI 入口 `uv run docs-stratego`，公开暴露 `source validate/add/remove/scaffold-notify` 与 `sync/build`
+- 当前构建链路为 `docs-stratego sync` -> `docs-stratego build` -> `mkdocs build`
+- 仓库已新增正式 CLI 入口 `uv run docs-stratego`，公开暴露 `source validate/add/remove/scaffold-notify/sync-pointers` 与 `sync/build`
 - 已新增 `.generated/authz/permissions.json` 与 `.generated/nginx/private_locations.conf`
 - 认证部署栈为宿主机 Nginx + Docker 内 Casdoor/oauth2-proxy + 现有 Redis
 - MkDocs 已切换为单站点构建，并默认关闭匿名全文搜索
@@ -56,7 +58,7 @@
 - 当前源仓配置已升级为单文件双模式：同一 `config/source-repos.json` 同时声明 `modes.local` 与 `modes.remote`
 - 旧的平铺源仓配置兼容逻辑已删除；仓库定义如果缺少 `modes` 会直接报错，不再接受旧格式
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录；本地生产预演与 GitHub Actions 正式发布都使用 `source_mode=remote`
-- `start.sh`、`sync_sources.py`、`build_site.py`、`deploy_remote.sh` 与 GitHub Actions 已统一接入 `--source-mode`
+- `start.sh`、`deploy_remote.sh` 与 GitHub Actions 已统一接入 `docs-stratego` CLI 和 `--source-mode`
 - `ride-loop` 已作为新文档源接入，本地模式指向 `/Users/uroborus/NodeProject/ride-loop/docs`，远程模式指向 `https://github.com/uroborus2s/ride-loop.git@main`
 - `ride-loop` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 不再因 pathspec 缺失而失败
 - `shanforge` 已作为新文档源接入，本地模式指向 `/Users/uroborus/AiProject/shanforge/docs`，远程模式指向 `https://github.com/uroborus2s/shanforge.git@main`
@@ -82,9 +84,9 @@
 - 在部署环境中完成 Casdoor GitHub Provider 配置
 - 选择一个已接入子仓，在真实 GitHub 环境执行一次 `repository_dispatch -> Sync Source Pointers -> 共享 PR -> Squash and merge -> Deploy Docs` 演练
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们
-- `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
-- `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `sync_sources -> build_site -> mkdocs build`
+- `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
+- `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
 - 将 `ctrip_crawler` 当前本地工作副本里的 `docs/index.md` 导航补丁提交并推送到 `main`，再重新跑一次 `source_mode=remote` 构建与 CI
-- 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `sync_sources -> build_site -> mkdocs build`
+- 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
 - 若工作项进入收尾，确认根仓文档与 `.factory/memory/` 已同步更新
 - 在外部源仓接入 OpenAPI 或函数契约时，除更新目录说明页外，还要把契约文件本身显式加入根 `docs/index.md`，否则不会自动生成参考页

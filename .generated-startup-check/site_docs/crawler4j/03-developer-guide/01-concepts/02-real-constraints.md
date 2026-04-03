@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/03-developer-guide/01-concepts/02-real-constraints.md

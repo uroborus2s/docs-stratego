@@ -1,1 +1,0 @@
-/Users/uroborus/AiProject/shanforge/docs/04-project-development/01-governance/project-charter.md

@@ -15,7 +15,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 def load_module():
-    return importlib.import_module("docs_stratego.source_admin")
+    return importlib.import_module("source_admin")
 
 
 class SourceAdminTests(unittest.TestCase):

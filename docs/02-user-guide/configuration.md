@@ -185,7 +185,7 @@ Actions Secrets：
 | 运行场景 | 典型入口 | `source_mode` | 说明 |
 | --- | --- | --- | --- |
 | 本地开发 | `./start.sh` | `local` | 直接读取维护机本地工作副本，迭代最快 |
-| 本地生产预演 | `./start.sh --build-only --source-mode remote` 或手动 `build_site + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
+| 本地生产预演 | `./start.sh --build-only --source-mode remote` 或手动 `docs-stratego sync + docs-stratego build + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
 | 正式生产发布 | GitHub Actions `validate -> deploy` | `remote` | 强制从 GitHub 远程仓库重新拉取，验证真实发布输入 |
 
 ## 4. 维护机全量重建

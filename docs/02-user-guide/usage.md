@@ -23,6 +23,7 @@
 | 已接入源仓，想补齐自动同步 | [自动联动](contributor-guide/automation.md) | [CLI 命令](contributor-guide/cli.md) | [维护者指南](operator-guide.md) |
 | 想批量执行接入、校验或移除 | [CLI 命令](contributor-guide/cli.md) | [接入聚合站点](contributor-guide/onboarding.md) | [移除流程](contributor-guide/offboarding.md) |
 | 想让外部源仓直接可用 CLI | [CLI 分发与发布](contributor-guide/distribution.md) | [CLI 命令](contributor-guide/cli.md) | [管理员指南](admin-guide.md) |
+| 想把 CLI 正式发到包仓库 | [CLI 发布手册](contributor-guide/release.md) | [CLI 分发与发布](contributor-guide/distribution.md) | [管理员指南](admin-guide.md) |
 | 想下线一个源仓 | [移除流程](contributor-guide/offboarding.md) | [CLI 命令](contributor-guide/cli.md) | [管理员指南](admin-guide.md) |
 
 ## 2. 如果你只想快速完成接入
@@ -34,6 +35,7 @@
 3. [自动联动](contributor-guide/automation.md)
 4. [CLI 命令](contributor-guide/cli.md)
 5. [CLI 分发与发布](contributor-guide/distribution.md)
+6. [CLI 发布手册](contributor-guide/release.md)
 
 ## 3. 接入总览
 
@@ -52,6 +54,7 @@
 - `uv run docs-stratego source add`
 - `uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify`
 - `uv run docs-stratego source remove`
+- `uv run docs-stratego source sync-pointers`
 - `uv run docs-stratego sync`
 - `uv run docs-stratego build`
 
@@ -66,3 +69,4 @@
 - [移除流程](contributor-guide/offboarding.md)：暂停联动或完整下线的步骤。
 - [CLI 命令](contributor-guide/cli.md)：所有接入/移除相关命令。
 - [CLI 分发与发布](contributor-guide/distribution.md)：外部源仓如何安装、执行和升级 CLI。
+- [CLI 发布手册](contributor-guide/release.md)：维护者如何 bump 版本、打 tag、发布和验证。

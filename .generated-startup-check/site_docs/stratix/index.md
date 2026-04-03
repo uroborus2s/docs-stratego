@@ -1,1 +1,0 @@
-/Users/uroborus/NodeProject/wps/obsync-root/docs/index.md

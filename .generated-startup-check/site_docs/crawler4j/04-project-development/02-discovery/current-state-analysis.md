@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/04-project-development/02-discovery/current-state-analysis.md

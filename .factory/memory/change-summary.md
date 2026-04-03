@@ -56,3 +56,7 @@
 - 扩展单元测试与 CI，新增 CLI 和接入文档一致性校验
 - 收紧源仓侧 CLI 文案边界，避免把根仓内 `uv run docs-stratego` 误写成跨仓默认可用命令；补充 `CLI 分发与发布` 方案，覆盖 `uvx`、`uv tool install`、TestPyPI、Trusted Publishing 与正式索引发布路径
 - 新增 `publish-cli.yml` 发布工作流，并把发版策略收口为“普通 CI 不发布，只有 `cli-v*.*.*` tag 或手动触发才发布 CLI 包”
+- 新增 `CLI 发布手册` 页面，把“何时发版、如何 bump 版本、如何打 tag、如何做 TestPyPI/PyPI 发布和发布后验证”写成可直接执行的操作手册
+- 按 CLI-first 重构项目结构：抽出共享模型与配置层，新增 `source_pointer_sync.py`，删除旧 `scripts/build_site.py`、`scripts/sync_sources.py`、`scripts/sync_source_pointers.py`
+- 将 `start.sh`、`deploy_remote.sh`、GitHub Actions、README、Contributor Guide、安装与运维文档统一切到 `docs-stratego` CLI，并新增 `source sync-pointers` 正式入口
+- 本地回归已更新到 CLI-first 结构，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `34` 个测试通过

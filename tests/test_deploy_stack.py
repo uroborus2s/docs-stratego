@@ -77,14 +77,18 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn('DOCS_SOURCE_MODE="${DOCS_SOURCE_MODE:-remote}"', deploy_script_text)
         self.assertIn('--source-mode "$DOCS_SOURCE_MODE"', deploy_script_text)
         self.assertIn("systemctl reload nginx", deploy_script_text)
-        self.assertIn("scripts/sync_sources.py", start_script_text)
+        self.assertIn("uv run docs-stratego sync", start_script_text)
+        self.assertIn("uv run docs-stratego build", start_script_text)
         self.assertIn('SOURCE_MODE="${DOCS_SOURCE_MODE:-local}"', start_script_text)
         self.assertIn("--source-mode", start_script_text)
         self.assertNotIn("[[", start_script_text)
         self.assertNotIn("repository_dispatch", workflow_text)
-        self.assertIn('docs-stratego = "docs_stratego.cli:main"', pyproject_text)
+        self.assertIn('docs-stratego = "cli:main"', pyproject_text)
         self.assertIn('name = "testpypi"', pyproject_text)
         self.assertIn('publish-url = "https://test.pypi.org/legacy/"', pyproject_text)
+        self.assertFalse((PROJECT_ROOT / "scripts" / "sync_sources.py").exists())
+        self.assertFalse((PROJECT_ROOT / "scripts" / "build_site.py").exists())
+        self.assertFalse((PROJECT_ROOT / "scripts" / "sync_source_pointers.py").exists())
 
     def test_cli_publish_workflow_is_tag_gated_and_uses_trusted_publish(self) -> None:
         workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "publish-cli.yml").read_text(encoding="utf-8")
@@ -124,6 +128,9 @@ class DeployStackTests(unittest.TestCase):
         distribution_text = (
             PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "distribution.md"
         ).read_text(encoding="utf-8")
+        release_text = (
+            PROJECT_ROOT / "docs" / "02-user-guide" / "contributor-guide" / "release.md"
+        ).read_text(encoding="utf-8")
         admin_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "admin-guide.md").read_text(encoding="utf-8")
         config_text = (PROJECT_ROOT / "docs" / "02-user-guide" / "configuration.md").read_text(encoding="utf-8")
 
@@ -137,7 +144,7 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("github.head_ref == 'bot/sync-source-pointers'", validate_workflow_text)
         self.assertIn("tests.test_source_admin", validate_workflow_text)
         self.assertIn("tests.test_cli", validate_workflow_text)
-        self.assertIn("sync_sources.py --config config/source-repos.json --project-root . --source-mode remote", validate_workflow_text)
+        self.assertIn("docs-stratego sync --config config/source-repos.json --project-root . --source-mode remote", validate_workflow_text)
         self.assertIn("tests.test_sync_source_pointers", validate_workflow_text)
         self.assertIn("tests.test_source_admin", (PROJECT_ROOT / ".github" / "workflows" / "deploy-docs.yml").read_text(encoding="utf-8"))
         self.assertIn("tests.test_cli", (PROJECT_ROOT / ".github" / "workflows" / "deploy-docs.yml").read_text(encoding="utf-8"))
@@ -145,6 +152,7 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("自动联动", usage_text)
         self.assertIn("CLI 命令", usage_text)
         self.assertIn("CLI 分发与发布", usage_text)
+        self.assertIn("CLI 发布手册", usage_text)
         self.assertIn("接入知识地图", contributor_index_text)
         self.assertIn("唯一导航与权限事实源", contributor_standard_text)
         self.assertIn("uv run docs-stratego source add", contributor_cli_text)
@@ -155,6 +163,10 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("uv tool install", distribution_text)
         self.assertIn("cli-vX.Y.Z", distribution_text)
         self.assertIn("普通 `push` 不触发发布", distribution_text)
+        self.assertIn("git tag cli-v0.1.1", release_text)
+        self.assertIn("Publish CLI", release_text)
+        self.assertIn("PyPI 版本不可覆盖", release_text)
+        self.assertIn("source sync-pointers", admin_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", admin_text)
         self.assertIn("DOCS_STRATEGO_SYNC_PAT", admin_text)
         self.assertIn("DOCS_STRATEGO_DISPATCH_TOKEN", config_text)

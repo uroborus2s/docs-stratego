@@ -16,7 +16,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 def load_module():
-    return importlib.import_module("docs_stratego.cli")
+    return importlib.import_module("cli")
 
 
 class CliTests(unittest.TestCase):
@@ -54,6 +54,12 @@ class CliTests(unittest.TestCase):
     def test_source_remove_requires_yes_flag(self) -> None:
         with self.assertRaisesRegex(SystemExit, "2"):
             self.module.main(["source", "remove", "--name", "atlas"])
+
+    def test_source_sync_pointers_delegates_to_pointer_sync_module(self) -> None:
+        with mock.patch.object(self.module, "sync_source_pointers", return_value=["shanforge"]) as sync_pointers:
+            self.module.main(["source", "sync-pointers", "--project-root", "."])
+
+        sync_pointers.assert_called_once()
 
 
 if __name__ == "__main__":

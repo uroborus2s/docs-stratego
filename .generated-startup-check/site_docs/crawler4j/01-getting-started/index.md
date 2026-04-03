@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/01-getting-started/index.md

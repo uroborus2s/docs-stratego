@@ -82,8 +82,8 @@ if [ ! -d .venv ]; then
 fi
 
 uv sync
-uv run python scripts/sync_sources.py --config "$CONFIG_PATH" --project-root . --source-mode "$SOURCE_MODE"
-uv run python scripts/build_site.py --config "$CONFIG_PATH" --project-root . --output-dir "$OUTPUT_DIR" --source-mode "$SOURCE_MODE"
+uv run docs-stratego sync --config "$CONFIG_PATH" --project-root . --source-mode "$SOURCE_MODE"
+uv run docs-stratego build --config "$CONFIG_PATH" --project-root . --output-dir "$OUTPUT_DIR" --source-mode "$SOURCE_MODE"
 uv run mkdocs build -f "$PROJECT_ROOT/$OUTPUT_DIR/mkdocs.generated.yml" -d site
 
 if [ "$build_only" = true ]; then

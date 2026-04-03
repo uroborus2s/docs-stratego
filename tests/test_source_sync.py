@@ -15,7 +15,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 def load_module():
-    return importlib.import_module("docs_stratego.source_sync")
+    return importlib.import_module("source_sync")
 
 
 class SourceSyncTests(unittest.TestCase):

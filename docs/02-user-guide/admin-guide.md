@@ -37,7 +37,8 @@
    uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
    uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
    ```
-5. **发布变更**：合并 PR 后触发生产环境部署。
+5. **维护共享 bot PR**：如需手动补跑子仓指针同步，执行 `uv run docs-stratego source sync-pointers --project-root /path/to/docs-stratego`。
+6. **发布变更**：合并 PR 后触发生产环境部署。
 
 ---
 

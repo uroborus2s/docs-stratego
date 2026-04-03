@@ -47,8 +47,8 @@
 日常发布默认在 GitHub Runner 侧完成构建，再把运行时真正消费的制品上传到服务器：
 
 1. Runner 执行 `uv sync`
-2. Runner 执行 `uv run python scripts/sync_sources.py --source-mode remote`
-3. Runner 执行 `uv run python scripts/build_site.py --source-mode remote`
+2. Runner 执行 `uv run docs-stratego sync --source-mode remote`
+3. Runner 执行 `uv run docs-stratego build --source-mode remote`
 4. Runner 执行 `uv run mkdocs build`
 5. 上传 `site/` 到宿主机静态站点目录
 6. 安装 `private_locations.conf` 到 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
@@ -101,7 +101,7 @@ oauth2-proxy 使用 Redis 作为会话存储，要求：
 Workflow 只负责：
 
 - 监听 `main/master` push
-- 在 GitHub Runner 中完成依赖安装、单元测试、远程模式 `sync_sources`、`build_site` 和 `mkdocs build`
+- 在 GitHub Runner 中完成依赖安装、单元测试、远程模式 `docs-stratego sync`、`docs-stratego build` 和 `mkdocs build`
 - 当远程模式涉及其他私有 GitHub 仓库时，通过 GitHub App 安装令牌为 Git 提供跨仓读取凭证
 - 通过 SSH/rsync/scp 上传 `site/` 并安装 `private_locations.conf`
 - 将 `site/` 与 `private_locations.conf` 保留为 7 天 artifact，既作为 `validate -> deploy` 的作业交接包，也供排障下载
@@ -127,4 +127,4 @@ Workflow 只负责：
 | 域名与回调不一致 | 登录后回不来 | 严格绑定运维手工维护的 Nginx 域名与 `redirect_url` |
 | 制品上传不完整 | 页面或权限规则未更新 | 将 `site/`、`private_locations.conf` 作为发布包校验，并保留 7 天 artifact 便于排障 |
 | 运维安装的宿主机 Nginx 配置未引入 `/etc/nginx/snippets/docs-stratego/private_locations.conf` | 私有页面不受保护 | 首次上线和每次站点调整后都执行人工配置审查 |
-| GitHub Runner 无法读取其他私有源仓 | `sync_sources.py` 在 `git submodule update` 阶段失败 | 为 workflow 配置 GitHub App 读取凭证，并确认 App 已安装到全部私有源仓 |
+| GitHub Runner 无法读取其他私有源仓 | `docs-stratego sync` 在 `git submodule update` 阶段失败 | 为 workflow 配置 GitHub App 读取凭证，并确认 App 已安装到全部私有源仓 |

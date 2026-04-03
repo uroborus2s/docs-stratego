@@ -14,8 +14,8 @@ Runner 侧构建：
 
 ```bash
 uv sync
-uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode remote
-uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
+uv run docs-stratego sync --config config/source-repos.json --project-root . --source-mode remote
+uv run docs-stratego build --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
 uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ```
 

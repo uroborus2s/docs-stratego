@@ -2,6 +2,8 @@
 
 这页回答的是：怎样把 `docs-stratego` CLI 从“只在根仓本地可用”，演进成“外部源仓可以直接安装和执行”。
 
+如果你现在已经准备实际发版，请直接读 [CLI 发布手册](release.md)。
+
 ## 1. 当前边界
 
 当前仓库里的命令入口：
@@ -100,10 +102,10 @@ docs-stratego source validate --repo-path .
 
 建议把需要发版的变更收口为：
 
-- `src/docs_stratego/cli.py`
-- `src/docs_stratego/source_admin.py`
-- `src/docs_stratego/source_sync.py`
-- `src/docs_stratego/site_builder.py`
+- `src/cli.py`
+- `src/source_admin.py`
+- `src/source_sync.py`
+- `src/site_builder.py`
 - `pyproject.toml` 中影响包安装、版本和入口的部分
 - 外部源仓会直接感知到的命令、参数、模板或校验逻辑变化
 

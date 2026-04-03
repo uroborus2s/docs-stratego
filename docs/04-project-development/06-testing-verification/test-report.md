@@ -6,7 +6,7 @@
 - 站点构建器导航/权限/Nginx 规则生成
 - Docker/Nginx 认证部署骨架
 - `Sync Source Pointers` workflow 的事件名、并发策略、凭证接入和 CI 测试收口
-- `sync_source_pointers.py` 的 remote 配置解析、变更路径识别、共享 PR 提交流程
+- `source_pointer_sync.py` 的 remote 配置解析、变更路径识别、共享 PR 提交流程
 
 ## 本地回归结果
 

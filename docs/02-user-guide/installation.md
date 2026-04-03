@@ -5,7 +5,7 @@
 本文描述当前推荐的部署模型：
 
 1. GitHub Actions 在 Runner 中完成正式生产构建
-2. 服务器只承载运行时内容，不负责 `sync_sources.py`、`build_site.py` 或 `mkdocs build`
+2. 服务器只承载运行时内容，不负责 `docs-stratego sync`、`docs-stratego build` 或 `mkdocs build`
 3. 认证栈运行在 Docker Compose 中，组件为：
    - `postgres`
    - `casdoor`
@@ -477,8 +477,8 @@ cd <project-root>
 
 ```bash
 cd <project-root>
-uv run python scripts/sync_sources.py --config config/source-repos.json --project-root . --source-mode remote
-uv run python scripts/build_site.py --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
+uv run docs-stratego sync --config config/source-repos.json --project-root . --source-mode remote
+uv run docs-stratego build --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
 uv run mkdocs build -f .generated/mkdocs.generated.yml -d site
 ```
 

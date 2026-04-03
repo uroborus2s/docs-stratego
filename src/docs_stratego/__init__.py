@@ -1,1 +1,0 @@
-"""docs-stratego build helpers."""

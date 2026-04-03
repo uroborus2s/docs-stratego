@@ -2,8 +2,9 @@
 
 ## 日常操作
 
-- 重新同步源仓 `docs/`：`uv run python scripts/sync_sources.py --config config/source-repos.json`
-- 重新生成导航与权限清单：`uv run python scripts/build_site.py --config config/source-repos.json --output-dir .generated`
+- 重新同步源仓 `docs/`：`uv run docs-stratego sync --config config/source-repos.json --project-root .`
+- 重新生成导航与权限清单：`uv run docs-stratego build --config config/source-repos.json --project-root . --output-dir .generated`
+- 手动补跑共享 bot PR：`uv run docs-stratego source sync-pointers --config config/source-repos.json --project-root .`
 - 重建静态站点：`uv run mkdocs build -f .generated/mkdocs.generated.yml -d site`
 - 重启部署栈：`docker compose -f deploy/docker-compose.yml up -d`
 

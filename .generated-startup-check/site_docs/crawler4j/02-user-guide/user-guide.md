@@ -1,1 +1,0 @@
-/Users/uroborus/PythonProject/crawler4j/docs/02-user-guide/user-guide.md

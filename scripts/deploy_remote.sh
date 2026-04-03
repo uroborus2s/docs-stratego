@@ -20,8 +20,8 @@ if [[ "$SKIP_GIT_PULL" != "1" ]]; then
 fi
 
 uv sync
-uv run python scripts/sync_sources.py --config config/source-repos.json --project-root "$PROJECT_ROOT" --source-mode "$DOCS_SOURCE_MODE"
-uv run python scripts/build_site.py --config config/source-repos.json --project-root "$PROJECT_ROOT" --output-dir .generated --source-mode "$DOCS_SOURCE_MODE"
+uv run docs-stratego sync --config config/source-repos.json --project-root "$PROJECT_ROOT" --source-mode "$DOCS_SOURCE_MODE"
+uv run docs-stratego build --config config/source-repos.json --project-root "$PROJECT_ROOT" --output-dir .generated --source-mode "$DOCS_SOURCE_MODE"
 uv run mkdocs build -f "$PROJECT_ROOT/.generated/mkdocs.generated.yml" -d "$SITE_DIR"
 
 if [[ ! -f "$PROJECT_ROOT/deploy/casdoor/app.conf" ]]; then

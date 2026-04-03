@@ -1,1 +1,0 @@
-/Users/uroborus/AiProject/docs-stratego/docs/04-project-development/08-operations-maintenance/server-deployment-sop.md
