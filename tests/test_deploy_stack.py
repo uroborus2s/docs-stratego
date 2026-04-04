@@ -222,7 +222,7 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("cli-vX.Y.Z", distribution_text)
         self.assertIn("普通 `push` 不触发发布", distribution_text)
         self.assertIn("uv sync --extra site", release_text)
-        self.assertIn("git tag cli-v0.1.2", release_text)
+        self.assertIn("git tag cli-v0.1.3", release_text)
         self.assertIn("Publish CLI", release_text)
         self.assertIn("uv run docs-stratego dev --help", release_text)
         self.assertIn("PyPI 版本不可覆盖", release_text)

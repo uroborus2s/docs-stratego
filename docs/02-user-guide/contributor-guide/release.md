@@ -46,14 +46,14 @@
 
 ```toml
 [project]
-version = "0.1.2"
+version = "0.1.3"
 ```
 
 建议规则：
 
-- 修 Bug：升补丁号，例如 `0.1.2 -> 0.1.3`
-- 新增兼容能力：升次版本，例如 `0.1.2 -> 0.2.0`
-- 不兼容改动：升主版本，例如 `0.1.2 -> 1.0.0`
+- 修 Bug：升补丁号，例如 `0.1.3 -> 0.1.4`
+- 新增兼容能力：升次版本，例如 `0.1.3 -> 0.2.0`
+- 不兼容改动：升主版本，例如 `0.1.3 -> 1.0.0`
 
 ## 5. 本地发版前验证
 
@@ -87,15 +87,15 @@ uv run docs-stratego source validate --help
 版本更新并提交后，执行：
 
 ```bash
-git tag cli-v0.1.2
-git push origin cli-v0.1.2
+git tag cli-v0.1.3
+git push origin cli-v0.1.3
 ```
 
 这个 tag 必须和 `pyproject.toml` 的版本一致。  
 例如：
 
-- `version = "0.1.2"`
-- tag 必须是 `cli-v0.1.2`
+- `version = "0.1.3"`
+- tag 必须是 `cli-v0.1.3`
 
 workflow 会先校验这一点，不一致会直接失败。
 
@@ -141,21 +141,21 @@ workflow 会先校验这一点，不一致会直接失败。
 
 ```bash
 uvx --index testpypi=https://test.pypi.org/simple/ \
-  --from 'docs-stratego==0.1.2' \
+  --from 'docs-stratego==0.1.3' \
   docs-stratego --help
 ```
 
 如果你要验证带站点能力的已发布包：
 
 ```bash
-uvx --from 'docs-stratego[site]==0.1.2' docs-stratego dev --help
+uvx --from 'docs-stratego[site]==0.1.3' docs-stratego dev --help
 ```
 
 ### 8.2 正式 PyPI 验证
 
 ```bash
-uvx --from 'docs-stratego==0.1.2' docs-stratego --help
-uvx --from 'docs-stratego==0.1.2' docs-stratego source validate --help
+uvx --from 'docs-stratego==0.1.3' docs-stratego --help
+uvx --from 'docs-stratego==0.1.3' docs-stratego source validate --help
 ```
 
 ### 8.3 外部源仓验证
@@ -163,13 +163,13 @@ uvx --from 'docs-stratego==0.1.2' docs-stratego source validate --help
 任选一个接入仓，执行：
 
 ```bash
-uvx --from 'docs-stratego==0.1.2' docs-stratego source validate
+uvx --from 'docs-stratego==0.1.3' docs-stratego source validate
 ```
 
 如果要验证通知模板：
 
 ```bash
-uvx --from 'docs-stratego==0.1.2' docs-stratego source scaffold-notify --dry-run
+uvx --from 'docs-stratego==0.1.3' docs-stratego source scaffold-notify --dry-run
 ```
 
 ## 9. 失败处理
@@ -217,13 +217,13 @@ PyPI 版本不可覆盖，所以不要尝试“重传同版本”。
 ### 一次性执行
 
 ```bash
-uvx --from 'docs-stratego==0.1.2' docs-stratego source validate
+uvx --from 'docs-stratego==0.1.3' docs-stratego source validate
 ```
 
 ### 常驻安装
 
 ```bash
-uv tool install 'docs-stratego==0.1.2'
+uv tool install 'docs-stratego==0.1.3'
 docs-stratego source validate
 ```
 
