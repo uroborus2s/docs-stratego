@@ -28,6 +28,7 @@
 - 变更：已补齐“本地开发与预览”“发布前外部配置”和 GitHub Actions 工作流报告，用户指南阅读路径已重新按任务和角色收口
 - 变更：`docs-stratego dev` 已支持 `source_mode=local` 的 watch 模式，可在本地源文档变更后自动重新执行 `sync -> build`
 - 变更：已重构 `02-user-guide/` 的信息架构与高频操作页，补齐阅读者、本地开发、接入、联动、审核、安装等示意截图，并新增用户指南可读性评审
+- 变更：已将 `mkdocs` / `mkdocs-material` 从 CLI 核心依赖拆分为 `site` extra；根仓本地开发与站点构建 workflow 现显式使用 `uv sync --extra site`，外部源仓默认保持轻量安装
 - 缺陷：已修复用户指南旧文件名残留导致的 `configuration.md -> usage.md` 文档编译告警
 - 验证：已完成当前 CLI-first + watch 模式本地回归，`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `40` 个测试通过，`docs-stratego build` 与 `mkdocs build` 通过；真实 GitHub 端到端演练仍待执行
 
@@ -44,6 +45,7 @@
 - 当前未单独启用 `03-developer-guide`；稳定对外扩展能力仍由用户指南与内部设计文档承载
 - 当前构建链路为 `docs-stratego sync` -> `docs-stratego build` -> `mkdocs build`
 - 仓库已新增正式 CLI 入口 `uv run docs-stratego`，公开暴露 `dev`、`source validate/add/remove/scaffold-notify/sync-pointers` 与 `sync/build`
+- 根仓开发环境现推荐使用 `uv sync --extra site && uv run docs-stratego dev --project-root .`；外部源仓默认只安装轻量 CLI，只有需要站点预览能力时才使用 `docs-stratego[site]`
 - 当前源码平铺位于 `src/cli.py`、`src/site_builder.py`、`src/source_admin.py`、`src/source_config.py`、`src/source_pointer_sync.py`、`src/source_sync.py`、`src/models.py`
 - 已新增 `.generated/authz/permissions.json` 与 `.generated/nginx/private_locations.conf`
 - 认证部署栈为宿主机 Nginx + Docker 内 Casdoor/oauth2-proxy + 现有 Redis

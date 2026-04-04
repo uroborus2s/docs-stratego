@@ -18,7 +18,7 @@
 
 `docs-stratego` 有两种运行方式：
 
-- 在 `docs-stratego` 根仓内开发或 CI：使用 `uv run docs-stratego ...`
+- 在 `docs-stratego` 根仓内开发或 CI：先执行 `uv sync --extra site`，再使用 `uv run docs-stratego ...`
 - 在外部源仓直接调用：先发布为可安装包，再使用 `uvx` 或 `uv tool install`
 
 如果你是源仓接入方，不要把 `uv run docs-stratego ...` 理解成“任意仓库天然可用”的命令。

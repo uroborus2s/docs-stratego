@@ -26,6 +26,7 @@
 入口：
 
 ```bash
+uv sync --extra site
 uv run docs-stratego --help
 ```
 
@@ -52,15 +53,25 @@ docs-stratego --help
 说明：
 
 - `uv run docs-stratego ...` 只适合当前仓库已经把 `docs-stratego` 作为本地项目装进环境的场景。
+- 根仓本地开发如果要用 `dev` 或显式跑 `mkdocs build`，要先执行 `uv sync --extra site`。
 - 外部源仓若直接照抄 `uv run docs-stratego ...`，通常不会成立。
 - 如果你需要外部源仓直接使用 CLI，请先看 [CLI 分发与发布](distribution.md)。
 
+### 1.3 依赖边界
+
+- 默认轻量安装适合 `source validate`、`source scaffold-notify`、`source add/remove`、`sync`、`build`
+- `docs-stratego dev` 和显式 `mkdocs build` 需要 `site` extra
+- 根仓里用 `uv sync --extra site`
+- 已发布包如果确实要带站点能力，再用 `docs-stratego[site]`
+
 ## 2. 源仓侧命令
+
+本节示例默认你已经位于源仓目录。只有跨目录调用时，才需要额外补 `--repo-path`。
 
 ### 2.1 校验源仓文档结构
 
 ```bash
-uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo
+uvx --from 'docs-stratego==<version>' docs-stratego source validate
 ```
 
 用途：
@@ -73,7 +84,6 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path 
 
 ```bash
 uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
-  --repo-path /path/to/source-repo \
   --branch main
 ```
 
@@ -87,17 +97,17 @@ uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
 
 ```bash
 uvx --from 'docs-stratego==<version>' docs-stratego source scaffold-notify \
-  --repo-path /path/to/source-repo \
   --remove
 ```
 
 ## 3. 根仓侧命令
 
+本节示例默认你已经位于 `docs-stratego` 根仓目录。只有跨目录调用时，才需要额外补 `--project-root`。
+
 ### 3.1 接入一个新源仓
 
 ```bash
 uv run docs-stratego source add \
-  --project-root /path/to/docs-stratego \
   --name atlas \
   --title 星图 \
   --repo-url https://github.com/example/atlas \
@@ -117,7 +127,6 @@ uv run docs-stratego source add \
 
 ```bash
 uv run docs-stratego source remove \
-  --project-root /path/to/docs-stratego \
   --name atlas \
   --yes
 ```
@@ -136,7 +145,7 @@ uv run docs-stratego source remove \
 
 ```bash
 uv run docs-stratego source sync-pointers \
-  --project-root /path/to/docs-stratego
+  --project-root .
 ```
 
 用途：
@@ -154,7 +163,8 @@ uv run docs-stratego source sync-pointers \
 ### 3.4 本地快速预览开发站点
 
 ```bash
-uv run docs-stratego dev --project-root /path/to/docs-stratego
+uv sync --extra site
+uv run docs-stratego dev --project-root .
 ```
 
 用途：
@@ -181,13 +191,13 @@ uv run docs-stratego dev --project-root /path/to/docs-stratego
 ### 4.1 同步源仓
 
 ```bash
-uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
+uv run docs-stratego sync --project-root . --source-mode remote
 ```
 
 ### 4.2 生成构建输入
 
 ```bash
-uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
+uv run docs-stratego build --project-root . --source-mode remote
 ```
 
 `dev` 负责本地开发预览；`sync` 和 `build` 仍是当前仓库和 CI 的正式分步入口，不再保留独立 Python 包装脚本。
@@ -219,10 +229,11 @@ uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode r
 
 - 根仓 CI 和本地开发可以继续使用当前工作区里的 `uv run docs-stratego ...`
 - 外部源仓应当固定版本，不建议直接跑未锁定的 latest
+- 如果外部环境真的要使用 `dev` 或 `mkdocs build` 相关能力，请安装 `docs-stratego[site]`
 - 推荐样式：
 
 ```bash
-uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path .
+uvx --from 'docs-stratego==<version>' docs-stratego source validate
 ```
 
 如果你准备让外部源仓长期使用这个 CLI，请继续阅读 [CLI 分发与发布](distribution.md)。

@@ -9,9 +9,13 @@ description = "Central documentation hub for multi-repo software projects"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "mkdocs>=1.6,<2.0",
-  "mkdocs-material>=9.6,<10.0",
   "pyyaml>=6.0,<7.0"
+]
+
+[project.optional-dependencies]
+site = [
+  "mkdocs>=1.6,<2.0",
+  "mkdocs-material>=9.6,<10.0"
 ]
 
 [project.urls]

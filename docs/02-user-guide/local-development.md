@@ -8,7 +8,7 @@
 在根仓执行：
 
 ```bash
-uv sync
+uv sync --extra site
 uv run docs-stratego dev --project-root .
 ```
 
@@ -18,6 +18,12 @@ uv run docs-stratego dev --project-root .
 - 顺序执行 `sync -> build -> mkdocs serve`
 - 自动监听根仓 `docs/`、本地源仓 `docs/` 和 `config/source-repos.json`
 - 在 `http://127.0.0.1:8001/` 提供预览
+
+补充说明：
+
+- 根仓本地开发要先执行 `uv sync --extra site`
+- `site` extra 负责安装 `mkdocs` 和 `mkdocs-material`
+- 默认轻量安装主要给外部源仓执行 `source validate`、`source scaffold-notify` 这类命令
 
 ## 2. 你实际会看到什么
 

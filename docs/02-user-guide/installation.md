@@ -494,6 +494,7 @@ curl -I https://docs.example.com/docs-stratego/04-project-development/
 
 ```bash
 cd <project-root>
+uv sync --extra site
 uv run docs-stratego dev --project-root . --build-only --source-mode remote
 ```
 
@@ -501,6 +502,7 @@ uv run docs-stratego dev --project-root . --build-only --source-mode remote
 
 ```bash
 cd <project-root>
+uv sync --extra site
 uv run docs-stratego sync --config config/source-repos.json --project-root . --source-mode remote
 uv run docs-stratego build --config config/source-repos.json --project-root . --output-dir .generated --source-mode remote
 uv run mkdocs build -f .generated/mkdocs.generated.yml -d site

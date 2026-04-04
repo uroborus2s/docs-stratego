@@ -66,6 +66,7 @@ class CliTests(unittest.TestCase):
 
     def test_dev_command_local_mode_runs_watch_server(self) -> None:
         with (
+            mock.patch.object(self.module, "ensure_site_dependencies_installed"),
             mock.patch.object(self.module, "sync_sources") as sync_sources,
             mock.patch.object(self.module, "build_generated_inputs", return_value=Path("/tmp/mkdocs.generated.yml")) as build_inputs,
             mock.patch.object(self.module, "resolve_dev_watch_paths", return_value=[Path("/tmp/docs"), Path("/tmp/config.json")]) as resolve_watch_paths,
@@ -82,6 +83,7 @@ class CliTests(unittest.TestCase):
 
     def test_dev_command_remote_mode_runs_mkdocs_serve_without_watch(self) -> None:
         with (
+            mock.patch.object(self.module, "ensure_site_dependencies_installed"),
             mock.patch.object(self.module, "sync_sources") as sync_sources,
             mock.patch.object(self.module, "build_generated_inputs", return_value=Path("/tmp/mkdocs.generated.yml")) as build_inputs,
             mock.patch.object(self.module, "run_mkdocs_command") as run_mkdocs,
@@ -102,6 +104,7 @@ class CliTests(unittest.TestCase):
 
     def test_dev_command_build_only_runs_mkdocs_build(self) -> None:
         with (
+            mock.patch.object(self.module, "ensure_site_dependencies_installed"),
             mock.patch.object(self.module, "sync_sources"),
             mock.patch.object(self.module, "build_generated_inputs", return_value=Path("/tmp/mkdocs.generated.yml")),
             mock.patch.object(self.module, "run_mkdocs_command") as run_mkdocs,
@@ -111,6 +114,15 @@ class CliTests(unittest.TestCase):
         run_mkdocs.assert_called_once_with(
             ["build", "-f", "/tmp/mkdocs.generated.yml", "-d", str((Path(".").resolve() / "site-out").resolve())]
         )
+
+    def test_dev_command_fails_fast_without_site_extra(self) -> None:
+        with mock.patch.object(
+            self.module,
+            "ensure_site_dependencies_installed",
+            side_effect=SystemExit("The dev/build-only commands require the site extra."),
+        ):
+            with self.assertRaisesRegex(SystemExit, "site extra"):
+                self.module.main(["dev", "--project-root", "."])
 
     def test_resolve_dev_watch_paths_includes_local_docs_and_config(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

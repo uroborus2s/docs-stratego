@@ -58,7 +58,7 @@ flowchart TD
 
 | Job | 作用 | 关键步骤 |
 | --- | --- | --- |
-| `validate` | 在 Runner 上完成真实构建输入验证 | checkout、`uv sync --frozen`、单测、GitHub App 校验、`docs-stratego sync --source-mode remote`、`docs-stratego build --source-mode remote`、`mkdocs build`、上传 artifact |
+| `validate` | 在 Runner 上完成真实构建输入验证 | checkout、`uv sync --frozen --extra site`、单测、GitHub App 校验、`docs-stratego sync --source-mode remote`、`docs-stratego build --source-mode remote`、`mkdocs build`、上传 artifact |
 | `deploy` | 把构建产物发布到服务器 | 下载 artifact、打包 `site/`、通过 SSH 确保目录存在、通过 SCP 上传、解压站点、安装 `private_locations.conf`、可选 reload `nginx` |
 
 ### 4.4 凭证与依赖

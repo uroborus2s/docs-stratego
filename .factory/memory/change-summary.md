@@ -14,7 +14,7 @@
 - 将正式生产配置收口到当前可构建的源集合，并把不合规外部源仓保留在 pending 状态
 - 调整发布边界：宿主机 Nginx 站点配置改为运维手工渲染与安装，部署脚本不再自动覆盖主机配置文件
 - 将 Redis 接入方案改为复用现有业务网络，并让 `oauth2-proxy` 采用双网络连接模式
-- 新增生产可用的 GitHub Actions CI/CD：`validate` 先跑 `uv sync --frozen`、单元测试和 MkDocs 构建，`deploy` 再上传 `site/` 与 `private_locations.conf` 并按需 reload 宿主机 Nginx；`site/` 与 `private_locations.conf` 作为 artifact 保留 7 天
+- 新增生产可用的 GitHub Actions CI/CD：`validate` 先跑 `uv sync --frozen --extra site`、单元测试和 MkDocs 构建，`deploy` 再上传 `site/` 与 `private_locations.conf` 并按需 reload 宿主机 Nginx；`site/` 与 `private_locations.conf` 作为 artifact 保留 7 天
 - 删除 `deploy/nginx/` 与 `render_host_nginx_conf.sh`，将宿主机 Nginx 配置边界完全收口到安装文档和运维手工维护流程
 - 新增“云服务器部署与 CI/CD 实操”文档，细化双域名 DNS、Certbot、GitHub App、Casdoor 配置、Actions Secrets 与上线验证
 - 将源仓配置升级为单文件双模式结构：每个仓库同时声明 `modes.local` 与 `modes.remote`
@@ -68,3 +68,4 @@
 - 已完成 watch 模式回归验证：`tests.test_source_sync`、`tests.test_site_builder`、`tests.test_deploy_stack`、`tests.test_sync_source_pointers`、`tests.test_source_admin`、`tests.test_cli` 共 `40` 个测试通过，`docs-stratego build` 与 `mkdocs build` 通过
 - 重构 `02-user-guide/`：按任务和角色重组阅读入口，重写阅读者、本地开发、接入、联动、维护者、管理员等高频页面，并为关键操作页补充 SVG 示意截图
 - 新增 `docs/04-project-development/08-operations-maintenance/user-guide-readability-review.md`，从阅读者视角审查用户指南，当前结论为“未发现阻断性的知识盲点”
+- 拆分 CLI 发布依赖：`pyyaml` 保持核心依赖，`mkdocs` / `mkdocs-material` 迁移到 `site` extra；根仓本地开发与站点构建 workflow 改为显式执行 `uv sync --extra site`，外部源仓默认安装保持轻量

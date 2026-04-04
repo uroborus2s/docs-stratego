@@ -46,7 +46,7 @@
 
 日常发布默认在 GitHub Runner 侧完成构建，再把运行时真正消费的制品上传到服务器：
 
-1. Runner 执行 `uv sync`
+1. Runner 执行 `uv sync --extra site`
 2. Runner 执行 `uv run docs-stratego sync --source-mode remote`
 3. Runner 执行 `uv run docs-stratego build --source-mode remote`
 4. Runner 执行 `uv run mkdocs build`

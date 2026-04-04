@@ -23,7 +23,7 @@
 ## 快速开始
 
 ```bash
-uv sync
+uv sync --extra site
 uv run docs-stratego dev --project-root .
 ```
 
@@ -52,11 +52,13 @@ uv run docs-stratego dev --project-root . --build-only
 - 当前 `docs-stratego dev` 在 `source_mode=local` 下会自动监听根仓 `docs/`、本地源仓 `docs/` 和 `config/source-repos.json`
 - 当前 `source_mode=remote` 仍然是一次性预演；如果你改了远程输入配置后要重新确认，请重新运行 `docs-stratego dev --source-mode remote`
 
+根仓本地开发需要 `site` extra，因为 `dev` / `mkdocs build` 依赖 `mkdocs` 与 `mkdocs-material`；外部源仓侧的轻量命令默认不需要这组依赖。
+
 如果虚拟环境或缓存异常，直接删除 `.venv` 后重新执行：
 
 ```bash
 rm -rf .venv
-uv sync
+uv sync --extra site
 ```
 
 当前正式配置已经包含 6 个项目：

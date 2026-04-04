@@ -137,6 +137,6 @@ mkdocs:
 - [ ] 所有实际内容目录都有 `index.md`。
 - [ ] 契约文件不放在 `assets/` 下。
 - [ ] 私有页面只通过页面节点 `access: private` 声明。
-- [ ] 使用已发布 CLI 执行 `uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo` 能通过。
+- [ ] 在源仓目录执行 `uvx --from 'docs-stratego==<version>' docs-stratego source validate` 能通过。
 
 下一步请读 [接入聚合站点](onboarding.md)。

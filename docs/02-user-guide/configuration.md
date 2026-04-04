@@ -203,7 +203,7 @@ Actions Secrets：
 
 | 运行场景 | 典型入口 | `source_mode` | 说明 |
 | --- | --- | --- | --- |
-| 本地开发 | `uv run docs-stratego dev --project-root .` | `local` | 直接读取维护机本地工作副本，迭代最快 |
+| 本地开发 | `uv sync --extra site` 后执行 `uv run docs-stratego dev --project-root .` | `local` | 直接读取维护机本地工作副本，迭代最快 |
 | 本地生产预演 | `uv run docs-stratego dev --project-root . --build-only --source-mode remote` 或手动 `docs-stratego sync + docs-stratego build + mkdocs build` | `remote` | 用远程仓输入做一次接近正式发布的静态构建验证 |
 | 正式生产发布 | GitHub Actions `validate -> deploy` | `remote` | 强制从 GitHub 远程仓库重新拉取，验证真实发布输入 |
 
@@ -229,7 +229,8 @@ Actions Secrets：
 
 ### 本地开发
 
-- 可以直接运行 `uv run docs-stratego dev --project-root .`
+- 先执行 `uv sync --extra site`
+- 再运行 `uv run docs-stratego dev --project-root .`
 - 默认 `source_mode=local`
 - 如需模拟远程仓构建，可运行 `uv run docs-stratego dev --project-root . --source-mode remote`
 - 修改真实本地源文档后，会自动触发重建

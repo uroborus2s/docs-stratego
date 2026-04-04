@@ -9,7 +9,7 @@
   <circle cx="120" cy="67" r="7" fill="#22c55e"/>
   <text x="154" y="74" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#e2e8f0">Terminal</text>
   <g font-family="Courier New, monospace" font-size="22" fill="#d1fae5">
-    <text x="68" y="140">$ uv sync</text>
+    <text x="68" y="140">$ uv sync --extra site</text>
     <text x="68" y="188">$ uv run docs-stratego dev --project-root .</text>
   </g>
   <g font-family="Courier New, monospace" font-size="20" fill="#cbd5e1">

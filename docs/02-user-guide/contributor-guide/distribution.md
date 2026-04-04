@@ -28,7 +28,7 @@ uv run docs-stratego ...
 推荐用 `uvx`：
 
 ```bash
-uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path .
+uvx --from 'docs-stratego==<version>' docs-stratego source validate
 ```
 
 适合：
@@ -37,19 +37,33 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path 
 - 一次性生成通知 workflow
 - CI 中按版本拉起命令
 
+这条安装口径默认只覆盖轻量命令，不包含 `mkdocs` 站点预览依赖。
+
 ### 2.2 常驻安装
 
 推荐用 `uv tool install`：
 
 ```bash
 uv tool install 'docs-stratego==<version>'
-docs-stratego source validate --repo-path .
+docs-stratego source validate
 ```
 
 适合：
 
 - 某个团队长期维护多个接入仓
 - 需要把 CLI 固定到同一台机器或 Runner 上
+
+如果外部环境确实要运行 `docs-stratego dev` 或显式 `mkdocs build`，再使用带 extra 的安装方式：
+
+```bash
+uvx --from 'docs-stratego[site]==<version>' docs-stratego dev --help
+```
+
+或：
+
+```bash
+uv tool install 'docs-stratego[site]==<version>'
+```
 
 ## 3. 推荐发布路径
 
@@ -128,6 +142,7 @@ docs-stratego source validate --repo-path .
 发布前至少确认：
 
 - `pyproject.toml` 已包含稳定的 `name`、`version`、`project.scripts`
+- 核心依赖与 `site` extra 的边界清楚：默认包给外部源仓轻量命令，`site` extra 承载 `mkdocs` 预览能力
 - README 能作为包首页说明
 - 版本号采用明确的语义化版本
 - CLI 默认值里哪些是组织专用、哪些必须改为参数化，已经想清楚
@@ -200,9 +215,11 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --help
 对 `docs-stratego`，我建议采用下面的落地策略：
 
 1. 保留当前根仓内 `uv run docs-stratego ...` 作为开发入口
-2. 增加“已发布包”的外部源仓入口，统一文档写法为 `uvx --from 'docs-stratego==<version>' ...`
-3. 先打通 GitHub 环境、TestPyPI 和 PyPI Trusted Publisher
-4. 等 CLI 默认值、包元数据和版本治理稳定后，再决定是否发布到公开 PyPI
+2. 根仓本地开发统一先执行 `uv sync --extra site`
+3. 增加“已发布包”的外部源仓入口，统一文档写法为 `uvx --from 'docs-stratego==<version>' ...`
+4. 仅在外部环境需要站点能力时，额外使用 `docs-stratego[site]`
+5. 先打通 GitHub 环境、TestPyPI 和 PyPI Trusted Publisher
+6. 等 CLI 默认值、包元数据和版本治理稳定后，再决定是否发布到公开 PyPI
 
 当前推荐的 CI/CD 策略是：
 
@@ -215,13 +232,14 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --help
 ### 根仓内
 
 ```bash
+uv sync --extra site
 uv run docs-stratego source add ...
 ```
 
 ### 外部源仓
 
 ```bash
-uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path .
+uvx --from 'docs-stratego==<version>' docs-stratego source validate
 ```
 
 ## 8. 参考资料

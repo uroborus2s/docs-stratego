@@ -31,8 +31,10 @@
 在源仓本地执行：
 
 ```bash
-uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path /path/to/source-repo
+uvx --from 'docs-stratego==<version>' docs-stratego source validate
 ```
+
+如果你不是在源仓目录里执行，再补 `--repo-path /path/to/source-repo`。
 
 这一步会检查：
 
@@ -52,7 +54,6 @@ uvx --from 'docs-stratego==<version>' docs-stratego source validate --repo-path 
 
 ```bash
 uv run docs-stratego source add \
-  --project-root /path/to/docs-stratego \
   --name atlas \
   --title 星图 \
   --repo-url https://github.com/example/atlas \
@@ -60,6 +61,8 @@ uv run docs-stratego source add \
   --local-path ../atlas/docs \
   --branch main
 ```
+
+如果你不是在根仓目录里执行，再补 `--project-root /path/to/docs-stratego`。
 
 这一步至少会更新：
 
@@ -97,6 +100,7 @@ uv run docs-stratego source add ... --dry-run
 登记完成后，在根仓执行：
 
 ```bash
+uv sync --extra site
 uv run docs-stratego sync --project-root /path/to/docs-stratego --source-mode remote
 uv run docs-stratego build --project-root /path/to/docs-stratego --source-mode remote
 uv run mkdocs build -f /path/to/docs-stratego/.generated/mkdocs.generated.yml -d /path/to/docs-stratego/site

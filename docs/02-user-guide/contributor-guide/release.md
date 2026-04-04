@@ -60,7 +60,7 @@ version = "0.1.1"
 在根仓执行：
 
 ```bash
-uv sync
+uv sync --extra site
 uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers tests.test_source_admin tests.test_cli
 uv build --no-sources
 ```
@@ -145,6 +145,12 @@ uvx --index testpypi=https://test.pypi.org/simple/ \
   docs-stratego --help
 ```
 
+如果你要验证带站点能力的已发布包：
+
+```bash
+uvx --from 'docs-stratego[site]==0.1.1' docs-stratego dev --help
+```
+
 ### 8.2 正式 PyPI 验证
 
 ```bash
@@ -157,13 +163,13 @@ uvx --from 'docs-stratego==0.1.1' docs-stratego source validate --help
 任选一个接入仓，执行：
 
 ```bash
-uvx --from 'docs-stratego==0.1.1' docs-stratego source validate --repo-path .
+uvx --from 'docs-stratego==0.1.1' docs-stratego source validate
 ```
 
 如果要验证通知模板：
 
 ```bash
-uvx --from 'docs-stratego==0.1.1' docs-stratego source scaffold-notify --repo-path . --dry-run
+uvx --from 'docs-stratego==0.1.1' docs-stratego source scaffold-notify --dry-run
 ```
 
 ## 9. 失败处理
@@ -211,14 +217,14 @@ PyPI 版本不可覆盖，所以不要尝试“重传同版本”。
 ### 一次性执行
 
 ```bash
-uvx --from 'docs-stratego==0.1.1' docs-stratego source validate --repo-path .
+uvx --from 'docs-stratego==0.1.1' docs-stratego source validate
 ```
 
 ### 常驻安装
 
 ```bash
 uv tool install 'docs-stratego==0.1.1'
-docs-stratego source validate --repo-path .
+docs-stratego source validate
 ```
 
 ## 11. 最短发布路径

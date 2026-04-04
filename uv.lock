@@ -133,17 +133,22 @@ name = "docs-stratego"
 version = "0.1.1"
 source = { editable = "." }
 dependencies = [
+    { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+site = [
     { name = "mkdocs" },
     { name = "mkdocs-material" },
-    { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "mkdocs", specifier = ">=1.6,<2.0" },
-    { name = "mkdocs-material", specifier = ">=9.6,<10.0" },
+    { name = "mkdocs", marker = "extra == 'site'", specifier = ">=1.6,<2.0" },
+    { name = "mkdocs-material", marker = "extra == 'site'", specifier = ">=9.6,<10.0" },
     { name = "pyyaml", specifier = ">=6.0,<7.0" },
 ]
+provides-extras = ["site"]
 
 [package.metadata.requires-dev]
 dev = []

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
@@ -134,6 +135,21 @@ def run_mkdocs_command(args: list[str]) -> None:
     subprocess.run([sys.executable, "-m", "mkdocs", *args], check=True)
 
 
+def ensure_site_dependencies_installed() -> None:
+    missing: list[str] = []
+    if importlib.util.find_spec("mkdocs") is None:
+        missing.append("mkdocs")
+    if importlib.util.find_spec("material") is None:
+        missing.append("mkdocs-material")
+    if missing:
+        joined = ", ".join(missing)
+        raise SystemExit(
+            "The dev/build-only commands require the site extra "
+            f"({joined}). In the root repo run `uv sync --extra site`; "
+            "for an installed package use `docs-stratego[site]`."
+        )
+
+
 def rebuild_dev_inputs(
     project_root: Path,
     config_path: Path,
@@ -147,6 +163,7 @@ def rebuild_dev_inputs(
 
 
 def handle_dev(args: argparse.Namespace) -> None:
+    ensure_site_dependencies_installed()
     project_root = Path(args.project_root).resolve()
     config_path = resolve_config_path(project_root, args.config)
     sync_sources(config_path, project_root, source_mode=args.source_mode)

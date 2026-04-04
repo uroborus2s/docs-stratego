@@ -34,8 +34,8 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install dependencies
-        run: uv sync --frozen
+      - name: Install site build dependencies
+        run: uv sync --frozen --extra site
 
       - name: Run unit tests
         run: uv run python -m unittest tests.test_source_sync tests.test_site_builder tests.test_deploy_stack tests.test_sync_source_pointers tests.test_source_admin tests.test_cli

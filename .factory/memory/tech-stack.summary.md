@@ -40,7 +40,7 @@
 
 ## 推荐初始化动作
 
-- 先执行 `uv sync`
+- 先执行 `uv sync --extra site`
 - 再执行 `uv run docs-stratego sync --project-root .`
 - 再执行 `uv run docs-stratego build --project-root . --output-dir .generated`
 
