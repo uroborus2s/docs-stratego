@@ -107,7 +107,8 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn('environment:\n      name: testpypi', workflow_text)
         self.assertIn('environment:\n      name: pypi', workflow_text)
         self.assertIn('uvx --refresh', workflow_text)
-        self.assertIn('docs-stratego source validate --help', workflow_text)
+        self.assertIn('smoke_cli source validate --help', workflow_text)
+        self.assertIn('retry ${attempt}/10 after 15s', workflow_text)
 
     def test_source_pointer_sync_workflows_and_docs_are_consistent(self) -> None:
         sync_workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "sync-source-pointers.yml").read_text(
@@ -222,7 +223,7 @@ class DeployStackTests(unittest.TestCase):
         self.assertIn("cli-vX.Y.Z", distribution_text)
         self.assertIn("普通 `push` 不触发发布", distribution_text)
         self.assertIn("uv sync --extra site", release_text)
-        self.assertIn("git tag cli-v0.1.3", release_text)
+        self.assertIn("git tag cli-v0.1.4", release_text)
         self.assertIn("Publish CLI", release_text)
         self.assertIn("uv run docs-stratego dev --help", release_text)
         self.assertIn("PyPI 版本不可覆盖", release_text)
