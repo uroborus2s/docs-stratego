@@ -65,7 +65,7 @@
         "remote": {
           "source_type": "submodule_sparse",
           "git_url": "https://github.com/uroborus2s/crawler4j.git",
-          "branch": "feature/task-plugin-system",
+          "branch": "main",
           "submodule_path": "sources/crawler4j",
           "docs_path": "docs"
         }

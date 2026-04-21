@@ -92,7 +92,7 @@
 ## 下一步建议
 
 - 用真实外部仓库验证 `git submodule update --init` + 子仓内 `fetch + checkout` + `sparse-checkout` 只展开顶层 `docs/`
-- 当前本地模式构建已通过；远程模式仍被 `crawler4j` 远端分支中的未声明页面阻塞
+- 当前本地模式构建已通过；`crawler4j` 远端文档分支已切换为 `main`，但 `sources/crawler4j/docs/index.md` 仍存在 front matter YAML 语法错误，当前 `source validate` 会被该问题阻塞
 - 在部署环境中完成 Casdoor GitHub Provider 配置
 - 选择一个已接入子仓，在真实 GitHub 环境执行一次 `repository_dispatch -> Sync Source Pointers -> 共享 PR -> Squash and merge -> Deploy Docs` 演练
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们

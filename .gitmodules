@@ -1,7 +1,7 @@
 [submodule "sources/crawler4j"]
 	path = sources/crawler4j
 	url = https://github.com/uroborus2s/crawler4j.git
-	branch = feature/task-plugin-system
+	branch = main
 [submodule "sources/stratix"]
 	path = sources/stratix
 	url = https://github.com/uroborus2s/obsync-root.git
