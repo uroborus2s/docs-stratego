@@ -18,6 +18,24 @@
       }
     },
     {
+      "name": "sinan-captcha",
+      "title": "sinan-captcha",
+      "repo_url": "https://github.com/uroborus2s/sinan-captcha",
+      "modes": {
+        "local": {
+          "source_type": "local",
+          "local_path": "/Users/uroborus/AiProject/sinan-captcha/docs"
+        },
+        "remote": {
+          "source_type": "submodule_sparse",
+          "git_url": "https://github.com/uroborus2s/sinan-captcha.git",
+          "branch": "main",
+          "submodule_path": "sources/sinan-captcha",
+          "docs_path": "docs"
+        }
+      }
+    },
+    {
       "name": "shanforge",
       "title": "山海工枢",
       "repo_url": "https://github.com/uroborus2s/shanforge",

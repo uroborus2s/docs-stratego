@@ -26,7 +26,7 @@
 
 - `platform`：`/Users/uroborus/AiProject/docs-stratego/docs`
 - 外部源仓按 `config/source-repos.json` 声明后，通过 Git submodule + sparse-checkout 接入 `sources/<repo>/docs`
-- 当前外部源仓：`crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler`
+- 当前外部源仓：`crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler`、`sinan-captcha`
 
 ## 当前站点能力
 

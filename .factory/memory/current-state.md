@@ -61,7 +61,7 @@
 - Redis 接入策略已收口为“保持现有业务网络不动，由 oauth2-proxy 同时加入内部网络与 Redis 现有网络”
 - 服务器侧认证应用目录改为稀疏拉取的 `~/docs-stratego`，只保留 `deploy/docker-compose.yml`、`deploy/casdoor/`、`deploy/oauth2-proxy/`
 - 服务器侧静态站点目录改为 `/var/www/docs-stratego`，私有规则文件改为 `/etc/nginx/snippets/docs-stratego/private_locations.conf`
-- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler` 六个项目；local 模式直接读本机工作副本，remote 模式在 GitHub Actions 中真实拉取并校验这些源仓
+- 当前正式 `config/source-repos.json` 已登记 `docs-stratego`、`crawler4j`、`stratix`、`ride-loop`、`shanforge`、`ctrip_crawler`、`sinan-captcha` 七个项目；local 模式直接读本机工作副本，remote 模式在 GitHub Actions 中真实拉取并校验这些源仓
 - 当前源仓配置已升级为单文件双模式：同一 `config/source-repos.json` 同时声明 `modes.local` 与 `modes.remote`
 - 旧的平铺源仓配置兼容逻辑已删除；仓库定义如果缺少 `modes` 会直接报错，不再接受旧格式
 - 本地调试默认使用 `source_mode=local` 直接读取本机文档目录；本地生产预演与 GitHub Actions 正式发布都使用 `source_mode=remote`
@@ -98,6 +98,8 @@
 - 若 `crawler4j` 和 `stratix` 继续保留在正式 `source-repos.json` 中，GitHub Actions remote 构建会持续按生产标准校验它们
 - `shanforge` 接入后，也要同步验证本地 `../shanforge/docs` 与远程 `sources/shanforge/docs` 两条链路都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
 - `ctrip_crawler` 接入后，也要同步验证本地 `../../PythonProject/ctrip_crawler/docs` 与远程 `sources/ctrip_crawler/docs` 两条链路都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
+- `sinan-captcha` 已作为新文档源接入，本地模式指向 `/Users/uroborus/AiProject/sinan-captcha/docs`，远程模式指向 `https://github.com/uroborus2s/sinan-captcha.git@main`
+- `sinan-captcha` 现已在根仓索引中登记为真实 git submodule；`git submodule sync/update` 可按 `sources/sinan-captcha` 进行后续远程同步
 - 将 `ctrip_crawler` 当前本地工作副本里的 `docs/index.md` 导航补丁提交并推送到 `main`，再重新跑一次 `source_mode=remote` 构建与 CI
 - 在新接入源仓时，同时验证 `local` 与 `remote` 两种模式都能完成 `docs-stratego sync -> docs-stratego build -> mkdocs build`
 - 若工作项进入收尾，确认根仓文档与 `.factory/memory/` 已同步更新

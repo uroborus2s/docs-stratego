@@ -18,3 +18,7 @@
 	path = sources/ctrip_crawler
 	url = https://github.com/uroborus2s/ctrip_crawler.git
 	branch = main
+[submodule "sources/sinan-captcha"]
+	path = sources/sinan-captcha
+	url = https://github.com/uroborus2s/sinan-captcha.git
+	branch = main
